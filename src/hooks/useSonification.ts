@@ -3,6 +3,7 @@ import { ChunkPlayer, type PlayerState } from '../audio/ChunkPlayer';
 import { ApiError, periodYear, periodToYear, yearToPeriod, type ApiErrorKind } from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
 import type { Track, TrackState } from '../types/tracks';
+import { isAnomalyUnits } from '../utils/reading';
 
 export const DEFAULT_YEAR_RANGE = { start: 1880, end: 2025 };
 
@@ -42,8 +43,9 @@ function timelineOf(tracks: Track[], enabledIds: ReadonlySet<string>) {
   return {
     start: picked.start,
     end: Math.floor(picked.endRaw),
-    // end of the last month of data, so progress and seek(1) reach the final months
-    fractionalEnd: Math.ceil(picked.endRaw * 12) / 12,
+    // end of the last month of data (last_time_period is the START of that month),
+    // so progress and seek(1) reach the final month
+    fractionalEnd: picked.endRaw + 1 / 12,
   };
 }
 
@@ -72,12 +74,11 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
   const [position, setPosition] = useState<number | null>(null);
   const [error, setError] = useState<SonificationError | null>(null);
   const [hasEnded, setHasEnded] = useState(false);
+  // Values (per dataset_id) of the chunk that is audible now
   const [chunk, setChunk] = useState<{
-    value: number | null;
-    units: string | null;
-    anomaly: boolean;
+    values: Record<string, number>;
     year: number | null;
-  }>({ value: null, units: null, anomaly: false, year: null });
+  }>({ values: {}, year: null });
 
   // null = user has not touched the selection yet: use each track's default
   const [userEnabled, setUserEnabled] = useState<Set<string> | null>(null);
@@ -94,6 +95,16 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     [tracks, enabledIds]
   );
   const datasetKey = datasetIds.join(',');
+  // Where the last chunk ends: the latest data of the enabled tracks
+  const endPeriod = useMemo(
+    () =>
+      tracks
+        .filter((t) => datasetIds.includes(t.id) && t.period)
+        .map((t) => t.period!.end)
+        .sort()
+        .at(-1) ?? null,
+    [tracks, datasetIds]
+  );
 
   const yearRange = useMemo(() => computeYearRange(tracks, enabledIds), [tracks, enabledIds]);
   const timelineEnd = useMemo(() => computeTimelineEnd(tracks, enabledIds), [tracks, enabledIds]);
@@ -117,12 +128,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     player.onStateChange = (s) => setPlayerState(s);
     player.onChunk = (r) => {
       setError(null);
-      setChunk({
-        value: r.value,
-        units: r.units,
-        anomaly: r.anomaly,
-        year: periodYear(r.time_period),
-      });
+      setChunk({ values: r.values ?? {}, year: periodYear(r.time_period) });
     };
     player.onError = (err) => {
       setError({
@@ -145,10 +151,10 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
 
   // Zone / tracks -> player (restarts from the current position when playing)
   useEffect(() => {
-    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds });
+    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds, endPeriod });
     // datasetKey stands for datasetIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoneId, zoneName, points, datasetKey]);
+  }, [zoneId, zoneName, points, datasetKey, endPeriod]);
 
   const canPlay = datasetIds.length > 0 && points.length > 0;
 
@@ -216,6 +222,10 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     [tracks]
   );
 
+  const mainTrackId = datasetIds.find((id) => chunk.values[id] !== undefined) ?? null;
+  const currentValue = mainTrackId ? chunk.values[mainTrackId] : null;
+  const units = tracks.find((t) => t.id === mainTrackId)?.units ?? null;
+
   const currentPosition = position ?? yearRange.start;
   const span = timelineEnd - yearRange.start;
   const progress = span > 0 ? Math.min(1, Math.max(0, (currentPosition - yearRange.start) / span)) : 0;
@@ -236,9 +246,13 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     yearRange,
 
     // Latest value reported by the backend
-    currentValue: chunk.value,
-    units: chunk.units,
-    isAnomaly: chunk.anomaly,
+    /** Track the announced value belongs to: the first enabled track with a value */
+    mainTrackId,
+    currentValue,
+    /** Values of every enabled track for the current chunk, by dataset_id */
+    chunkValues: chunk.values,
+    units,
+    isAnomaly: isAnomalyUnits(units),
     /** Year the current chunk started at (changes every ~30 s, for announcements) */
     chunkYear: chunk.year,
 

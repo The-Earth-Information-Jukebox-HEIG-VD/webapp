@@ -50,7 +50,7 @@ import './App.css';
  * Integrates all features:
  * - Internationalized UI (EN/FR/DE)
  * - Globe or List visualization with zone selection
- * - Multi-track audio sonification (9 NASA SVS datasets)
+ * - Multi-track audio sonification (NASA datasets)
  * - Enhanced player with timeline
  * - Key climate moments
  * - Full accessibility support (always enabled)
@@ -81,6 +81,7 @@ function AppContent() {
     hasEnded,
     canPlay,
     position,
+    mainTrackId,
     currentValue,
     units,
     isAnomaly,
@@ -144,9 +145,9 @@ function AppContent() {
   }, [seekToYear]);
 
   // Backend value of the current chunk, e.g. "+1.2 °C vs normal" (screen reader announcement)
-  // With several tracks, name the track the value belongs to (the first enabled one)
+  // With several tracks, name the track the value belongs to (the first enabled one with a value)
   const enabledTracks = tracks.filter((tr) => trackStates.some((s) => s.id === tr.id && s.enabled));
-  const mainTrack = enabledTracks[0];
+  const mainTrack = tracks.find((tr) => tr.id === mainTrackId);
   const readingText =
     currentValue !== null
       ? formatReading(currentValue, units, isAnomaly, t, { speakable: true })

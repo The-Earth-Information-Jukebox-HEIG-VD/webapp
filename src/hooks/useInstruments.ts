@@ -14,10 +14,9 @@ export const TRACK_COLORS: Record<string, string> = {
   temperature: '#e67e22',
   precipitation: '#3498db',
   co2: '#8e44ad',
-  dust: '#b7950b',
-  smoke: '#7f8c8d',
+  snow: '#5dade2',
   lightning: '#f1c40f',
-  snowfall: '#5dade2',
+  night_lights: '#d4ac0d',
 };
 export const FALLBACK_TRACK_COLOR = '#95a5a6';
 
@@ -29,17 +28,19 @@ export function instrumentToTrack(info: InstrumentInfo): Track {
   return {
     id: info.dataset_id,
     nameKey: `tracks.${info.dataset_id}`,
-    label: info.label,
+    label: info.name,
     instrument: info.instrument,
     role: info.role,
-    available: info.available,
-    realData: info.real_data,
+    // The server lists only datasets it has data for
+    available: true,
     alwaysPlaying: info.always_playing,
     units: info.units,
     period:
-      info.time_start && info.time_end ? { start: info.time_start, end: info.time_end } : null,
+      info.first_time_period && info.last_time_period
+        ? { start: info.first_time_period, end: info.last_time_period }
+        : null,
     color: TRACK_COLORS[info.dataset_id] ?? FALLBACK_TRACK_COLOR,
-    defaultEnabled: info.available && DEFAULT_ENABLED.has(info.dataset_id),
+    defaultEnabled: DEFAULT_ENABLED.has(info.dataset_id),
   };
 }
 

@@ -56,4 +56,12 @@ i18n
     },
   });
 
+// Keep <html lang> in sync so screen readers pronounce French and German
+// correctly (WCAG 3.1.1). Also applies the language detected at start-up.
+const syncDocumentLang = (lng: string) => {
+  if (typeof document !== 'undefined') document.documentElement.lang = lng.split('-')[0];
+};
+i18n.on('languageChanged', syncDocumentLang);
+if (i18n.language) syncDocumentLang(i18n.language);
+
 export default i18n;

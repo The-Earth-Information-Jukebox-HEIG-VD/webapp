@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Jukebox des Informations Terrestres",
+    "title": "EarthChestra",
     "subtitle": "Écoutez l'histoire de notre climat en évolution",
     "skipToContent": "Aller au contenu principal",
     "climateVisualization": "Visualisation climatique",
@@ -321,16 +321,13 @@
     "description": "Activez plusieurs pistes pour entendre différentes mesures climatiques ensemble. Chacune utilise son propre instrument.",
     "precipitation": "Précipitations",
     "co2": "CO₂",
-    "dust": "Poussières",
-    "smoke": "Fumées",
-    "snowfall": "Chutes de neige",
     "noneSelected": "Aucune piste sélectionnée. Sélectionnez au moins une piste pour lancer la lecture.",
-    "realData": "Données réelles",
-    "simulated": "Données simulées",
     "period": "De {{start}} à {{end}}",
     "unavailable": "Indisponible sur le serveur",
     "loading": "Chargement des pistes…",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "snow": "Neige",
+    "night_lights": "Lumières nocturnes"
   },
   "moments": {
     "title": "Moments Climatiques Clés",
@@ -378,7 +375,7 @@
   },
   "footer": {
     "credits": "NASA Space Apps Challenge 2026",
-    "dataSource": "Données : NASA GISTEMP, SVS"
+    "dataSource": "Données : NASA GISTEMP, GPM IMERG, ISS LIS, Earth at Night"
   },
   "language": {
     "select": "Choisir la langue",
@@ -398,23 +395,48 @@
     "unknown": "Une erreur s'est produite lors du chargement de l'audio. Veuillez réessayer."
   },
   "about": {
-    "title": "À propos du Earth Information Jukebox",
-    "intro": "Le Earth Information Jukebox transforme les données climatiques de la NASA en son : vous pouvez entendre, et pas seulement voir, comment la température de notre planète a évolué depuis 1880.",
-    "howTitle": "Fonctionnement",
-    "howText": "L'anomalie de température de chaque année — l'écart par rapport à la moyenne 1951–1980 — est associée à une hauteur musicale.",
-    "howWarmer": "Les années plus chaudes sonnent plus aigu.",
-    "howCooler": "Les années plus froides sonnent plus grave.",
-    "howTracks": "Plusieurs jeux de données de la NASA peuvent être joués ensemble sous forme de pistes ; utilisez le panneau des pistes pour les mixer.",
+    "title": "À propos d'EarthChestra",
+    "intro": "EarthChestra transforme les observations de la Terre de la NASA en musique orchestrale. Choisissez un endroit sur Terre, écoutez comment son climat a changé et regardez les données s'afficher sur le globe pendant la musique.",
+    "howTitle": "Comment ça marche",
+    "howZone": "Choisissez une zone sur le globe ou dans la liste : un continent, un pays, un océan ou une mer.",
+    "howTracks": "Choisissez les jeux de données à écouter dans le panneau Pistes Audio. Chaque jeu de données est joué par son propre instrument.",
+    "howPlay": "Lancez la lecture. Chaque jeu de données est moyenné sur votre zone, mois par mois, et chaque mois devient une mesure musicale.",
+    "howPitch": "Les valeurs élevées jouent des notes aiguës, par rapport à l'étendue propre à votre zone : une valeur donne donc toujours la même note.",
+    "howLoudness": "Plus il pleut ou plus il y a d'éclairs, plus la musique est forte et dense ; la neige ne joue que lorsqu'il neige.",
+    "howGlobe": "Pendant la musique, le globe affiche les données de votre zone : une couleur par jeu de données, et plus la valeur est forte, plus le point est opaque. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
+    "orchestraTitle": "L'orchestre",
+    "orchestraText": "Chaque jeu de données a son instrument :",
+    "instruments": {
+      "temperature": "Anomalie de température : accords de piano",
+      "co2": "CO₂ : contrebasse",
+      "rain": "Pluie : violons",
+      "snow": "Neige : glockenspiel",
+      "lightning": "Foudre : xylophone",
+      "nightLights": "Lumières nocturnes : harpe"
+    },
     "dataTitle": "Sources des données",
-    "dataText": "Toutes les données proviennent des archives publiques de sciences de la Terre de la NASA.",
-    "dataGistemp": "anomalies de température de surface mondiales depuis 1880.",
-    "dataSvs": "visualisations climatiques du NASA Earth Information Center.",
-    "dataPower": "données climatiques locales.",
+    "dataText": "Tous les jeux de données sont placés sur une même grille de 0,25° (environ 28 km) : un lieu a la même position dans chaque jeu de données.",
+    "sources": {
+      "gistemp": "anomalie de température de surface par rapport à la moyenne 1951–1980, mensuelle depuis 1880.",
+      "imerg": "pluie et neige de la mission Global Precipitation Measurement, moyennes mensuelles depuis juin 2000.",
+      "lis": "éclairs observés par le Lightning Imaging Sensor de la Station spatiale internationale, de mars 2017 à juillet 2023.",
+      "nightLights": "lumières nocturnes, une carte par an de 2012 à 2023.",
+      "co2": "concentration de dioxyde de carbone dans l'atmosphère, en parties par million, de septembre 2002 à mars 2022.",
+      "naturalEarth": "contours des continents, pays, océans et mers (domaine public)."
+    },
+    "techTitle": "Sous le capot",
+    "techFrontend": "Application web : React, TypeScript et Vite. Le globe 3D utilise react-globe.gl (three.js) et le son est joué par la Web Audio API.",
+    "techBackend": "Musique : un service Python (FastAPI) écrit une partition orchestrale (MIDI) pour votre zone et la convertit en audio avec des échantillons d'orchestre, en courts morceaux joués à la suite.",
+    "techData": "Globe : le navigateur lit les mêmes cartes mensuelles (fichiers NumPy) directement sur le serveur et ne télécharge que la partie qui couvre votre zone.",
+    "techDeploy": "Déploiement : Docker Compose fait tourner l'application web (nginx), le service de musique et un conteneur qui installe les jeux de données.",
+    "docsLink": "Lire la documentation technique complète",
+    "newTab": "s'ouvre dans un nouvel onglet",
     "a11yTitle": "Accessibilité",
-    "a11yText": "Le jukebox vise la conformité WCAG 2.1 AA : toutes les commandes fonctionnent au clavier (appuyez sur ? pour les raccourcis), la vue Liste offre une alternative au globe adaptée aux lecteurs d'écran, et les changements d'état sont annoncés.",
+    "a11yText": "EarthChestra vise la conformité WCAG 2.1 AA. Toutes les commandes s'utilisent au clavier. Dans le lecteur, Espace lance ou met en pause, les flèches avancent ou reculent dans le temps, Début et Fin vont au début ou à la fin, et M coupe le son. Pendant la lecture, Échap revient à la sélection de zone. La Vue Liste offre une alternative au globe adaptée aux lecteurs d'écran, les valeurs affichées sur le globe sont aussi disponibles dans un tableau, et les changements d'état sont annoncés.",
     "teamTitle": "Équipe",
-    "teamText": "Réalisé à la HEIG-VD pour le NASA Space Apps Challenge 2026.",
-    "back": "Retour au jukebox"
+    "teamText": "Réalisé à la HEIG-VD (Yverdon-les-Bains, Suisse) pour le NASA Space Apps Challenge 2026.",
+    "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther et Léo Zmoos.",
+    "back": "Retour au globe"
   },
   "globeData": {
     "legendTitle": "Jeux de données",
@@ -437,7 +459,8 @@
       "co2": "CO₂",
       "lightning": "Foudre",
       "rain": "Pluie",
-      "snow": "Neige"
+      "snow": "Neige",
+      "nightlights": "Lumières nocturnes"
     },
     "noSelectedDataset": "Aucune des pistes sélectionnées n'a de données à afficher sur le globe."
   }

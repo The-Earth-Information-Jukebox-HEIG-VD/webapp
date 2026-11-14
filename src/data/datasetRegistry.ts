@@ -97,10 +97,21 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     color: '#f4f8ff',
     display: { min: 0, max: 0.1, mode: 'linear' },
   },
+  {
+    // One map per year (2012-2023); 94% of cells are dark, p99.5 = 0.2
+    id: 'nightlights',
+    folder: 'nightlights_2012_2023',
+    prefix: 'nightlights',
+    labelKey: 'globeData.datasets.nightlights',
+    trackIds: ['night_lights', 'nightlights'],
+    units: '',
+    color: '#7cff6b',
+    display: { min: 0, max: 0.5, mode: 'linear' },
+  },
 ];
 
 /** Colors for folders that appear in the volume but are not listed above. */
-const FALLBACK_COLORS = ['#7cff6b', '#ff8fd8', '#ffb347', '#6bffe0', '#c9a0ff'];
+const FALLBACK_COLORS = ['#ff8fd8', '#ffb347', '#6bffe0', '#c9a0ff', '#a0a0ff'];
 
 /**
  * Registry entry for a volume folder. Unknown folders get a fallback color;

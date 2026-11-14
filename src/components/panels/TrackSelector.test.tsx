@@ -7,15 +7,14 @@ import { instrumentToTrack } from '../../hooks/useInstruments';
 import type { InstrumentInfo } from '../../services/sonificationApi';
 
 const info = (over: Partial<InstrumentInfo>): InstrumentInfo => ({
-  dataset_id: 'temperature', variable: 'surface_temperature', label: 'Temperature',
-  instrument: 'Piano (chords)', role: 'harmony', always_playing: true, units: 'degC',
-  available: true, real_data: true, time_start: '1880-01-15T00:00:00Z', time_end: '2025-12-15T00:00:00Z',
-  found_in: [], midi_program: 0, pitch_range: [48, 72], ...over,
+  dataset_id: 'temperature', name: 'Temperature', instrument: 'Piano (chords)', units: 'degC anomaly',
+  first_time_period: '1880-01', last_time_period: '2025-12', midi_program: 0, pitch_range: [48, 72],
+  role: 'harmony', always_playing: true, ...over,
 });
 
 const tracks = [
   instrumentToTrack(info({})),
-  instrumentToTrack(info({ dataset_id: 'snowfall', label: 'Snowfall', available: false })),
+  { ...instrumentToTrack(info({ dataset_id: 'snow', name: 'Snow' })), available: false },
 ];
 
 describe('TrackSelector accessibility', () => {
@@ -24,7 +23,7 @@ describe('TrackSelector accessibility', () => {
     const { container } = render(
       <TrackSelector
         tracks={tracks}
-        trackStates={[{ id: 'temperature', enabled: true }, { id: 'snowfall', enabled: false }]}
+        trackStates={[{ id: 'temperature', enabled: true }, { id: 'snow', enabled: false }]}
         status="ready"
         onTrackToggle={onToggle}
         onRetry={() => {}}
@@ -33,7 +32,7 @@ describe('TrackSelector accessibility', () => {
     const temp = screen.getByRole('checkbox', { name: /temperature/i });
     expect(temp).toBeChecked();
     expect(screen.getAllByText('Piano (chords)')[0]).toBeInTheDocument();
-    const snow = screen.getByRole('checkbox', { name: /snowfall/i });
+    const snow = screen.getByRole('checkbox', { name: /snow/i });
     expect(snow).toBeDisabled();
     expect(snow).toHaveAccessibleDescription(/not available/i);
     fireEvent.click(temp);

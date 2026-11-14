@@ -8,19 +8,17 @@ export interface Track {
   id: string;
   /** i18n key of the translated name (falls back to `label`) */
   nameKey: string;
-  /** Backend label, used when no translation exists */
+  /** Backend name, used when no translation exists */
   label: string;
   /** Instrument name from the backend, e.g. "Piano (chords)" */
   instrument: string;
   role: string;
-  /** false: the server has no data for this variable */
+  /** The server lists only datasets it has data for, so this is true for all of them */
   available: boolean;
-  /** true: observed data, false: modelled */
-  realData: boolean;
   /** false: only audible while the phenomenon is present */
   alwaysPlaying: boolean;
   units: string | null;
-  /** Data period as ISO strings, or null when unknown */
+  /** Data period as "YYYY-MM" strings, or null when unknown */
   period: { start: string; end: string } | null;
   color: string;
   defaultEnabled: boolean;

@@ -64,6 +64,7 @@
     "degC": "degrees Celsius",
     "K": "kelvin",
     "ppm": "parts per million",
-    "percent": "percent"
+    "percent": "percent",
+    "mmPerDay": "millimetres per day"
   }
 }

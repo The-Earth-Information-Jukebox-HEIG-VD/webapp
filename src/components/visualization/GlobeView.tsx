@@ -56,13 +56,14 @@ const POLYGON_SIDE_COLOR = () => 'rgba(100, 150, 200, 0.15)';
 const POLYGON_STROKE_COLOR = () => 'rgba(255, 255, 255, 0.5)';
 const NO_POLYGONS: object[] = [];
 
-/** Positions of up to 5 datasets inside one grid cell (fractions of the cell). */
+/** Positions of up to 6 datasets inside one grid cell, as [lat, lng] fractions of the cell (3 x 2). */
 const DOT_OFFSETS: [number, number][] = [
-  [-0.25, -0.25],
-  [0.25, -0.25],
-  [-0.25, 0.25],
-  [0.25, 0.25],
-  [0, 0],
+  [-0.25, -0.33],
+  [-0.25, 0],
+  [-0.25, 0.33],
+  [0.25, -0.33],
+  [0.25, 0],
+  [0.25, 0.33],
 ];
 
 /** One dot = one dataset at one zone cell. Objects are stable per zone. */
@@ -271,7 +272,7 @@ export function GlobeView({
   }, [frame, datasets]);
 
   const pointRadius = useMemo(() => {
-    const r = (grid?.stride ?? 1) * GRID_RES_DEG * 0.22;
+    const r = (grid?.stride ?? 1) * GRID_RES_DEG * 0.16; // 3 x 2 dots per cell must not overlap
     return () => r;
   }, [grid]);
 

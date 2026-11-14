@@ -1,12 +1,14 @@
 import {
-  sonify,
+  fetchZoneData,
+  monthsBetween,
+  addMonths,
   periodToYear,
   yearToPeriod,
   base64ToArrayBuffer,
   isAbortError,
   ApiError,
-  type SonifyRequest,
-  type SonifyResponse,
+  type ZoneDataRequest,
+  type ZoneDataResponse,
 } from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
 
@@ -17,9 +19,11 @@ import type { GridPoint } from '../types/zones';
  * timing); React subscribes through the `on*` callbacks.
  *
  * - Chunks are decoded from the embedded base64 `audio_data`.
- * - Chunk N+1 is scheduled at `chunkStart + duration_s` (not at the end of the
- *   buffer): the MP3 carries a ~1.7 s reverb tail beyond `duration_s`, which is
- *   left to overlap the start of the next chunk.
+ * - Chunk N+1 is scheduled at `chunkStart + months * 3 s` (not at the end of the
+ *   buffer): the MP3 carries a ~1.7 s reverb tail beyond the music, which is
+ *   left to overlap the start of the next chunk. The response has no duration:
+ *   one bar = one month = 3 s (FRONTEND_API.md), so the length comes from
+ *   `time_period` -> `next_time_period`.
  * - The next chunk is prefetched once the current one is 20% played, using the
  *   backend's `next_time_period` (null = end of the data).
  * - Seeking or changing zone/tracks aborts in-flight requests and starts over.
@@ -34,6 +38,8 @@ export interface PlayerParams {
   points: GridPoint[];
   /** dataset_id of every enabled track */
   datasetIds: string[];
+  /** Latest last_time_period ("YYYY-MM") of the enabled tracks: where the final chunk ends */
+  endPeriod: string | null;
 }
 
 export interface ProgressInfo {
@@ -41,7 +47,7 @@ export interface ProgressInfo {
   position: number;
 }
 
-export type ChunkFetcher = (req: SonifyRequest, signal: AbortSignal) => Promise<SonifyResponse>;
+export type ChunkFetcher = (req: ZoneDataRequest, signal: AbortSignal) => Promise<ZoneDataResponse>;
 
 export interface ChunkPlayerOptions {
   fetchChunk?: ChunkFetcher;
@@ -50,7 +56,7 @@ export interface ChunkPlayerOptions {
 }
 
 interface ScheduledChunk {
-  response: SonifyResponse;
+  response: ZoneDataResponse;
   source: AudioBufferSourceNode;
   startTime: number;
   duration: number;
@@ -65,13 +71,15 @@ const PREFETCH_MAX_RETRIES = 3;
 const PREFETCH_RETRY_BASE_MS = 1000;
 const REQUEST_TIMEOUT_MS = 30000;
 const VOLUME_SMOOTHING_S = 0.015;
-/** Seconds of music per bar (the backend plays 10 bars in 30 s) */
-const SECONDS_PER_BAR = 3;
+/** One bar of music is one month of data and lasts 3 s (30 s = 10 months), see FRONTEND_API.md */
+export const SECONDS_PER_MONTH = 3;
+/** Reverb tail the MP3 carries beyond its musical length */
+const REVERB_TAIL_S = 1.7;
 
 export class ChunkPlayer {
   onProgress?: (info: ProgressInfo) => void;
   onStateChange?: (state: PlayerState) => void;
-  onChunk?: (response: SonifyResponse) => void;
+  onChunk?: (response: ZoneDataResponse) => void;
   onError?: (error: Error) => void;
   onComplete?: () => void;
 
@@ -102,7 +110,7 @@ export class ChunkPlayer {
   private disposed = false;
 
   constructor(options: ChunkPlayerOptions = {}) {
-    this.fetchChunk = options.fetchChunk ?? sonify;
+    this.fetchChunk = options.fetchChunk ?? fetchZoneData;
     this.tickMs = options.tickMs ?? 100;
   }
 
@@ -311,7 +319,7 @@ export class ChunkPlayer {
       const buffer = await ctx.decodeAudioData(base64ToArrayBuffer(fetched.audio_data));
       if (gen !== this.generation) return;
       // The base64 is no longer needed once decoded
-      this.schedule({ ...fetched, audio_data: null }, buffer);
+      this.schedule({ ...fetched, audio_data: '' }, buffer);
     } catch (err) {
       if (gen !== this.generation) return;
       if (isAbortError(err) && !request.timedOut()) return;
@@ -341,16 +349,17 @@ export class ChunkPlayer {
     }
   }
 
-  private schedule(response: SonifyResponse, buffer: AudioBuffer): void {
+  private schedule(response: ZoneDataResponse, buffer: AudioBuffer): void {
     const ctx = this.ctx;
     const master = this.master;
     if (!ctx || !master) return;
 
+    const timing = computeChunkTiming(response, buffer.duration, this.params?.endPeriod ?? null);
+    const duration = timing.duration;
     const last = this.chunks[this.chunks.length - 1];
     const startTime = last
       ? Math.max(last.startTime + last.duration, ctx.currentTime + MIN_LEAD_S)
       : ctx.currentTime + FIRST_CHUNK_DELAY_S;
-    const duration = response.duration_s;
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -365,7 +374,7 @@ export class ChunkPlayer {
       startTime,
       duration,
       startPos,
-      endPos: computeEndPos(response, startPos, duration),
+      endPos: timing.endMonths === null ? startPos : startPos + timing.endMonths / 12,
     };
 
     source.onended = () => this.handleEnded(chunk);
@@ -440,11 +449,11 @@ export class ChunkPlayer {
   }
 }
 
-function buildRequest(params: PlayerParams, period: string): SonifyRequest {
+function buildRequest(params: PlayerParams, period: string): ZoneDataRequest {
   return {
     zone_id: params.zoneId,
     zone_name: params.zoneName,
-    dataset_id: params.datasetIds,
+    dataset_ids: params.datasetIds,
     points: params.points,
     time_period: period,
     aggregation: 'mean',
@@ -452,19 +461,28 @@ function buildRequest(params: PlayerParams, period: string): SonifyRequest {
 }
 
 /**
- * End of a chunk as a fractional year. With a next period it is that period; on
- * the last chunk `time_end` is the START of the last bar, so add one bar.
+ * Length and extent of a chunk. The response carries no duration, so it is
+ * derived from the months it covers (3 s each):
+ * - with `next_time_period`: months from `time_period` to it;
+ * - last chunk (next is null): months from `time_period` to the month after the
+ *   enabled tracks' last data.
+ * Never longer than the decoded audio: if the computed length does not fit,
+ * fall back to the buffer minus its reverb tail.
+ *
+ * @returns `duration` in seconds and `endMonths`, the months covered (null if unknown)
  */
-export function computeEndPos(response: SonifyResponse, startPos: number, duration: number): number {
-  if (response.next_time_period) {
-    const next = periodToYear(response.next_time_period);
-    return Number.isNaN(next) || next < startPos ? startPos : next;
-  }
-  const lastBar = periodToYear(response.time_end ?? response.time_period ?? '');
-  if (Number.isNaN(lastBar)) return startPos;
-  const bars = Math.round(duration / SECONDS_PER_BAR);
-  const step = bars > 1 ? (lastBar - startPos) / (bars - 1) : 1 / 12;
-  return lastBar + (step > 0 ? step : 1 / 12);
+export function computeChunkTiming(
+  response: ZoneDataResponse,
+  bufferDuration: number,
+  endPeriod: string | null
+): { duration: number; endMonths: number | null } {
+  const target = response.next_time_period ?? (endPeriod ? addMonths(endPeriod, 1) : null);
+  const months = target ? monthsBetween(response.time_period, target) : NaN;
+  const valid = Number.isFinite(months) && months > 0;
+  const computed = valid ? months * SECONDS_PER_MONTH : NaN;
+  const fallback = Math.max(1, bufferDuration - REVERB_TAIL_S);
+  const duration = Number.isFinite(computed) && computed < bufferDuration ? computed : fallback;
+  return { duration, endMonths: valid ? months : null };
 }
 
 interface TimedRequest {

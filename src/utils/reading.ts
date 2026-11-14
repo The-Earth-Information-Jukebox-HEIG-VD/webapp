@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 /** Backend unit codes -> short visible symbols. */
 const UNIT_SYMBOLS: Record<string, string> = {
   degC: '°C',
+  'mm/day': 'mm/day',
   degK: 'K',
   K: 'K',
   ppm: 'ppm',
@@ -12,6 +13,7 @@ const UNIT_SYMBOLS: Record<string, string> = {
 /** Backend unit codes -> i18n key (player:units.*) of the spoken name. */
 const SPOKEN_KEYS: Record<string, string> = {
   degC: 'degC',
+  'mm/day': 'mmPerDay',
   degK: 'K',
   K: 'K',
   ppm: 'ppm',
@@ -19,23 +21,34 @@ const SPOKEN_KEYS: Record<string, string> = {
 
 const MINUS = '−';
 
-/** Units like "presence (0-1)" are fractions: shown as a percentage. */
+/** Units like "brightness (0-1)" are fractions: shown as a percentage. */
 function isFraction(units: string | null | undefined): boolean {
-  return !!units && /\(0-1\)/.test(units);
+  return !!units && /\(0[-\u2013]1\)/.test(units);
+}
+
+/** "degC anomaly": the value is a departure from normal ("+1.2 °C vs normal"). */
+export function isAnomalyUnits(units: string | null | undefined): boolean {
+  return !!units && /anomaly/i.test(units);
+}
+
+/** "degC anomaly" -> "degC" */
+function baseUnits(units: string): string {
+  return units.replace(/\s*anomaly\s*/i, '').trim();
 }
 
 export function formatUnits(units: string | null | undefined): string {
   if (!units) return '';
   if (isFraction(units)) return '%';
-  return UNIT_SYMBOLS[units] ?? units;
+  const base = baseUnits(units);
+  return UNIT_SYMBOLS[base] ?? base;
 }
 
 /** Name of the unit as a screen reader should say it ("degrees Celsius"). */
 export function speakableUnits(units: string | null | undefined, t: TFunction): string {
   if (!units) return '';
   if (isFraction(units)) return t('player:units.percent');
-  const key = SPOKEN_KEYS[units];
-  return key ? t(`player:units.${key}`, { defaultValue: formatUnits(units) }) : units;
+  const key = SPOKEN_KEYS[baseUnits(units)];
+  return key ? t(`player:units.${key}`, { defaultValue: formatUnits(units) }) : formatUnits(units);
 }
 
 export interface ReadingOptions {

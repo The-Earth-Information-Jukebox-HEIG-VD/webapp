@@ -1,13 +1,12 @@
 /**
  * Sonification API client.
  *
- * Talks to the backend described in sonification/backend/API.md (v1.9):
- *   GET  /api/instruments  which instrument plays which dataset
- *   GET  /api/health       server status
- *   POST /api/sonify       selected points + one period in, 30 s of audio out
+ * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.1):
+ *   GET  /api/instruments       which instrument plays which dataset
+ *   GET  /api/health            server status
+ *   POST /api/zones/zone-data   selected points + one period in, 30 s of audio out
  *
- * The embedded base64 `audio_data` is always used, never `audio_url`: the URL is
- * built from the backend's own Host header and may be unreachable behind nginx.
+ * The embedded base64 `audio_data` is played as is.
  */
 
 import type { GridPoint } from '../types/zones';
@@ -15,73 +14,51 @@ import type { GridPoint } from '../types/zones';
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 // ---------------------------------------------------------------------------
-// Types (mirror API.md)
+// Types (exactly the shapes the live server returns)
 // ---------------------------------------------------------------------------
 
-export interface SonifyRequest {
-  zone_id?: string | null;
-  zone_name?: string | null;
-  /** One id or several (played together). Omitted/"all" plays the whole orchestra. */
-  dataset_id?: string | string[];
-  points?: GridPoint[];
-  /** "YYYY", "YYYY-MM" or "YYYY-MM-DD". Omitted = first date of the data. */
-  time_period?: string;
-  /** Only "mean" exists; anything else is a 422. */
-  aggregation?: 'mean';
-  duration_s?: number;
-  audio_format?: 'mp3' | 'wav';
-  embed_audio?: boolean;
-  options?: Record<string, unknown>;
-}
-
-export interface SonifyResponse {
+export interface ZoneDataRequest {
   zone_id: string | null;
   zone_name: string | null;
-  dataset_id: string | string[] | null;
-  /** The date the music really starts at (can be later than requested). */
-  time_period: string | null;
-  /** Period right after this chunk; null at the end of the data. */
-  next_time_period: string | null;
-  /** Base64 of the audio file (null only when embed_audio was false). */
-  audio_data: string | null;
-  audio_format: 'mp3' | 'wav';
-  audio_url: string;
-  value: number | null;
-  units: string | null;
-  values: Record<string, number | null>;
-  point_count: number;
-  cell_count: number | null;
+  /** dataset_id of every track to combine into one piece */
+  dataset_ids: string[];
+  /** Sent unchanged: the backend uses lat/lng and ignores x/y */
+  points: GridPoint[];
+  /** "YYYY-MM" */
+  time_period: string;
+  /** Only "mean" exists; anything else is a 422 */
   aggregation: 'mean';
-  /** Last frame played. */
-  time_end: string | null;
-  /** Seconds of music before the next chunk should start. */
-  duration_s: number;
-  composition_id: string;
-  cached: boolean;
-  source_dataset: string;
-  source_datasets: Record<string, string> | null;
-  real_data: boolean;
-  /** true: value is a departure from normal (show "+1.2 °C vs normal"). */
-  anomaly: boolean;
+}
+
+export interface ZoneDataResponse {
+  zone_id: string | null;
+  /** The datasets that were actually combined (those without data are left out) */
+  dataset_ids: string[];
+  /** Where the music really starts (later than requested if before the data) */
+  time_period: string;
+  /** Period to request next; null when the data ends */
+  next_time_period: string | null;
+  /** Base64 MP3 */
+  audio_data: string;
+  /** Mean over the points at time_period, per dataset_id, in the units of /api/instruments */
+  values: Record<string, number>;
+  point_count: number;
 }
 
 export interface InstrumentInfo {
   dataset_id: string;
-  variable: string;
-  label: string;
+  /** Display name, e.g. "Temperature" */
+  name: string;
   instrument: string;
-  role: string;
-  always_playing: boolean;
-  units: string | null;
-  available: boolean;
-  real_data: boolean;
-  /** ISO timestamps, e.g. "1880-01-15T00:00:00Z". */
-  time_start: string | null;
-  time_end: string | null;
-  found_in: string[];
-  also_accepted?: string[];
+  /** e.g. "degC anomaly", "ppm", "mm/day", "brightness (0-1)" */
+  units: string;
+  /** "YYYY-MM" */
+  first_time_period: string;
+  last_time_period: string;
   midi_program: number;
   pitch_range: [number, number];
+  role: string;
+  always_playing: boolean;
 }
 
 export interface InstrumentsResponse {
@@ -92,15 +69,12 @@ export interface InstrumentsResponse {
 
 export interface HealthResponse {
   status: string;
-  version: string;
-  datasets: number;
-  preparing_data: boolean;
-  merge_datasets: boolean;
-  audio_rendering: boolean;
+  version?: string;
+  datasets?: number;
+  preparing_data?: boolean;
+  full_api?: boolean;
+  audio_rendering?: boolean;
   mp3_encoding?: boolean;
-  orchestral_samples?: boolean;
-  data_dir?: string;
-  built_dir?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -189,13 +163,13 @@ async function request<T>(path: string, init: RequestInit, signal?: AbortSignal)
 // Endpoints
 // ---------------------------------------------------------------------------
 
-export function sonify(req: SonifyRequest, signal?: AbortSignal): Promise<SonifyResponse> {
-  return request<SonifyResponse>(
-    '/sonify',
+export function fetchZoneData(req: ZoneDataRequest, signal?: AbortSignal): Promise<ZoneDataResponse> {
+  return request<ZoneDataResponse>(
+    '/zones/zone-data',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aggregation: 'mean', ...req }),
+      body: JSON.stringify(req),
     },
     signal
   );
@@ -238,6 +212,22 @@ export function periodYear(period: string | null | undefined): number | null {
   if (!period) return null;
   const y = periodToYear(period);
   return Number.isNaN(y) ? null : Math.floor(y);
+}
+
+/** Whole months from period `a` to period `b` ("YYYY-MM"); negative if b is earlier. */
+export function monthsBetween(a: string, b: string): number {
+  const ma = /^(\d{4})-(\d{1,2})/.exec(a);
+  const mb = /^(\d{4})-(\d{1,2})/.exec(b);
+  if (!ma || !mb) return NaN;
+  return (Number(mb[1]) - Number(ma[1])) * 12 + (Number(mb[2]) - Number(ma[2]));
+}
+
+/** Period `n` months after `period` ("YYYY-MM"). */
+export function addMonths(period: string, n: number): string {
+  const m = /^(\d{4})-(\d{1,2})/.exec(period);
+  if (!m) return period;
+  const total = Number(m[1]) * 12 + (Number(m[2]) - 1) + n;
+  return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
 }
 
 /** Decode a base64 string to an ArrayBuffer. */

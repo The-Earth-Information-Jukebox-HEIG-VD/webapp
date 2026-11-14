@@ -1,23 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ChunkPlayer, computeEndPos, type PlayerParams } from './ChunkPlayer';
+import { ChunkPlayer, computeChunkTiming, type PlayerParams } from './ChunkPlayer';
 import { MockAudioContext } from '../test/setup';
-import type { SonifyRequest, SonifyResponse } from '../services/sonificationApi';
+import type { ZoneDataRequest, ZoneDataResponse } from '../services/sonificationApi';
 
 const params: PlayerParams = {
   zoneId: 'europe',
   zoneName: 'Europe',
   points: [{ lat: 48, lng: 2, x: 1, y: 1 }],
   datasetIds: ['temperature'],
+  endPeriod: '1951-02',
 };
 
-function chunk(period: string, next: string | null): SonifyResponse {
+function chunk(period: string, next: string | null): ZoneDataResponse {
   return {
-    zone_id: 'europe', zone_name: 'Europe', dataset_id: ['temperature'],
+    zone_id: 'europe', dataset_ids: ['temperature'],
     time_period: period, next_time_period: next,
-    audio_data: 'AAAA', audio_format: 'mp3', audio_url: '',
-    value: 1.2, units: 'degC', values: {}, point_count: 1, cell_count: 1,
-    aggregation: 'mean', time_end: period, duration_s: 30, composition_id: 'x',
-    cached: false, source_dataset: 'real', source_datasets: null, real_data: true, anomaly: true,
+    audio_data: 'AAAA', values: { temperature: 1.2 }, point_count: 1,
   };
 }
 
@@ -31,10 +29,10 @@ beforeEach(() => {
 
 describe('ChunkPlayer', () => {
   it('chains chunks via next_time_period, schedules at duration_s and completes on null', async () => {
-    const requests: SonifyRequest[] = [];
-    const fetchChunk = vi.fn(async (req: SonifyRequest) => {
+    const requests: ZoneDataRequest[] = [];
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => {
       requests.push(req);
-      return req.time_period === '1950-01' ? chunk('1950-01', '1960-01') : chunk('1960-01', null);
+      return req.time_period === '1950-01' ? chunk('1950-01', '1950-11') : chunk('1950-11', null);
     });
     const player = new ChunkPlayer({ fetchChunk });
     const onComplete = vi.fn();
@@ -44,7 +42,7 @@ describe('ChunkPlayer', () => {
     await player.play('1950-01');
     await flush();
     expect(requests[0].time_period).toBe('1950-01');
-    expect(requests[0].dataset_id).toEqual(['temperature']);
+    expect(requests[0].dataset_ids).toEqual(['temperature']);
     expect(requests[0].aggregation).toBe('mean');
     expect(MockAudioContext.sources).toHaveLength(1);
     expect(player.getState()).toBe('playing');
@@ -58,7 +56,7 @@ describe('ChunkPlayer', () => {
     ctx.currentTime = 0.05 + 16;
     player.tick();
     await flush();
-    expect(requests[1].time_period).toBe('1960-01');
+    expect(requests[1].time_period).toBe('1950-11');
     expect(MockAudioContext.sources).toHaveLength(2);
     // Second chunk starts exactly duration_s after the first (reverb tail overlaps)
     expect(MockAudioContext.sources[1].startedAt).toBeCloseTo(0.05 + 30, 5);
@@ -73,9 +71,9 @@ describe('ChunkPlayer', () => {
 
   it('aborts the request in flight on seek', async () => {
     const signals: AbortSignal[] = [];
-    const fetchChunk = vi.fn((_req: SonifyRequest, signal: AbortSignal) => {
+    const fetchChunk = vi.fn((_req: ZoneDataRequest, signal: AbortSignal) => {
       signals.push(signal);
-      return new Promise<SonifyResponse>(() => {});
+      return new Promise<ZoneDataResponse>(() => {});
     });
     const player = new ChunkPlayer({ fetchChunk });
     player.setParams(params);
@@ -104,21 +102,21 @@ describe('ChunkPlayer', () => {
   });
 
   it('restarts from the current position when the tracks change while playing', async () => {
-    const fetchChunk = vi.fn(async (req: SonifyRequest) => chunk(req.time_period ?? '', '1960-01'));
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => chunk(req.time_period ?? '', '1950-11'));
     const player = new ChunkPlayer({ fetchChunk });
     player.setParams(params);
     await player.play('1950-01');
     await flush();
     player.setParams({ ...params, datasetIds: ['temperature', 'precipitation'] });
     await flush();
-    expect(fetchChunk.mock.calls.at(-1)?.[0].dataset_id).toEqual(['temperature', 'precipitation']);
+    expect(fetchChunk.mock.calls.at(-1)?.[0].dataset_ids).toEqual(['temperature', 'precipitation']);
     expect(fetchChunk.mock.calls.at(-1)?.[0].time_period).toBe('1950-01');
     player.dispose();
   });
 
   it('reports a chunk through onChunk only when it becomes audible', async () => {
-    const fetchChunk = vi.fn(async (req: SonifyRequest) =>
-      req.time_period === '1950-01' ? chunk('1950-01', '1960-01') : chunk('1960-01', null)
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) =>
+      req.time_period === '1950-01' ? chunk('1950-01', '1950-11') : chunk('1950-11', null)
     );
     const player = new ChunkPlayer({ fetchChunk });
     const seen: string[] = [];
@@ -143,15 +141,15 @@ describe('ChunkPlayer', () => {
     expect(seen).toEqual(['1950-01']);
     ctx.currentTime = 0.05 + 30.1;
     player.tick();
-    expect(seen).toEqual(['1950-01', '1960-01']);
+    expect(seen).toEqual(['1950-01', '1950-11']);
     player.dispose();
   });
 
   it('keeps playing when a prefetch keeps failing and errors only when the audio runs out', async () => {
     vi.useFakeTimers();
     try {
-      const fetchChunk = vi.fn(async (req: SonifyRequest) => {
-        if (req.time_period === '1950-01') return chunk('1950-01', '1960-01');
+      const fetchChunk = vi.fn(async (req: ZoneDataRequest) => {
+        if (req.time_period === '1950-01') return chunk('1950-01', '1950-11');
         throw new Error('network down');
       });
       const player = new ChunkPlayer({ fetchChunk });
@@ -180,22 +178,22 @@ describe('ChunkPlayer', () => {
   });
 });
 
-describe('computeEndPos', () => {
-  it('uses next_time_period when there is one', () => {
-    expect(computeEndPos(chunk('1950-01', '1960-01'), 1950, 30)).toBeCloseTo(1960, 5);
+describe('computeChunkTiming', () => {
+  it('is 3 s per month up to next_time_period', () => {
+    const t = computeChunkTiming(chunk('2015-01', '2015-11'), 31.7, null);
+    expect(t.duration).toBe(30);
+    expect(t.endMonths).toBe(10);
   });
 
-  it('adds one bar after time_end on the last chunk (time_end is the START of the last bar)', () => {
-    const last = { ...chunk('2020-01', null), time_end: '2025-12' };
-    // 10 bars of 6 months... here 71 months / 9 gaps is the bar step
-    const end = computeEndPos(last, 2020, 30);
-    const lastBar = 2025 + 11 / 12;
-    expect(end).toBeGreaterThan(lastBar);
-    expect(end - lastBar).toBeCloseTo((lastBar - 2020) / 9, 5);
+  it('on the last chunk runs to the month after the last data', () => {
+    const t = computeChunkTiming(chunk('2025-06', null), 31.7, '2025-12');
+    expect(t.endMonths).toBe(7); // 2025-06 .. 2025-12 inclusive
+    expect(t.duration).toBe(21);
   });
 
-  it('falls back to one month for a single bar', () => {
-    const last = { ...chunk('2025-12', null), time_end: '2025-12' };
-    expect(computeEndPos(last, 2025 + 11 / 12, 3)).toBeCloseTo(2025 + 11 / 12 + 1 / 12, 5);
+  it('never exceeds the decoded audio: falls back to buffer minus the reverb tail', () => {
+    const t = computeChunkTiming(chunk('2015-01', '2016-01'), 31.7, null); // 12 months = 36 s
+    expect(t.duration).toBeCloseTo(30, 5);
+    expect(computeChunkTiming(chunk('2025-06', null), 20, null).duration).toBeCloseTo(18.3, 5);
   });
 });

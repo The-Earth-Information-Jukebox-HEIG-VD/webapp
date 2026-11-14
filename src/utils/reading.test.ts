@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import i18n from '../i18n';
-import { formatReading } from './reading';
+import { formatReading, isAnomalyUnits } from './reading';
 
 const t = i18n.t.bind(i18n) as Parameters<typeof formatReading>[3];
 
@@ -10,29 +10,41 @@ describe('formatReading', () => {
   });
 
   it('shows anomalies with a sign and "vs normal"', () => {
-    expect(formatReading(1.24, 'degC', true, t)).toBe('+1.2 °C vs normal');
-    expect(formatReading(-0.8, 'degC', true, t)).toBe('−0.8 °C vs normal');
+    expect(formatReading(1.24, 'degC anomaly', true, t)).toBe('+1.2 °C vs normal');
+    expect(formatReading(-0.8, 'degC anomaly', true, t)).toBe('−0.8 °C vs normal');
   });
 
   it('never shows +0.0 or -0.0', () => {
-    expect(formatReading(0.04, 'degC', true, t)).toBe('0.0 °C vs normal');
-    expect(formatReading(-0.04, 'degC', true, t)).toBe('0.0 °C vs normal');
+    expect(formatReading(0.04, 'degC anomaly', true, t)).toBe('0.0 °C vs normal');
+    expect(formatReading(-0.04, 'degC anomaly', true, t)).toBe('0.0 °C vs normal');
   });
 
   it('uses the decimal separator of the language', async () => {
     await i18n.changeLanguage('fr');
-    expect(formatReading(1.2, 'degC', true, t)).toMatch(/^\+1,2 °C /);
+    expect(formatReading(1.2, 'degC anomaly', true, t)).toMatch(/^\+1,2 °C /);
     await i18n.changeLanguage('de');
     expect(formatReading(12.34, 'mm', false, t)).toBe('12,3 mm');
   });
 
   it('speaks the unit in words for announcements', async () => {
-    expect(formatReading(1.2, 'degC', true, t, { speakable: true })).toBe('+1.2 degrees Celsius vs normal');
+    expect(formatReading(1.2, 'degC anomaly', true, t, { speakable: true })).toBe('+1.2 degrees Celsius vs normal');
     await i18n.changeLanguage('fr');
-    expect(formatReading(1.2, 'degC', true, t, { speakable: true })).toContain('degrés Celsius');
+    expect(formatReading(1.2, 'degC anomaly', true, t, { speakable: true })).toContain('degrés Celsius');
   });
 
-  it('shows (0-1) fractions as a percentage', () => {
-    expect(formatReading(0.456, 'presence (0-1)', false, t)).toBe('46 %');
+  it('shows (0-1) fractions as a percentage, with a hyphen or an en dash', () => {
+    expect(formatReading(0.456, 'brightness (0-1)', false, t)).toBe('46 %');
+    expect(formatReading(0.03, 'share of area with lightning (0\u20131)', false, t)).toBe('3 %');
+  });
+
+  it('keeps ppm and mm/day, and speaks mm/day in words', () => {
+    expect(formatReading(399.49, 'ppm', false, t)).toBe('399 ppm');
+    expect(formatReading(2.45, 'mm/day', false, t)).toBe('2.5 mm/day');
+    expect(formatReading(2.45, 'mm/day', false, t, { speakable: true })).toBe('2.5 millimetres per day');
+  });
+
+  it('detects anomaly units', () => {
+    expect(isAnomalyUnits('degC anomaly')).toBe(true);
+    expect(isAnomalyUnits('ppm')).toBe(false);
   });
 });

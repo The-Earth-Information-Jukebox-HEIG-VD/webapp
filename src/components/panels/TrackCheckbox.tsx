@@ -58,9 +58,6 @@ export function TrackCheckbox({ track, enabled, instrumentName, onToggle }: Trac
             {start !== null && end !== null && (
               <span>{t('tracks.period', { start, end })}</span>
             )}
-            <span className={`track-badge ${track.realData ? 'real' : 'simulated'}`}>
-              {track.realData ? t('tracks.realData') : t('tracks.simulated')}
-            </span>
           </>
         ) : (
           <span>{t('tracks.unavailable')}</span>

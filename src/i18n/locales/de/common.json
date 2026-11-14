@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Erd-Informations-Jukebox",
+    "title": "EarthChestra",
     "subtitle": "Hören Sie die Geschichte unseres sich wandelnden Klimas",
     "skipToContent": "Zum Hauptinhalt springen",
     "climateVisualization": "Klimavisualisierung",
@@ -321,16 +321,13 @@
     "description": "Aktivieren Sie mehrere Spuren, um verschiedene Klimamessungen gleichzeitig zu hören. Jede verwendet ein eigenes Instrument.",
     "precipitation": "Niederschlag",
     "co2": "CO₂",
-    "dust": "Staub",
-    "smoke": "Rauch",
-    "snowfall": "Schneefall",
     "noneSelected": "Keine Spur ausgewählt. Wählen Sie mindestens eine Spur zum Abspielen.",
-    "realData": "Echtdaten",
-    "simulated": "Simuliert",
     "period": "{{start}} bis {{end}}",
     "unavailable": "Auf dem Server nicht verfügbar",
     "loading": "Spuren werden geladen…",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "snow": "Schnee",
+    "night_lights": "Nächtliche Lichter"
   },
   "moments": {
     "title": "Wichtige Klimamomente",
@@ -378,7 +375,7 @@
   },
   "footer": {
     "credits": "NASA Space Apps Challenge 2026",
-    "dataSource": "Daten: NASA GISTEMP, SVS"
+    "dataSource": "Daten: NASA GISTEMP, GPM IMERG, ISS LIS, Earth at Night"
   },
   "language": {
     "select": "Sprache auswählen",
@@ -398,23 +395,48 @@
     "unknown": "Beim Laden des Audios ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
   },
   "about": {
-    "title": "Über die Earth Information Jukebox",
-    "intro": "Die Earth Information Jukebox verwandelt Klimadaten der NASA in Klang – so können Sie hören, nicht nur sehen, wie sich die Temperatur unseres Planeten seit 1880 verändert hat.",
+    "title": "Über EarthChestra",
+    "intro": "EarthChestra verwandelt Erdbeobachtungen der NASA in Orchestermusik. Wählen Sie einen Ort auf der Erde, hören Sie, wie sich sein Klima verändert hat, und sehen Sie die Daten während der Musik auf dem Globus.",
     "howTitle": "So funktioniert es",
-    "howText": "Die Temperaturanomalie jedes Jahres – die Abweichung vom Mittel 1951–1980 – wird einer Tonhöhe zugeordnet.",
-    "howWarmer": "Wärmere Jahre klingen höher.",
-    "howCooler": "Kühlere Jahre klingen tiefer.",
-    "howTracks": "Mehrere NASA-Datensätze können als separate Spuren zusammen abgespielt werden; mischen Sie sie im Spurenbereich.",
+    "howZone": "Wählen Sie eine Zone auf dem Globus oder in der Liste: einen Kontinent, ein Land, einen Ozean oder ein Meer.",
+    "howTracks": "Wählen Sie im Bereich Audio-Spuren die Datensätze, die Sie hören möchten. Jeder Datensatz wird von einem eigenen Instrument gespielt.",
+    "howPlay": "Starten Sie die Wiedergabe. Jeder Datensatz wird Monat für Monat über Ihre Zone gemittelt, und jeder Monat wird zu einem Takt Musik.",
+    "howPitch": "Höhere Werte klingen höher, gemessen am eigenen Wertebereich Ihrer Zone: Ein Wert ergibt also immer denselben Ton.",
+    "howLoudness": "Mehr Regen oder Blitze klingen lauter und dichter; Schnee ist nur zu hören, wenn es schneit.",
+    "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone: eine Farbe pro Datensatz, und je stärker der Wert, desto deckender der Punkt. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
+    "orchestraTitle": "Das Orchester",
+    "orchestraText": "Jeder Datensatz hat sein eigenes Instrument:",
+    "instruments": {
+      "temperature": "Temperaturanomalie: Klavierakkorde",
+      "co2": "CO₂: Kontrabass",
+      "rain": "Regen: Violinen",
+      "snow": "Schnee: Glockenspiel",
+      "lightning": "Blitze: Xylofon",
+      "nightLights": "Nachtlichter: Harfe"
+    },
     "dataTitle": "Datenquellen",
-    "dataText": "Alle Daten stammen aus öffentlichen Erdwissenschafts-Archiven der NASA.",
-    "dataGistemp": "globale Oberflächentemperatur-Anomalien seit 1880.",
-    "dataSvs": "Klimavisualisierungen des NASA Earth Information Center.",
-    "dataPower": "standortbezogene Klimadaten.",
+    "dataText": "Alle Datensätze liegen auf demselben Kartenraster von 0,25° (etwa 28 km), sodass ein Ort in jedem Datensatz dieselbe Position hat.",
+    "sources": {
+      "gistemp": "Anomalie der Oberflächentemperatur gegenüber dem Mittel 1951–1980, monatlich seit 1880.",
+      "imerg": "Regen und Schnee der Mission Global Precipitation Measurement, Monatsmittel seit Juni 2000.",
+      "lis": "Blitze, beobachtet vom Lightning Imaging Sensor auf der Internationalen Raumstation, März 2017 bis Juli 2023.",
+      "nightLights": "Nachtlichter, eine Karte pro Jahr von 2012 bis 2023.",
+      "co2": "Kohlendioxidkonzentration in der Atmosphäre in ppm, September 2002 bis März 2022.",
+      "naturalEarth": "Umrisse von Kontinenten, Ländern, Ozeanen und Meeren (gemeinfrei)."
+    },
+    "techTitle": "Technik",
+    "techFrontend": "Web-App: React, TypeScript und Vite. Der 3D-Globus nutzt react-globe.gl (three.js), der Ton läuft über die Web Audio API.",
+    "techBackend": "Musik: Ein Python-Dienst (FastAPI) schreibt eine Orchesterpartitur (MIDI) für Ihre Zone und rendert sie mit Orchester-Samples zu Audio, in kurzen Stücken, die nahtlos aufeinander folgen.",
+    "techData": "Globus: Der Browser liest dieselben monatlichen Datenkarten (NumPy-Dateien) direkt vom Server und lädt nur den Teil, der Ihre Zone abdeckt.",
+    "techDeploy": "Bereitstellung: Docker Compose betreibt die Web-App (nginx), den Musikdienst und einen Container, der die Datensätze installiert.",
+    "docsLink": "Vollständige technische Dokumentation lesen",
+    "newTab": "öffnet in einem neuen Tab",
     "a11yTitle": "Barrierefreiheit",
-    "a11yText": "Die Jukebox ist auf WCAG 2.1 AA ausgelegt: Alle Bedienelemente funktionieren per Tastatur (drücken Sie ? für Tastenkürzel), die Listenansicht bietet eine screenreader-freundliche Alternative zum Globus, und Statusänderungen werden angesagt.",
+    "a11yText": "EarthChestra strebt WCAG 2.1 AA an. Alle Bedienelemente lassen sich per Tastatur nutzen. Im Player spielt oder pausiert die Leertaste, die Pfeiltasten bewegen sich durch die Zeit, Pos1 (Home) und Ende springen an den Anfang oder das Ende, und M schaltet stumm. Während der Wiedergabe kehrt Esc zur Zonenauswahl zurück. Die Listen-Ansicht ist eine screenreaderfreundliche Alternative zum Globus, die Werte auf dem Globus gibt es auch als Tabelle, und Statusänderungen werden angesagt.",
     "teamTitle": "Team",
-    "teamText": "Entwickelt an der HEIG-VD für die NASA Space Apps Challenge 2026.",
-    "back": "Zurück zur Jukebox"
+    "teamText": "Entwickelt an der HEIG-VD (Yverdon-les-Bains, Schweiz) für die NASA Space Apps Challenge 2026.",
+    "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther und Léo Zmoos.",
+    "back": "Zurück zum Globus"
   },
   "globeData": {
     "legendTitle": "Datensätze",
@@ -437,7 +459,8 @@
       "co2": "CO₂",
       "lightning": "Blitze",
       "rain": "Regen",
-      "snow": "Schnee"
+      "snow": "Schnee",
+      "nightlights": "Nachtlichter"
     },
     "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus."
   }

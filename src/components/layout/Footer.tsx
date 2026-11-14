@@ -34,12 +34,12 @@ export function Footer() {
           </a>
           <span className="footer-separator" aria-hidden="true">|</span>
           <a
-            href="https://power.larc.nasa.gov/"
+            href="https://gpm.nasa.gov/data/imerg"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-link"
           >
-            POWER API
+            GPM IMERG
           </a>
         </div>
       </div>
