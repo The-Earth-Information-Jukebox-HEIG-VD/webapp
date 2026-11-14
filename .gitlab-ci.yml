@@ -1,4 +1,4 @@
-image: node:20-alpine
+image: node:22-alpine
 
 stages:
   - validate
@@ -38,7 +38,7 @@ typecheck:
 test:
   stage: validate
   script:
-    - npm run test -- --run --coverage
+    - npm run test -- --run --coverage --reporter=default --reporter=junit --outputFile.junit=test-results.xml
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     when: always

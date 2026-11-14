@@ -10,7 +10,7 @@
 import { parseNpyHeader, decodeNpyData, type NpyHeader } from '../utils/npy';
 import { datasetForFolder, GRID_COLS, GRID_ROWS, type DatasetInfo } from '../data/datasetRegistry';
 
-export const DATA_BASE_URL: string = (import.meta.env.VITE_DATA_URL as string | undefined) ?? '/data';
+export const DATA_BASE_URL: string = import.meta.env.VITE_DATA_URL ?? '/data';
 
 interface ListingEntry {
   name: string;

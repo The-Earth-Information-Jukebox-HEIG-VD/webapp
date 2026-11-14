@@ -1,6 +1,6 @@
 # Multi-stage build: Node.js build → Nginx production serve
-# Build with: docker build -t earth-jukebox-webapp .
-# Run with:   docker run -p 80:80 earth-jukebox-webapp
+# Build with: docker build --build-arg VITE_API_URL=/api -t earthchestra-webapp .
+# Run with:   docker run -p 80:80 earthchestra-webapp
 
 # ─────────────────────────────────────────────────────────────
 # Stage 1: Build the Vite/React application
