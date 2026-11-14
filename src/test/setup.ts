@@ -23,6 +23,8 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock AudioContext for sonification tests
 class MockAudioContext {
   state = 'running';
+  currentTime = 0;
+
   createOscillator() {
     return {
       type: 'sine',
@@ -33,19 +35,38 @@ class MockAudioContext {
       disconnect: () => {},
     };
   }
+
   createGain() {
     return {
-      gain: { value: 1, setValueAtTime: () => {}, linearRampToValueAtTime: () => {} },
+      gain: {
+        value: 1,
+        setValueAtTime: () => {},
+        linearRampToValueAtTime: () => {},
+        setTargetAtTime: () => {},
+      },
       connect: () => {},
       disconnect: () => {},
     };
   }
+
+  createBiquadFilter() {
+    return {
+      type: 'lowpass',
+      frequency: { value: 2000 },
+      Q: { value: 1 },
+      connect: () => {},
+      disconnect: () => {},
+    };
+  }
+
   get destination() {
     return {};
   }
+
   resume() {
     return Promise.resolve();
   }
+
   close() {
     return Promise.resolve();
   }
@@ -54,4 +75,15 @@ class MockAudioContext {
 Object.defineProperty(window, 'AudioContext', {
   writable: true,
   value: MockAudioContext,
+});
+
+// Mock localStorage for accessibility and view mode contexts
+const localStorageMock = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {},
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
 });

@@ -1,0 +1,56 @@
+{
+  "controls": {
+    "play": "Sonifikation abspielen",
+    "pause": "Sonifikation pausieren",
+    "stop": "Stoppen und zurücksetzen",
+    "skipBackward": "10 Jahre zurückspringen",
+    "skipForward": "10 Jahre vorspringen",
+    "tracks": "Audiospuren ({{count}} aktiv)",
+    "jumpToStart": "Zum Anfang springen",
+    "jumpToEnd": "Zum Ende springen"
+  },
+  "status": {
+    "playing": "Wiedergabe läuft",
+    "paused": "Pausiert",
+    "stopped": "Gestoppt",
+    "loading": "Audio wird geladen..."
+  },
+  "timeline": {
+    "label": "Klimadaten-Zeitachse",
+    "year": "Jahr {{year}}",
+    "progress": "{{percent}}% abgeschlossen",
+    "from": "Von",
+    "to": "Bis"
+  },
+  "volume": {
+    "label": "Lautstärke",
+    "mute": "Stummschalten",
+    "unmute": "Ton einschalten",
+    "level": "Lautstärke: {{level}}%"
+  },
+  "position": {
+    "currentYear": "Aktuelles Jahr",
+    "elapsed": "Verstrichene Zeit",
+    "remaining": "Verbleibende Zeit"
+  },
+  "keyboard": {
+    "title": "Tastaturkürzel",
+    "space": "Abspielen/Pausieren",
+    "arrowLeft": "Zurückspulen",
+    "arrowRight": "Vorspulen",
+    "home": "Zum Anfang springen",
+    "end": "Zum Ende springen",
+    "m": "Stumm/Laut",
+    "question": "Tastaturkürzel anzeigen"
+  },
+  "announcements": {
+    "nowPlaying": "Wiedergabe: {{value}}°C Anomalie für Jahr {{year}}",
+    "seekedTo": "Gesprungen zu Jahr {{year}}",
+    "trackEnabled": "Spur {{track}} aktiviert",
+    "trackDisabled": "Spur {{track}} deaktiviert",
+    "playbackStarted": "Wiedergabe gestartet ab Jahr {{year}}",
+    "playbackPaused": "Wiedergabe pausiert bei Jahr {{year}}",
+    "playbackStopped": "Wiedergabe gestoppt und zurückgesetzt auf {{year}}",
+    "playbackComplete": "Wiedergabe abgeschlossen. Daten umfassen {{startYear}} bis {{endYear}}"
+  }
+}

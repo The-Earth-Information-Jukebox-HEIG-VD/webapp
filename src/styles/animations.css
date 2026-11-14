@@ -1,0 +1,197 @@
+/**
+ * Motion-safe animations for Earth Information Jukebox
+ *
+ * All animations respect prefers-reduced-motion and
+ * the .reduced-motion class from AccessibilityContext.
+ */
+
+/* Pulse animation for playing indicator */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide in from right (for sliding panel) */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide out to right */
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Slide up animation (for toasts, modals) */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Scale in animation */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Globe rotation animation */
+@keyframes globeRotate {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Timeline progress animation */
+@keyframes timelineProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--progress, 0%);
+  }
+}
+
+/* Playing indicator dots */
+@keyframes playingDots {
+  0%, 80%, 100% {
+    transform: scaleY(0.4);
+  }
+  40% {
+    transform: scaleY(1);
+  }
+}
+
+/* Utility classes */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Playing indicator with animated bars */
+.playing-indicator {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 16px;
+}
+
+.playing-indicator span {
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  animation: playingDots 1.2s ease-in-out infinite;
+}
+
+.playing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.playing-indicator span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.playing-indicator span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.playing-indicator span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* Reduced motion: show static indicator instead */
+.reduced-motion .playing-indicator span,
+@media (prefers-reduced-motion: reduce) {
+  .playing-indicator span {
+    animation: none;
+    transform: scaleY(0.7);
+  }
+}
+
+/* Globe loading skeleton */
+.globe-skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.reduced-motion .globe-skeleton,
+@media (prefers-reduced-motion: reduce) {
+  .globe-skeleton {
+    animation: none;
+    background: var(--color-surface);
+  }
+}

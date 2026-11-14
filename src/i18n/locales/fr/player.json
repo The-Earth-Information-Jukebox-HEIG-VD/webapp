@@ -1,0 +1,56 @@
+{
+  "controls": {
+    "play": "Lancer la sonification",
+    "pause": "Mettre en pause la sonification",
+    "stop": "Arrêter et réinitialiser",
+    "skipBackward": "Reculer de 10 ans",
+    "skipForward": "Avancer de 10 ans",
+    "tracks": "Pistes audio ({{count}} actives)",
+    "jumpToStart": "Aller au début",
+    "jumpToEnd": "Aller à la fin"
+  },
+  "status": {
+    "playing": "Lecture en cours",
+    "paused": "En pause",
+    "stopped": "Arrêté",
+    "loading": "Chargement de l'audio..."
+  },
+  "timeline": {
+    "label": "Chronologie des données climatiques",
+    "year": "Année {{year}}",
+    "progress": "{{percent}}% terminé",
+    "from": "De",
+    "to": "À"
+  },
+  "volume": {
+    "label": "Volume",
+    "mute": "Couper le son",
+    "unmute": "Activer le son",
+    "level": "Volume : {{level}}%"
+  },
+  "position": {
+    "currentYear": "Année actuelle",
+    "elapsed": "Temps écoulé",
+    "remaining": "Temps restant"
+  },
+  "keyboard": {
+    "title": "Raccourcis clavier",
+    "space": "Lecture/Pause",
+    "arrowLeft": "Reculer",
+    "arrowRight": "Avancer",
+    "home": "Aller au début",
+    "end": "Aller à la fin",
+    "m": "Couper/Activer le son",
+    "question": "Afficher les raccourcis clavier"
+  },
+  "announcements": {
+    "nowPlaying": "Lecture en cours : anomalie de {{value}}°C pour l'année {{year}}",
+    "seekedTo": "Déplacé à l'année {{year}}",
+    "trackEnabled": "Piste {{track}} activée",
+    "trackDisabled": "Piste {{track}} désactivée",
+    "playbackStarted": "Lecture démarrée à partir de l'année {{year}}",
+    "playbackPaused": "Lecture en pause à l'année {{year}}",
+    "playbackStopped": "Lecture arrêtée et réinitialisée à {{year}}",
+    "playbackComplete": "Lecture terminée. Les données couvrent de {{startYear}} à {{endYear}}"
+  }
+}

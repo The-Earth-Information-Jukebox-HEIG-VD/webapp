@@ -1,0 +1,64 @@
+.position-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.position-year {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.position-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.position-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  font-feature-settings: 'tnum';
+  line-height: 1;
+}
+
+.position-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.2s ease;
+}
+
+.progress-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-feature-settings: 'tnum';
+  min-width: 36px;
+}
+
+.position-details {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.detail {
+  font-feature-settings: 'tnum';
+}

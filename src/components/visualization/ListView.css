@@ -1,0 +1,331 @@
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  min-height: 400px;
+}
+
+.list-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list-view-year {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.year-label {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.year-value {
+  color: var(--color-text);
+  font-weight: 700;
+  font-feature-settings: 'tnum';
+}
+
+.view-type-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Zones Table (Continent View) */
+.zones-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.zones-table th {
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.zones-table th:first-child {
+  border-radius: var(--radius-md) 0 0 0;
+}
+
+.zones-table th:last-child {
+  border-radius: 0 var(--radius-md) 0 0;
+  text-align: center; /* match the centred Status cells */
+}
+
+.zone-row {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.zone-row:hover {
+  background: var(--color-surface-hover);
+}
+
+.zone-row:focus {
+  outline: none;
+  background: var(--color-surface-hover);
+}
+
+.zone-row:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+.zone-row.selected {
+  background: rgba(26, 115, 232, 0.15);
+}
+
+.zone-row td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+/* Keep the <td> a real table cell (no display:flex) so every cell in the row
+   shares the same height and bottom border; flex layout lives on the inner span. */
+.zone-name {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.zone-name-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.zone-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.continent-marker {
+  background: var(--color-primary);
+}
+
+.zone-status {
+  text-align: center;
+  width: 100px;
+}
+
+.status-selected {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.status-selected .check-icon {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
+.select-button {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.select-button:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.select-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Tree View (Country View) */
+.zones-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tree-continent {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.tree-continent-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface-hover);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.tree-continent-header:hover {
+  background: var(--color-surface-elevated);
+}
+
+.tree-continent-header:focus {
+  outline: none;
+}
+
+.tree-continent-header:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+.tree-continent-header.selected {
+  background: rgba(26, 115, 232, 0.2);
+}
+
+.expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.chevron-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.chevron-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.continent-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.country-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.tree-countries {
+  padding-left: var(--spacing-lg);
+  background: var(--color-surface);
+}
+
+.tree-country {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-left: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.tree-country:hover {
+  background: var(--color-surface-hover);
+  border-left-color: var(--color-primary);
+}
+
+.tree-country:focus {
+  outline: none;
+}
+
+.tree-country:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+.tree-country.selected {
+  background: rgba(26, 115, 232, 0.15);
+  border-left-color: var(--color-primary);
+}
+
+.country-name {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+/* Fixed-size status slot, same width as the table's Status column, rendered
+   even when empty so all rows share one height and the check marks align. */
+.country-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 100px;
+  height: 20px;
+}
+
+.selected-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.selected-indicator .check-icon {
+  width: 12px;
+  height: 12px;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .list-view {
+    padding: var(--spacing-sm);
+    min-height: 300px;
+  }
+
+  .list-view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .zones-table th,
+  .zone-row td {
+    padding: var(--spacing-sm);
+  }
+
+  .tree-countries {
+    padding-left: var(--spacing-md);
+  }
+}

@@ -1,0 +1,133 @@
+.language-selector {
+  position: relative;
+}
+
+.language-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.language-button:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-light);
+}
+
+.language-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.language-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.language-code {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.chevron-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-fast);
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+.language-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  min-width: 160px;
+  z-index: var(--z-dropdown);
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.language-option:hover {
+  background: var(--color-surface-hover);
+}
+
+.language-option:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.language-option.active {
+  color: var(--color-primary);
+}
+
+.language-option-code {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  min-width: 28px;
+}
+
+.language-option-name {
+  flex: 1;
+  font-size: var(--font-size-sm);
+}
+
+.check-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .language-button {
+    padding: var(--spacing-sm);
+  }
+
+  .language-code {
+    display: none;
+  }
+
+  .chevron-icon {
+    display: none;
+  }
+}

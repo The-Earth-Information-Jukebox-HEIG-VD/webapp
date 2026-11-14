@@ -29,7 +29,7 @@ describe('DataVisualizer accessibility', () => {
   it('should have accessible chart with descriptive label', () => {
     render(<DataVisualizer {...defaultProps} />);
 
-    const chart = screen.getByRole('img', { name: /bar chart showing/i });
+    const chart = screen.getByRole('group', { name: /bar chart showing/i });
     expect(chart).toBeInTheDocument();
   });
 

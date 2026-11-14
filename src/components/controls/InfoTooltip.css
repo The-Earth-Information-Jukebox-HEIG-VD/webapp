@@ -1,0 +1,113 @@
+.info-tooltip-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.info-tooltip-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.info-tooltip-trigger:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.info-tooltip-trigger:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.info-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.info-tooltip-content {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 240px;
+  max-width: 320px;
+  z-index: var(--z-tooltip);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast), visibility var(--transition-fast);
+}
+
+.info-tooltip-content.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Arrow */
+.info-tooltip-content::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-bottom-color: var(--color-border);
+}
+
+.info-tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom-color: var(--color-surface-elevated);
+}
+
+.info-tooltip-body {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.info-tooltip-body p {
+  margin: 0 0 var(--spacing-sm);
+}
+
+.info-tooltip-body p:last-child {
+  margin-bottom: 0;
+}
+
+.info-tooltip-body strong {
+  color: var(--color-text);
+}
+
+/* Responsive: position tooltip to the left on small screens */
+@media (max-width: 480px) {
+  .info-tooltip-content {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+
+  .info-tooltip-content::before,
+  .info-tooltip-content::after {
+    left: auto;
+    right: 8px;
+    transform: none;
+  }
+}

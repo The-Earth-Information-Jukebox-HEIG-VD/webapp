@@ -69,12 +69,15 @@ export function AudioPlayer({
   const progressPercent = Math.round(progress * 100);
 
   return (
+    /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
     <div
       className="audio-player"
       role="region"
       aria-label={`Audio player for ${datasetName}`}
+      tabIndex={0}
       onKeyDown={handleKeyDown}
     >
+      {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */}
       <div className="player-controls">
         <button
           className="control-button play-pause"

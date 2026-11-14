@@ -1,0 +1,193 @@
+/*
+ * Single-row player bar, fixed to the viewport bottom by .player-section (App.css).
+ *
+ * Accessibility notes:
+ * - Every control is at least 44×44px (WCAG 2.5.5 target size, AAA).
+ * - Icons use full-strength text color; slider tracks use --color-text-muted
+ *   (~4.5:1 on the surface) so they pass non-text contrast (WCAG 1.4.11, 3:1).
+ * - Sizes are in rem where text is involved, so the bar grows with browser zoom.
+ */
+.audio-player-enhanced {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.player-center,
+.player-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.player-year {
+  flex-shrink: 0;
+  min-width: 4ch;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  font-feature-settings: 'tnum';
+}
+
+.player-timeline {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Buttons */
+.control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.control-button:hover {
+  background: var(--color-surface-hover);
+}
+
+.control-button:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.control-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.control-button.play-pause {
+  width: 52px;
+  height: 52px;
+  background: var(--color-primary);
+  color: white;
+}
+
+.control-button.play-pause:hover {
+  background: var(--color-primary-dark);
+}
+
+.control-button.play-pause svg {
+  width: 30px;
+  height: 30px;
+}
+
+.tracks-button {
+  position: relative;
+}
+
+.tracks-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+/* Volume: slider always visible on wide screens (no hover-to-discover) */
+.audio-player-enhanced .volume-button {
+  width: 44px;
+  height: 44px;
+  color: var(--color-text);
+}
+
+.audio-player-enhanced .volume-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.audio-player-enhanced .volume-slider {
+  width: 100px;
+  margin: 0; /* no browser-default gap before 0% / after 100% */
+}
+
+/* Same specificity as the hover/focus (.expanded) rule in VolumeControl.css
+   so hovering never changes the slider's size or clips it */
+.audio-player-enhanced .volume-control .volume-slider-container,
+.audio-player-enhanced .volume-control.expanded .volume-slider-container {
+  width: auto;
+  padding: 0;
+  overflow: visible; /* lets the focus outline draw outside, no padding needed */
+  transition: none;
+}
+
+/* Timeline overrides (scoped so Timeline stays reusable elsewhere) */
+.audio-player-enhanced .timeline {
+  gap: 0;
+}
+
+.audio-player-enhanced .timeline-years,
+.audio-player-enhanced .track-markers,
+.audio-player-enhanced .thumb-year {
+  display: none;
+}
+
+.audio-player-enhanced .timeline-track {
+  height: 44px; /* large click/touch area around the visible bar */
+  padding: 0;
+}
+
+.audio-player-enhanced .track-background {
+  height: 8px;
+  background: var(--color-text-muted);
+}
+
+.audio-player-enhanced .track-progress {
+  height: 8px;
+  background: var(--color-primary); /* solid, matches the play button */
+}
+
+.audio-player-enhanced .thumb-indicator {
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
+}
+
+/* Small screens: drop skip buttons and collapse the volume slider */
+@media (max-width: 640px) {
+  .audio-player-enhanced {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .control-button.skip-back,
+  .control-button.skip-forward {
+    display: none;
+  }
+
+  .player-year {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Collapsed until the speaker icon is tapped/focused */
+  .audio-player-enhanced .volume-control .volume-slider-container {
+    width: 0;
+    overflow: hidden;
+  }
+
+  .audio-player-enhanced .volume-control.expanded .volume-slider-container {
+    width: auto;
+    overflow: visible;
+  }
+}

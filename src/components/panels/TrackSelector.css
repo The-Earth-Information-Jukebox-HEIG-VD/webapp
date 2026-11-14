@@ -1,0 +1,18 @@
+.track-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.track-selector-description {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}

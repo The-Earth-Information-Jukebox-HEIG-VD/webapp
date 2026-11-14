@@ -100,7 +100,7 @@ export function DataVisualizer({ data, currentIndex, unit, onBarSelect }: DataVi
   return (
     <div
       className="data-visualizer"
-      role="img"
+      role="group"
       aria-label={`Bar chart showing ${data.length} data points ranging from ${minValue.toFixed(2)} to ${maxValue.toFixed(2)} ${unit}`}
     >
       <div className="visualizer-header">
@@ -119,6 +119,7 @@ export function DataVisualizer({ data, currentIndex, unit, onBarSelect }: DataVi
           role="listbox"
           aria-label="Temperature anomaly data points"
           aria-activedescendant={focusedIndex !== null ? `bar-${focusedIndex}` : undefined}
+          tabIndex={0}
         >
           {bars.map((bar, i) => (
             <div

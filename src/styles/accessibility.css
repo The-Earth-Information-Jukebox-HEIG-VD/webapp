@@ -1,0 +1,159 @@
+/**
+ * Accessibility styles for Earth Information Jukebox
+ *
+ * These styles are activated via CSS classes on the document root,
+ * managed by AccessibilityContext.
+ */
+
+/* Dyslexic-friendly font (Lexend from Google Fonts) */
+.dyslexic-font,
+.dyslexic-font * {
+  font-family: var(--font-family-dyslexic) !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.8;
+}
+
+/* Color-blind safe palette (activated via .color-blind-mode class) */
+.color-blind-mode {
+  /* Override warm/cool colors to blue/orange (already default) */
+  --color-warm: #e67e22;
+  --color-warm-light: #f39c12;
+  --color-cool: #3498db;
+  --color-cool-light: #5dade2;
+
+  /* Add pattern indicators for charts */
+  --pattern-warm: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L8 8M8 0L0 8' stroke='%23e67e22' stroke-width='1'/%3E%3C/svg%3E");
+  --pattern-cool: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='4' cy='4' r='2' fill='%233498db'/%3E%3C/svg%3E");
+}
+
+/* Add texture/pattern indicators in color-blind mode */
+.color-blind-mode .warm-indicator::before {
+  content: '▲';
+  margin-right: 4px;
+}
+
+.color-blind-mode .cool-indicator::before {
+  content: '▼';
+  margin-right: 4px;
+}
+
+/* Reduced motion */
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --color-background: #000000;
+  --color-surface: #1a1a1a;
+  --color-surface-hover: #333333;
+  --color-text: #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-border: #ffffff;
+  --color-primary: #66b3ff;
+  --color-warm: #ffaa00;
+  --color-cool: #00aaff;
+}
+
+.high-contrast button,
+.high-contrast a,
+.high-contrast input,
+.high-contrast select {
+  border: 2px solid var(--color-border) !important;
+}
+
+.high-contrast .zone-toggle-button.active {
+  /* white on #66b3ff is only ~2:1; black gives > 9:1 */
+  color: #000000;
+}
+
+.high-contrast :focus-visible {
+  outline: 4px solid #ffff00 !important;
+  outline-offset: 4px !important;
+}
+
+/* Enhanced focus indicators for all modes */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Skip link (always present) */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--color-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  z-index: var(--z-tooltip);
+  text-decoration: none;
+  font-weight: 600;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Make sr-only content visible when focused */
+.sr-only:focus,
+.sr-only:active {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Ensure interactive elements have adequate touch targets (44x44px) */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Print styles for accessibility */
+@media print {
+  .color-blind-mode .warm-indicator::after {
+    content: ' (warm)';
+  }
+
+  .color-blind-mode .cool-indicator::after {
+    content: ' (cool)';
+  }
+
+  /* Ensure sufficient contrast for print */
+  * {
+    color: #000 !important;
+    background: #fff !important;
+  }
+}

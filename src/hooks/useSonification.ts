@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { SonificationEngine } from '../audio/SonificationEngine';
+import { SonificationEngine, type MultiTrackData } from '../audio/SonificationEngine';
 import type { ClimateDataset } from '../types';
+import type { TrackState } from '../types/tracks';
 
 /**
- * Custom hook for managing sonification playback
+ * Custom hook for managing multi-track sonification playback
  *
  * Handles the lifecycle of the SonificationEngine and provides
  * a clean interface for React components to control audio playback.
@@ -12,7 +13,10 @@ export function useSonification(dataset: ClimateDataset | null) {
   const engineRef = useRef<SonificationEngine | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentYear, setCurrentYear] = useState(1880);
   const [progress, setProgress] = useState(0);
+  const [trackStates, setTrackStates] = useState<TrackState[]>([]);
+  const [yearRange, setYearRange] = useState({ start: 1880, end: 2024 });
 
   // Initialize engine on mount
   useEffect(() => {
@@ -22,12 +26,13 @@ export function useSonification(dataset: ClimateDataset | null) {
       noteDuration: 400,
       noteGap: 100,
       waveform: 'sine',
-      volume: 0.3,
+      volume: 0.5,
     });
 
-    engine.onProgress = (index, total) => {
+    engine.onProgress = (index, total, year) => {
       setCurrentIndex(index);
       setProgress(total > 0 ? index / total : 0);
+      setCurrentYear(year);
     };
 
     engine.onStateChange = (playing) => {
@@ -39,7 +44,19 @@ export function useSonification(dataset: ClimateDataset | null) {
       setProgress(1);
     };
 
+    engine.onTrackChange = (states) => {
+      setTrackStates(states);
+    };
+
     engineRef.current = engine;
+
+    // Get initial track states immediately (works before audio init)
+    setTrackStates(engine.getTrackStates());
+
+    // Initialize audio context (async - may need user interaction)
+    engine.initialize().catch((err) => {
+      console.warn('Audio initialization deferred until user interaction:', err);
+    });
 
     return () => {
       engine.dispose();
@@ -52,6 +69,10 @@ export function useSonification(dataset: ClimateDataset | null) {
       engineRef.current.loadData(dataset.points);
       setCurrentIndex(0);
       setProgress(0);
+
+      const range = engineRef.current.getYearRange();
+      setYearRange(range);
+      setCurrentYear(range.start);
     }
   }, [dataset]);
 
@@ -79,21 +100,65 @@ export function useSonification(dataset: ClimateDataset | null) {
     }
   }, []);
 
+  const seekToYear = useCallback((year: number) => {
+    if (engineRef.current) {
+      engineRef.current.seekToYear(year);
+    }
+  }, []);
+
   const setVolume = useCallback((volume: number) => {
     if (engineRef.current) {
       engineRef.current.setConfig({ volume });
     }
   }, []);
 
+  const setTrackEnabled = useCallback((trackId: string, enabled: boolean) => {
+    if (engineRef.current) {
+      engineRef.current.setTrackEnabled(trackId, enabled);
+    }
+  }, []);
+
+  const setTrackVolume = useCallback((trackId: string, volume: number) => {
+    if (engineRef.current) {
+      engineRef.current.setTrackVolume(trackId, volume);
+    }
+  }, []);
+
+  const loadMultiTrackData = useCallback((data: MultiTrackData[]) => {
+    if (engineRef.current) {
+      engineRef.current.loadMultiTrackData(data);
+      setCurrentIndex(0);
+      setProgress(0);
+
+      const range = engineRef.current.getYearRange();
+      setYearRange(range);
+      setCurrentYear(range.start);
+    }
+  }, []);
+
   return {
+    // Playback state
     isPlaying,
     currentIndex,
+    currentYear,
     progress,
+    yearRange,
+
+    // Track state
+    trackStates,
+
+    // Playback controls
     play,
     pause,
     stop,
     seek,
+    seekToYear,
     setVolume,
+
+    // Track controls
+    setTrackEnabled,
+    setTrackVolume,
+    loadMultiTrackData,
   };
 }
 

@@ -67,3 +67,9 @@ export interface ClimateDataResponse {
     totalPoints: number;
   };
 }
+
+// Re-export other types
+export * from './zones';
+export * from './tracks';
+export * from './keyMoments';
+export * from './accessibility';

@@ -1,0 +1,56 @@
+{
+  "controls": {
+    "play": "Play sonification",
+    "pause": "Pause sonification",
+    "stop": "Stop and reset",
+    "skipBackward": "Skip backward 10 years",
+    "skipForward": "Skip forward 10 years",
+    "tracks": "Audio tracks ({{count}} active)",
+    "jumpToStart": "Jump to start",
+    "jumpToEnd": "Jump to end"
+  },
+  "status": {
+    "playing": "Playing",
+    "paused": "Paused",
+    "stopped": "Stopped",
+    "loading": "Loading audio..."
+  },
+  "timeline": {
+    "label": "Climate data timeline",
+    "year": "Year {{year}}",
+    "progress": "{{percent}}% complete",
+    "from": "From",
+    "to": "To"
+  },
+  "volume": {
+    "label": "Volume",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "level": "Volume: {{level}}%"
+  },
+  "position": {
+    "currentYear": "Current year",
+    "elapsed": "Elapsed time",
+    "remaining": "Remaining time"
+  },
+  "keyboard": {
+    "title": "Keyboard Shortcuts",
+    "space": "Play/Pause",
+    "arrowLeft": "Seek backward",
+    "arrowRight": "Seek forward",
+    "home": "Jump to start",
+    "end": "Jump to end",
+    "m": "Mute/Unmute",
+    "question": "Show keyboard shortcuts"
+  },
+  "announcements": {
+    "nowPlaying": "Now playing: {{value}}°C anomaly for year {{year}}",
+    "seekedTo": "Seeked to year {{year}}",
+    "trackEnabled": "{{track}} track enabled",
+    "trackDisabled": "{{track}} track disabled",
+    "playbackStarted": "Playback started from year {{year}}",
+    "playbackPaused": "Playback paused at year {{year}}",
+    "playbackStopped": "Playback stopped and reset to {{year}}",
+    "playbackComplete": "Playback complete. Data spans from {{startYear}} to {{endYear}}"
+  }
+}
