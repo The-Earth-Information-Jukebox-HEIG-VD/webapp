@@ -74,9 +74,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        // Override when 8000 is taken, e.g. by the Docker backend on 8001:
-        //   JUKEBOX_API_URL=http://localhost:8001 npm run dev
-        target: process.env.JUKEBOX_API_URL ?? 'http://localhost:8000',
+        // Only used when VITE_API_URL is relative (/api). The backend URL is set
+        // with VITE_API_URL in .env.development(.local), see .env.example
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
     },

@@ -18,10 +18,16 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build-time environment variable for API URL
-# Can be overridden: docker build --build-arg VITE_API_URL=/api .
-ARG VITE_API_URL=/api
-ENV VITE_API_URL=${VITE_API_URL}
+# API base URL, baked into the bundle at build time (required, no default):
+#   docker build --build-arg VITE_API_URL=/api .
+# Local .env files are kept out by .dockerignore, so the .env Vite reads is
+# written here from the build arg. It only exists in this build stage.
+ARG VITE_API_URL
+RUN if [ -z "$VITE_API_URL" ]; then \
+        echo "ERROR: build arg VITE_API_URL is required (e.g. --build-arg VITE_API_URL=/api)" >&2; exit 1; \
+    fi \
+    && printf 'VITE_API_URL=%s\n' "$VITE_API_URL" > .env \
+    && echo "Generated .env:" && cat .env
 
 # Build the production bundle
 RUN npm run build
