@@ -402,7 +402,7 @@
     "howTracks": "Choose the datasets to hear in the Audio Tracks panel. Each dataset is played by its own instrument.",
     "howPlay": "Press Play. Each dataset is averaged over your zone, month by month, and every month becomes one bar of music.",
     "howPitch": "Higher values play higher notes, measured against your zone's own range, so a value always gives the same note.",
-    "howLoudness": "Rain, snow, lightning and night lights only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, and more lightning means more xylophone strikes per beat.",
+    "howLoudness": "Rain, snow, lightning, fires and night lights only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
     "howGlobe": "While the music plays, the globe shows the data of your zone: one colour per dataset, and the stronger the value, the more solid the dot. Select Change zone or press Escape to pick another zone.",
     "orchestraTitle": "The orchestra",
@@ -412,8 +412,9 @@
       "co2": "CO₂: double bass",
       "rain": "Rain: violins",
       "snow": "Snow: glockenspiel",
-      "lightning": "Lightning: xylophone",
-      "nightLights": "Night lights: harp"
+      "lightning": "Lightning: timpani",
+      "fires": "Fires: trombones",
+      "nightLights": "Night lights: synth pad"
     },
     "dataTitle": "Data sources",
     "dataText": "The datasets' map files share one grid of 0.25°, so a place has the same position in every dataset.",
@@ -421,6 +422,7 @@
       "gistemp": "monthly surface temperature anomaly (°C), January 1880 to December 2025.",
       "imerg": "rain and snow (snow as melted water), monthly means of the daily precipitation rate, June 2000 to November 2026.",
       "lis": "share of each map pixel with lightning, monthly, between 55°S and 55°N, March 2017 to July 2023.",
+      "modis": "days of the month with at least one fire detected (Terra and Aqua), July 2002 to November 2026.",
       "nightLights": "night-time lights, brightness from 0 to 1, one map per year from 2012 to 2023; each year's map is used for its 12 months.",
       "co2": "monthly CO₂ concentration (ppm), extracted by the team, September 2002 to March 2022.",
       "naturalEarth": "outlines of continents, countries, oceans and seas (public domain)."
