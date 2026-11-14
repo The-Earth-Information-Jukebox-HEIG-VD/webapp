@@ -70,7 +70,7 @@ export function AboutPage() {
       </section>
 
       <p>
-        <a href="#main-content" className="about-back">
+        <a href="#home" className="about-back">
           {t('about.back')}
         </a>
       </p>

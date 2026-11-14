@@ -7,13 +7,14 @@
     "skipForward": "Avancer de 10 ans",
     "tracks": "Pistes audio ({{count}} actives)",
     "jumpToStart": "Aller au début",
-    "jumpToEnd": "Aller à la fin"
+    "jumpToEnd": "Aller à la fin",
+    "selectZoneFirst": "Sélectionnez une zone sur le globe pour lancer la lecture"
   },
   "status": {
     "playing": "Lecture en cours",
     "paused": "En pause",
     "stopped": "Arrêté",
-    "loading": "Chargement de l'audio..."
+    "loading": "Chargement de l'audio…"
   },
   "timeline": {
     "label": "Chronologie des données climatiques",
@@ -44,13 +45,25 @@
     "question": "Afficher les raccourcis clavier"
   },
   "announcements": {
-    "nowPlaying": "Lecture en cours : anomalie de {{value}}°C pour l'année {{year}}",
+    "nowPlaying": "Lecture de {{year}} : {{reading}}",
     "seekedTo": "Déplacé à l'année {{year}}",
     "trackEnabled": "Piste {{track}} activée",
     "trackDisabled": "Piste {{track}} désactivée",
     "playbackStarted": "Lecture démarrée à partir de l'année {{year}}",
     "playbackPaused": "Lecture en pause à l'année {{year}}",
     "playbackStopped": "Lecture arrêtée et réinitialisée à {{year}}",
-    "playbackComplete": "Lecture terminée. Les données couvrent de {{startYear}} à {{endYear}}"
+    "playbackComplete": "Lecture terminée. Les données couvrent de {{startYear}} à {{endYear}}",
+    "anomalyValue": "{{value}} {{units}} par rapport à la normale",
+    "absoluteValue": "{{value}} {{units}}"
+  },
+  "loadingChunk": "Chargement de l'audio pour {{year}}…",
+  "endOfData": "Fin des données atteinte.",
+  "retry": "Réessayer",
+  "noTrackHint": "Sélectionnez au moins une piste pour lancer la lecture.",
+  "units": {
+    "degC": "degrés Celsius",
+    "K": "kelvins",
+    "ppm": "parties par million",
+    "percent": "pour cent"
   }
 }

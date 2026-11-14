@@ -300,7 +300,8 @@
     "tasmanSea": "Tasmansee",
     "timorSea": "Timorsee",
     "weddellSea": "Weddell-Meer",
-    "yellowSea": "Gelbes Meer"
+    "yellowSea": "Gelbes Meer",
+    "zoneSelected": "{{zone}} ausgewählt"
   },
   "regions": {
     "global": "Global",
@@ -315,24 +316,21 @@
   },
   "tracks": {
     "title": "Audio-Spuren",
-    "co2Atmosphere": "CO₂ Atmosphäre",
-    "co2AtmosphereDesc": "Atmosphärische CO₂-Konzentration (Synthesizer)",
-    "co2Emissions": "CO₂-Emissionen",
-    "co2EmissionsDesc": "Kohlendioxid-Emissionen (Schlagzeug)",
-    "nightLights": "Nachtlichter",
-    "nightLightsDesc": "Stadtlichter der Erde bei Nacht (Klavier)",
     "temperature": "Temperatur",
-    "temperatureDesc": "Globale Oberflächentemperaturänderungen (Klavier)",
-    "wildfires": "Waldbrände",
-    "wildfiresDesc": "Globale Feueraktivität (Schlagzeug)",
-    "antarcticaMelt": "Antarktis-Schmelze",
-    "antarcticaMeltDesc": "Massenänderungen der antarktischen Eisschild (Streicher)",
     "lightning": "Blitze",
-    "lightningDesc": "Globale Blitzaktivität (Synthesizer)",
-    "ecosystem": "Ökosystem-Austausch",
-    "ecosystemDesc": "Netto-Ökosystem-Kohlenstoffaustausch (Streicher)",
-    "deforestation": "Entwaldung",
-    "deforestationDesc": "Globale Waldbedeckungsänderungen (Schlagzeug)"
+    "description": "Aktivieren Sie mehrere Spuren, um verschiedene Klimamessungen gleichzeitig zu hören. Jede verwendet ein eigenes Instrument.",
+    "precipitation": "Niederschlag",
+    "co2": "CO₂",
+    "dust": "Staub",
+    "smoke": "Rauch",
+    "snowfall": "Schneefall",
+    "noneSelected": "Keine Spur ausgewählt. Wählen Sie mindestens eine Spur zum Abspielen.",
+    "realData": "Echtdaten",
+    "simulated": "Simuliert",
+    "period": "{{start}} bis {{end}}",
+    "unavailable": "Auf dem Server nicht verfügbar",
+    "loading": "Spuren werden geladen…",
+    "retry": "Erneut versuchen"
   },
   "moments": {
     "title": "Wichtige Klimamomente",
@@ -393,7 +391,11 @@
   },
   "errors": {
     "webglNotSupported": "Ihr Browser unterstützt kein WebGL. Bitte verwenden Sie die Listen-Ansicht.",
-    "audioNotSupported": "Ihr Browser unterstützt die Web Audio API nicht."
+    "audioNotSupported": "Ihr Browser unterstützt die Web Audio API nicht.",
+    "backendUnavailable": "Der Audio-Server ist nicht erreichbar. Prüfen Sie, ob er läuft, und versuchen Sie es erneut.",
+    "noDataForPeriod": "Für dieses Gebiet und diesen Zeitraum gibt es keine Daten. Wählen Sie eine andere Zone oder ein anderes Datum.",
+    "serverPreparing": "Der Server bereitet seine Daten noch vor. Bitte versuchen Sie es gleich erneut.",
+    "unknown": "Beim Laden des Audios ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
   },
   "about": {
     "title": "Über die Earth Information Jukebox",
@@ -413,5 +415,30 @@
     "teamTitle": "Team",
     "teamText": "Entwickelt an der HEIG-VD für die NASA Space Apps Challenge 2026.",
     "back": "Zurück zur Jukebox"
+  },
+  "globeData": {
+    "legendTitle": "Datensätze",
+    "changeZone": "Zone wechseln",
+    "changeZoneHint": "zurück zur Zonenauswahl, Tastenkürzel Esc",
+    "loading": "Daten für {{zone}} werden geladen…",
+    "loadingShort": "Daten werden geladen…",
+    "showing": "{{count}} Datensätze für {{zone}} angezeigt",
+    "error": "Die Daten konnten nicht geladen werden: {{message}}",
+    "noDataForMonth": "keine Daten für dieses Datum",
+    "range": "{{min}} bis {{max}} {{units}}",
+    "tableCaption": "Werte für {{zone}}, {{month}}",
+    "dataset": "Datensatz",
+    "min": "Minimum",
+    "mean": "Mittelwert",
+    "max": "Maximum",
+    "units": "Einheiten",
+    "datasets": {
+      "temperature_anomaly": "Temperaturanomalie",
+      "co2": "CO₂",
+      "lightning": "Blitze",
+      "rain": "Regen",
+      "snow": "Schnee"
+    },
+    "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus."
   }
 }

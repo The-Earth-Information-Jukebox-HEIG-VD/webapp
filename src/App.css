@@ -108,7 +108,8 @@ html {
   flex: 1;
 }
 
-/* About section (for #about anchor) */
+/* Skip-link / anchor targets: land below the sticky header instead of under it */
+#main-content,
 #about {
   scroll-margin-top: calc(var(--header-height) + var(--spacing-lg));
 }

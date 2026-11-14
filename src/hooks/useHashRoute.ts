@@ -9,7 +9,7 @@ function routeFromHash(hash: string): Route {
 /**
  * Minimal hash-based router for the single-page app.
  *
- * `#about` shows the About page; any other hash (including `#main-content`,
+ * `#about` shows the About page; any other hash (including `#home`, the bare `#`
  * used by the skip link and Home link) shows the main jukebox view.
  * Hash routing keeps browser Back/Forward working without a router dependency.
  */

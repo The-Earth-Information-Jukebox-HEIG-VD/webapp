@@ -48,6 +48,10 @@
 .volume-slider {
   width: 80px;
   height: 6px;
+  /* Undo the global text-field styles from index.css (16px side padding +
+     border), which left dead space before 0% and after 100% */
+  padding: 0;
+  border: none;
   background: var(--color-text-muted); /* 3:1+ against the surface (WCAG 1.4.11) */
   border-radius: var(--radius-full);
   cursor: pointer;

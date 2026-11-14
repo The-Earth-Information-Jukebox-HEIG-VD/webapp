@@ -48,7 +48,7 @@
 
 .track-instrument {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   text-transform: capitalize;
   padding: 2px 8px;
   background: var(--color-surface);
@@ -63,64 +63,47 @@
   padding-left: 28px; /* Align with name after checkbox */
 }
 
-.track-volume {
+.track-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.volume-label {
+  gap: var(--spacing-xs) var(--spacing-sm);
+  margin: var(--spacing-xs) 0 0;
+  padding-left: 28px;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  min-width: 50px;
 }
 
-.volume-slider {
-  flex: 1;
-  height: 4px;
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
+.track-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
 }
 
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
+.track-badge.real {
+  border-color: var(--color-primary);
 }
 
-.volume-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  border: none;
-  box-shadow: var(--shadow-sm);
+.track-checkbox.unavailable {
+  opacity: 1;
+  background: var(--color-surface);
+  border-style: dashed;
 }
 
-.volume-slider:focus-visible {
-  outline: none;
+.track-checkbox.unavailable .track-name,
+.track-checkbox.unavailable .track-toggle {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
 }
 
-.volume-slider:focus-visible::-webkit-slider-thumb {
+.track-toggle input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.track-toggle input[type="checkbox"]:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-.volume-value {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  min-width: 40px;
-  text-align: right;
-  font-feature-settings: 'tnum';
 }

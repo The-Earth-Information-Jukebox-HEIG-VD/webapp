@@ -1,52 +1,35 @@
 /**
- * Data source types for each track - NASA SVS datasets
- */
-export type DataSourceType =
-  | 'co2_atmosphere'
-  | 'co2_emissions'
-  | 'night_lights'
-  | 'temperature'
-  | 'wildfires'
-  | 'antarctica_melt'
-  | 'lightning'
-  | 'ecosystem'
-  | 'deforestation';
-
-/**
- * Map visualization type
- */
-export type MapType = 'globe' | 'flat' | 'antarctic';
-
-/**
- * Track definition for multi-track sonification
- *
- * Note: Instrument and frequency range info is fetched from the backend
- * via the /api/instruments endpoint and merged at runtime.
- * This keeps audio synthesis details on the backend where they belong.
+ * A track the user can switch on or off. Built at runtime from the backend's
+ * GET /api/instruments (see hooks/useInstruments.ts); nothing is hardcoded here
+ * except presentation details (colours, i18n keys).
  */
 export interface Track {
+  /** dataset_id accepted by POST /api/sonify */
   id: string;
+  /** i18n key of the translated name (falls back to `label`) */
   nameKey: string;
-  descriptionKey: string;
-  dataSource: DataSourceType;
-  svsId: number;
-  // Note: instrument and frequencyRange removed - now fetched from backend
-  defaultVolume: number;
-  defaultEnabled: boolean;
+  /** Backend label, used when no translation exists */
+  label: string;
+  /** Instrument name from the backend, e.g. "Piano (chords)" */
+  instrument: string;
+  role: string;
+  /** false: the server has no data for this variable */
+  available: boolean;
+  /** true: observed data, false: modelled */
+  realData: boolean;
+  /** false: only audible while the phenomenon is present */
+  alwaysPlaying: boolean;
+  units: string | null;
+  /** Data period as ISO strings, or null when unknown */
+  period: { start: string; end: string } | null;
   color: string;
-  mapType: MapType;
-  period: {
-    start: string;
-    end: string;
-  };
+  defaultEnabled: boolean;
 }
 
 /**
- * Track state during playback
+ * Enabled/disabled state of a track
  */
 export interface TrackState {
   id: string;
   enabled: boolean;
-  volume: number;
-  currentValue?: number;
 }

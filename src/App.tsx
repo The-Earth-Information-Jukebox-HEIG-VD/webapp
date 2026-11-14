@@ -10,6 +10,7 @@ import { Header, Footer } from './components/layout';
 
 // Visualization components
 import { GlobeView, ListView } from './components/visualization';
+import type { GlobeMode } from './components/visualization/GlobeView';
 
 // Control components
 import { ViewModeToggle, ZoneViewSelector } from './components/controls';
@@ -30,43 +31,18 @@ import { KeyMomentsSection } from './components/moments';
 
 // Hooks
 import { useSonification } from './hooks/useSonification';
+import { useInstruments } from './hooks/useInstruments';
+import { useZoneDataFrames } from './hooks/useZoneDataFrames';
+import { monthKey } from './services/volumeData';
+import { formatReading } from './utils/reading';
 
 // Types
-import type { ClimateDataset } from './types';
 import type { ZoneViewType, GridPoint } from './types/zones';
 
 // Data
-import { DEFAULT_ZONE_ID } from './data/zones';
+import { findZoneFeature } from './data/zones';
 
 import './App.css';
-
-// Extended sample data for demo (1880-2024)
-const SAMPLE_DATA: ClimateDataset = {
-  id: 'gistemp-global',
-  name: 'Global Temperature Anomalies',
-  source: 'NASA GISTEMP',
-  unit: '°C',
-  description: 'Global surface temperature anomalies relative to 1951-1980 baseline',
-  points: generateSampleData(),
-};
-
-// Generate sample data from 1880 to 2024
-function generateSampleData() {
-  const points = [];
-  for (let year = 1880; year <= 2024; year++) {
-    // Simulate realistic temperature anomaly progression
-    const baseAnomaly = -0.2 + ((year - 1880) / 144) * 1.6;
-    const noise = Math.sin(year * 0.5) * 0.15 + Math.cos(year * 0.3) * 0.1;
-    const anomaly = baseAnomaly + noise;
-
-    points.push({
-      timestamp: new Date(`${year}-01-01`),
-      value: anomaly,
-      anomaly: anomaly,
-    });
-  }
-  return points;
-}
 
 /**
  * Main Application Component
@@ -85,63 +61,100 @@ function AppContent() {
   const route = useHashRoute();
 
   // State
-  const [dataset] = useState<ClimateDataset>(SAMPLE_DATA);
-  const [selectedZone, setSelectedZone] = useState<string | null>(DEFAULT_ZONE_ID);
+  // No zone at start: Play stays disabled until the user picks one
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  // 'playback': zone polygons hidden, the zone's volume data drawn on the globe
+  const [globeMode, setGlobeMode] = useState<GlobeMode>('select');
   const [zoneViewType, setZoneViewType] = useState<ZoneViewType>('continent');
   const [selectedPoints, setSelectedPoints] = useState<GridPoint[]>([]);
   const [isTrackPanelOpen, setIsTrackPanelOpen] = useState(false);
 
+  // Tracks come from the backend's /api/instruments
+  const instruments = useInstruments();
+  const tracks = instruments.tracks;
+
   // Sonification hook
   const {
     isPlaying,
+    status,
+    error,
+    hasEnded,
+    canPlay,
+    position,
+    currentValue,
+    units,
+    isAnomaly,
+    chunkYear,
     currentYear,
     progress,
     yearRange,
     trackStates,
     play,
     pause,
+    retry,
     seek,
     seekToYear,
     setVolume,
     setTrackEnabled,
-    setTrackVolume,
-  } = useSonification(dataset);
+  } = useSonification({
+    tracks,
+    points: selectedPoints,
+    zoneId: selectedZone,
+    zoneName: selectedZone ? getZoneDisplayName(selectedZone, t) : null,
+  });
 
   // Handlers
   const handleZoneSelect = useCallback((zoneId: string, points: GridPoint[]) => {
     setSelectedZone(zoneId);
     setSelectedPoints(points);
-    // In production, this would trigger data fetching from backend
-    // using the points array to extract zone-specific data
-    console.log(`Selected zone: ${zoneId}, points: ${points.length}`);
   }, []);
+
+  const handlePlay = useCallback(() => {
+    if (!selectedZone) return;
+    setGlobeMode('playback');
+    play();
+  }, [selectedZone, play]);
+
+  const handleBackToSelection = useCallback(() => {
+    pause();
+    setGlobeMode('select');
+  }, [pause]);
+
+  // Volume data of the selected zone, month by month in step with the music
+  const playbackYear = Math.floor(position);
+  const playbackMonth = Math.min(12, Math.floor((position % 1) * 12) + 1);
+  const selectedFeature = useMemo(
+    () => (selectedZone ? findZoneFeature(selectedZone) ?? null : null),
+    [selectedZone]
+  );
+  // The globe shows the same datasets as the audio: the tracks selected in the track panel
+  const enabledTrackIds = useMemo(
+    () => new Set(trackStates.filter((s) => s.enabled).map((s) => s.id)),
+    [trackStates]
+  );
+  const zoneData = useZoneDataFrames({
+    feature: selectedFeature,
+    month: monthKey(playbackYear, playbackMonth),
+    active: globeMode === 'playback' && viewMode === 'globe',
+    enabledTrackIds,
+  });
 
   const handleJumpToMoment = useCallback((year: number) => {
     seekToYear(year);
   }, [seekToYear]);
 
-  // Create anomaly data map for visualization
-  // Memoized on the current data point (not on `progress`, which ticks many times
-  // per second during playback) so the globe only receives a new Map when the
-  // underlying value actually changes.
-  const currentIndex = Math.floor(progress * dataset.points.length);
-  const currentPoint = dataset.points[currentIndex];
-  const anomalyData = useMemo(() => {
-    const map = new Map<string, number>();
-    if (currentPoint) {
-      // In production, would have per-zone data from backend
-      // For demo, simulate zone-specific anomalies
-      const base = currentPoint.anomaly ?? currentPoint.value;
-      map.set('africa', base);
-      map.set('antarctica', base * 1.5);
-      map.set('asia', base * 0.9);
-      map.set('europe', base * 1.1);
-      map.set('northAmerica', base * 0.95);
-      map.set('oceania', base * 0.8);
-      map.set('southAmerica', base * 0.85);
-    }
-    return map;
-  }, [currentPoint]);
+  // Backend value of the current chunk, e.g. "+1.2 °C vs normal" (screen reader announcement)
+  // With several tracks, name the track the value belongs to (the first enabled one)
+  const enabledTracks = tracks.filter((tr) => trackStates.some((s) => s.id === tr.id && s.enabled));
+  const mainTrack = enabledTracks[0];
+  const readingText =
+    currentValue !== null
+      ? formatReading(currentValue, units, isAnomaly, t, { speakable: true })
+      : null;
+  const reading =
+    readingText && mainTrack && enabledTracks.length > 1
+      ? `${t(mainTrack.nameKey, { defaultValue: mainTrack.label })}: ${readingText}`
+      : readingText;
 
   return (
     <>
@@ -172,7 +185,9 @@ function AppContent() {
                 onZoneSelect={handleZoneSelect}
                 zoneViewType={zoneViewType}
                 currentYear={currentYear}
-                anomalyData={anomalyData}
+                mode={globeMode}
+                zoneData={zoneData}
+                onBackToSelection={handleBackToSelection}
               />
             ) : (
               <ListView
@@ -205,12 +220,20 @@ function AppContent() {
               currentYear={currentYear}
               yearRange={yearRange}
               trackStates={trackStates}
-              onPlay={play}
+              onPlay={handlePlay}
               onPause={pause}
               onSeek={seek}
               onSeekToYear={seekToYear}
               onVolumeChange={setVolume}
               onOpenTrackPanel={() => setIsTrackPanelOpen(true)}
+              playDisabled={!selectedZone}
+              status={status}
+              error={error}
+              hasEnded={hasEnded}
+              canPlay={canPlay}
+              onRetry={retry}
+              tracksStatus={instruments.status}
+              tracksErrorKind={instruments.errorKind}
             />
           </section>
         </main>
@@ -225,9 +248,13 @@ function AppContent() {
         title={t('tracks.title')}
       >
         <TrackSelector
+          tracks={tracks}
           trackStates={trackStates}
+          status={instruments.status}
+          errorKind={instruments.errorKind}
+          preparing={instruments.preparing}
           onTrackToggle={setTrackEnabled}
-          onTrackVolumeChange={setTrackVolume}
+          onRetry={instruments.reload}
         />
       </SlidingPanel>
 
@@ -238,22 +265,15 @@ function AppContent() {
         aria-atomic="true"
         className="sr-only"
       >
-        {isPlaying && currentPoint && (
-          t('player:announcements.nowPlaying', {
-            value: currentPoint.value.toFixed(2),
-            year: currentYear,
-          })
+        {isPlaying && reading && chunkYear !== null && (
+          t('player:announcements.nowPlaying', { reading, year: chunkYear })
         )}
       </div>
 
-      {/* Announce selected zone and points for debugging/accessibility */}
+      {/* Announce the selected zone */}
       <div className="sr-only" role="status" aria-live="polite">
-        {selectedZone && selectedPoints.length > 0 && (
-          t('zones.pointsSelected', {
-            zone: getZoneDisplayName(selectedZone, t),
-            count: selectedPoints.length,
-          })
-        )}
+        {selectedZone && selectedPoints.length > 0 &&
+          t('zones.zoneSelected', { zone: getZoneDisplayName(selectedZone, t) })}
       </div>
     </>
   );

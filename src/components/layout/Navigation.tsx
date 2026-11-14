@@ -13,7 +13,7 @@ export function Navigation() {
   const route = useHashRoute();
 
   const navItems = [
-    { id: 'home', href: '#main-content', label: t('nav.home') },
+    { id: 'home', href: '#home', label: t('nav.home') },
     { id: 'about', href: '#about', label: t('nav.about') },
   ];
 

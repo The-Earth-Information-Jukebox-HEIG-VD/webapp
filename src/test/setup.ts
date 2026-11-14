@@ -21,7 +21,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock AudioContext for sonification tests
-class MockAudioContext {
+export class MockAudioContext {
   state = 'running';
   currentTime = 0;
 
@@ -59,11 +59,39 @@ class MockAudioContext {
     };
   }
 
+  createBufferSource() {
+    const source = {
+      buffer: null as unknown,
+      onended: null as null | (() => void),
+      connect: () => {},
+      disconnect: () => {},
+      start: (when?: number) => {
+        source.startedAt = when;
+      },
+      stop: () => {},
+      startedAt: undefined as number | undefined,
+    };
+    MockAudioContext.sources.push(source);
+    return source;
+  }
+
+  decodeAudioData(data: ArrayBuffer) {
+    return Promise.resolve({ duration: 31.7, length: data.byteLength, numberOfChannels: 2 });
+  }
+
+  suspend() {
+    this.state = 'suspended';
+    return Promise.resolve();
+  }
+
+  static sources: Array<{ onended: null | (() => void); startedAt?: number; stop: () => void }> = [];
+
   get destination() {
     return {};
   }
 
   resume() {
+    this.state = 'running';
     return Promise.resolve();
   }
 

@@ -1,45 +1,45 @@
 import { useTranslation } from 'react-i18next';
 import type { Track } from '../../types/tracks';
+import { periodYear } from '../../services/sonificationApi';
 import './TrackCheckbox.css';
 
 interface TrackCheckboxProps {
   track: Track;
   enabled: boolean;
-  volume: number;
-  /** Optional instrument name from backend /api/instruments */
+  /** Instrument name from the backend /api/instruments (defaults to track.instrument) */
   instrumentName?: string;
   onToggle: (enabled: boolean) => void;
-  onVolumeChange: (volume: number) => void;
 }
 
 /**
- * Individual track checkbox with volume slider
+ * Individual track checkbox.
  *
- * Displays track info, enable toggle, and volume control.
- * Instrument name is optionally provided from backend data.
+ * Shows the track name, its instrument, the period covered and whether the data
+ * is observed or simulated. Tracks the server has no data for are disabled and
+ * say why. (The server returns one mixed file, so there is no per-track volume.)
  */
-export function TrackCheckbox({
-  track,
-  enabled,
-  volume,
-  instrumentName,
-  onToggle,
-  onVolumeChange,
-}: TrackCheckboxProps) {
+export function TrackCheckbox({ track, enabled, instrumentName, onToggle }: TrackCheckboxProps) {
   const { t } = useTranslation();
 
-  const trackName = t(track.nameKey);
-  const trackDescription = t(track.descriptionKey);
+  const trackName = t(track.nameKey, { defaultValue: track.label });
+  const instrument = instrumentName ?? track.instrument;
+  const start = periodYear(track.period?.start);
+  const end = periodYear(track.period?.end);
+  const descId = `${track.id}-desc`;
+  const instrumentId = `${track.id}-instrument`;
 
   return (
-    <div className={`track-checkbox ${enabled ? 'enabled' : ''}`}>
+    <div
+      className={`track-checkbox ${enabled ? 'enabled' : ''} ${track.available ? '' : 'unavailable'}`}
+    >
       <div className="track-header">
         <label className="track-toggle">
           <input
             type="checkbox"
             checked={enabled}
+            disabled={!track.available}
             onChange={(e) => onToggle(e.target.checked)}
-            aria-describedby={`${track.id}-desc`}
+            aria-describedby={instrument ? `${instrumentId} ${descId}` : descId}
           />
           <span
             className="track-color"
@@ -49,39 +49,23 @@ export function TrackCheckbox({
           <span className="track-name">{trackName}</span>
         </label>
 
-        {instrumentName && (
-          <span className="track-instrument">{instrumentName}</span>
-        )}
+        {instrument && <span id={instrumentId} className="track-instrument">{instrument}</span>}
       </div>
 
-      <p id={`${track.id}-desc`} className="track-description">
-        {trackDescription}
+      <p id={descId} className="track-meta">
+        {track.available ? (
+          <>
+            {start !== null && end !== null && (
+              <span>{t('tracks.period', { start, end })}</span>
+            )}
+            <span className={`track-badge ${track.realData ? 'real' : 'simulated'}`}>
+              {track.realData ? t('tracks.realData') : t('tracks.simulated')}
+            </span>
+          </>
+        ) : (
+          <span>{t('tracks.unavailable')}</span>
+        )}
       </p>
-
-      {enabled && (
-        <div className="track-volume">
-          <label htmlFor={`${track.id}-volume`} className="volume-label">
-            Volume
-          </label>
-          <input
-            id={`${track.id}-volume`}
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={volume}
-            onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-            className="volume-slider"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(volume * 100)}
-            aria-valuetext={`${Math.round(volume * 100)}%`}
-          />
-          <span className="volume-value" aria-hidden="true">
-            {Math.round(volume * 100)}%
-          </span>
-        </div>
-      )}
     </div>
   );
 }

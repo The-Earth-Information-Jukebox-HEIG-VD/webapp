@@ -4,17 +4,25 @@ import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { ZoneFeature, ZoneViewType, GridPoint } from '../../types/zones';
 import { getZoneFeatures, findZoneFeature } from '../../data/zones';
 import { getPointsInFeature, getFeatureCentroid } from '../../utils/geometry';
+import { GRID_RES_DEG, valueToAlpha } from '../../data/datasetRegistry';
+import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
 import './GlobeView.css';
 
 // Default image dimensions for NASA SVS data (typical equirectangular projection)
 const DEFAULT_IMAGE_DIMENSIONS = { width: 3600, height: 1800 };
+
+export type GlobeMode = 'select' | 'playback';
 
 interface GlobeViewProps {
   selectedZone: string | null;
   onZoneSelect: (zoneId: string, points: GridPoint[]) => void;
   zoneViewType: ZoneViewType;
   currentYear?: number;
-  anomalyData?: Map<string, number>;
+  /** 'select': zone polygons; 'playback': the zone's data as colored dots. */
+  mode?: GlobeMode;
+  /** Volume data of the selected zone (playback mode). */
+  zoneData?: ZoneDataFrames;
+  onBackToSelection?: () => void;
 }
 
 /**
@@ -31,51 +39,96 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-/**
- * Bucket a temperature anomaly into a base color:
- * warm (orange) for positive, cool (blue) for negative.
- */
-function anomalyToColor(anomaly: number): string {
-  if (anomaly < -0.5) return '#3498db'; // Cool blue
-  if (anomaly > 0.5) return '#e67e22'; // Warm orange
-  if (anomaly > 0) return '#f39c12'; // Light orange
-  if (anomaly < 0) return '#5dade2'; // Light blue
-  return '#4a90d9';
-}
-
 const VIEWING_KEYS: Record<ZoneViewType, string> = {
   continent: 'zones.viewingContinents',
   country: 'zones.viewingCountries',
   water: 'zones.viewingWater',
 };
 
-// Oceans and seas have no anomaly data: a teal cap, distinct from the
-// orange/blue land buckets and from the selected-state blue (#1a73e8, 0.8).
+const ZONE_CAP_COLOR = hexToRgba('#4a90d9', 0.4);
+const SELECTED_CAP_COLOR = hexToRgba('#1a73e8', 0.8);
+// Oceans and seas: a teal cap, distinct from land zones and from the selected-state blue.
 const WATER_CAP_COLOR = hexToRgba('#2ec4b6', 0.35);
 
 // Module-level constant accessors: a stable reference avoids react-globe.gl
 // re-processing every polygon on each render.
 const POLYGON_SIDE_COLOR = () => 'rgba(100, 150, 200, 0.15)';
 const POLYGON_STROKE_COLOR = () => 'rgba(255, 255, 255, 0.5)';
+const NO_POLYGONS: object[] = [];
+
+/** Positions of up to 5 datasets inside one grid cell (fractions of the cell). */
+const DOT_OFFSETS: [number, number][] = [
+  [-0.25, -0.25],
+  [0.25, -0.25],
+  [-0.25, 0.25],
+  [0.25, 0.25],
+  [0, 0],
+];
+
+/** One dot = one dataset at one zone cell. Objects are stable per zone. */
+interface DataDot {
+  lat: number;
+  lng: number;
+  cell: number;
+  dataset: number;
+}
+
+interface DatasetStats {
+  min: number;
+  max: number;
+  mean: number;
+  count: number;
+}
+
+function statsOf(values: Float32Array | null | undefined): DatasetStats | null {
+  if (!values) return null;
+  let min = Infinity;
+  let max = -Infinity;
+  let sum = 0;
+  let count = 0;
+  for (const v of values) {
+    if (Number.isNaN(v)) continue;
+    if (v < min) min = v;
+    if (v > max) max = v;
+    sum += v;
+    count++;
+  }
+  return count ? { min, max, mean: sum / count, count } : null;
+}
+
+function formatValue(v: number): string {
+  const a = Math.abs(v);
+  if (a !== 0 && a < 0.01) return v.toExponential(1);
+  return v.toFixed(a >= 100 ? 1 : 2);
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
 
 /**
  * 3D Globe visualization using react-globe.gl
  *
- * Displays climate zones as interactive polygons on a rotating globe.
- * Supports both continent and country-level selection.
+ * Select mode: climate zones as interactive polygons.
+ * Playback mode: the zone polygons are removed and the stored values of every
+ * dataset of the data volume are drawn as colored dots (one color per dataset,
+ * opacity from the value), updated as the music plays.
  */
 export function GlobeView({
   selectedZone,
   onZoneSelect,
   zoneViewType,
   currentYear,
-  anomalyData,
+  mode = 'select',
+  zoneData,
+  onBackToSelection,
 }: GlobeViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const globeRef = useRef<GlobeMethods>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
   const [isLoaded, setIsLoaded] = useState(false);
+  const isPlayback = mode === 'playback';
   // Note: Hover state is handled internally by react-globe.gl to avoid flickering
 
   // Update dimensions on resize
@@ -95,7 +148,7 @@ export function GlobeView({
   // Set initial globe position
   useEffect(() => {
     if (globeRef.current && isLoaded) {
-      globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, 1000);
+      globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, prefersReducedMotion() ? 0 : 1000);
     }
   }, [isLoaded]);
 
@@ -121,35 +174,16 @@ export function GlobeView({
     });
   }, [zoneFeatures, t]);
 
-  // Map each zone to its color bucket. Serialised to a string key so the color
-  // accessor below only changes when a zone actually crosses a color threshold,
-  // not on every anomaly value update.
-  const colorKey = useMemo(() => {
-    return zoneFeatures
-      .map((feature) => {
-        // For countries, fall back to the parent continent's anomaly
-        let anomaly = anomalyData?.get(feature.properties.id);
-        if (anomaly === undefined && feature.properties.parentId) {
-          anomaly = anomalyData?.get(feature.properties.parentId);
-        }
-        return `${feature.properties.id}=${anomalyToColor(anomaly ?? 0)}`;
-      })
-      .join('|');
-  }, [zoneFeatures, anomalyData]);
-
   const polygonCapColor = useMemo(() => {
-    const colors = new Map(
-      colorKey.split('|').map((entry) => entry.split('=') as [string, string])
-    );
     return (d: object) => {
       const id = (d as ZoneFeature).properties.id;
       // Hover state is handled by the library internally to avoid flickering.
       // rgba() because react-globe.gl doesn't reliably parse 8-digit hex.
-      if (id === selectedZone) return hexToRgba('#1a73e8', 0.8);
+      if (id === selectedZone) return SELECTED_CAP_COLOR;
       if (zoneViewType === 'water') return WATER_CAP_COLOR;
-      return hexToRgba(colors.get(id) ?? '#4a90d9', 0.4);
+      return ZONE_CAP_COLOR;
     };
-  }, [colorKey, selectedZone, zoneViewType]);
+  }, [selectedZone, zoneViewType]);
 
   const polygonAltitude = useCallback(
     (d: object) => ((d as ZoneFeature).properties.id === selectedZone ? 0.02 : 0.01),
@@ -171,7 +205,7 @@ export function GlobeView({
         const centroid = getFeatureCentroid(feature);
         globeRef.current.pointOfView(
           { lat: centroid.lat, lng: centroid.lng, altitude: 2 },
-          1000
+          prefersReducedMotion() ? 0 : 1000
         );
       }
     },
@@ -195,64 +229,245 @@ export function GlobeView({
     return feature ? t(feature.properties.nameKey) : selectedZone;
   }, [selectedZone, t]);
 
+  // ── Playback: data dots ─────────────────────────────────────────────
+  const grid = isPlayback ? zoneData?.grid ?? null : null;
+  const datasets = useMemo(() => zoneData?.datasets ?? [], [zoneData?.datasets]);
+  const frame = isPlayback ? zoneData?.frame ?? null : null;
+
+  // Every possible dot of the zone, built once per (zone grid, datasets)
+  const allDots = useMemo<DataDot[]>(() => {
+    if (!grid) return [];
+    const cellDeg = grid.stride * GRID_RES_DEG;
+    const dots: DataDot[] = [];
+    grid.cells.forEach((cell, c) => {
+      datasets.forEach((_, d) => {
+        const [dy, dx] = DOT_OFFSETS[d % DOT_OFFSETS.length];
+        dots.push({ lat: cell.lat + dy * cellDeg, lng: cell.lng + dx * cellDeg, cell: c, dataset: d });
+      });
+    });
+    return dots;
+  }, [grid, datasets]);
+
+  // Dots visible this month: covered by the dataset, not NaN, non-zero opacity
+  const visibleDots = useMemo(() => {
+    if (!frame) return [];
+    const series = datasets.map((ds) => frame.get(ds.info.id) ?? null);
+    return allDots.filter((dot) => {
+      const values = series[dot.dataset];
+      return values ? valueToAlpha(values[dot.cell], datasets[dot.dataset].info.display) > 0 : false;
+    });
+  }, [allDots, frame, datasets]);
+
+  const pointColor = useMemo(() => {
+    const series = datasets.map((ds) => frame?.get(ds.info.id) ?? null);
+    return (d: object) => {
+      const dot = d as DataDot;
+      const ds = datasets[dot.dataset].info;
+      const value = series[dot.dataset]?.[dot.cell] ?? NaN;
+      // Keep a floor of opacity so low values stay perceptible on the globe
+      const alpha = 0.15 + 0.85 * valueToAlpha(value, ds.display);
+      return hexToRgba(ds.color, alpha);
+    };
+  }, [frame, datasets]);
+
+  const pointRadius = useMemo(() => {
+    const r = (grid?.stride ?? 1) * GRID_RES_DEG * 0.22;
+    return () => r;
+  }, [grid]);
+
+  const pointAltitude = useCallback((d: object) => 0.004 + (d as DataDot).dataset * 0.001, []);
+
+  // Per dataset, the stored values of this month in the zone (shown in the legend and table)
+  const stats = useMemo(
+    () =>
+      datasets.map((ds) => ({
+        ds,
+        stats: frame ? statsOf(frame.get(ds.info.id)) : null,
+        // Track just switched on: its first month is still downloading
+        pending: !frame || !frame.has(ds.info.id),
+      })),
+    [datasets, frame]
+  );
+
+  const monthLabel = useMemo(() => {
+    if (!zoneData?.month) return null;
+    const [y, m] = zoneData.month.split('_').map(Number);
+    return new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+      new Date(Date.UTC(y, m - 1, 1))
+    );
+  }, [zoneData?.month, i18n.language]);
+
+  // Fly to the zone when playback starts
+  useEffect(() => {
+    if (!isPlayback || !isLoaded || !globeRef.current || !selectedZone) return;
+    const feature = findZoneFeature(selectedZone);
+    if (!feature) return;
+    const centroid = getFeatureCentroid(feature);
+    globeRef.current.pointOfView(
+      { lat: centroid.lat, lng: centroid.lng, altitude: zoneViewType === 'country' ? 1.2 : 1.8 },
+      prefersReducedMotion() ? 0 : 1000
+    );
+  }, [isPlayback, isLoaded, selectedZone, zoneViewType]);
+
+  // Escape returns to zone selection (unless a dialog is open)
+  useEffect(() => {
+    if (!isPlayback || !onBackToSelection) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('[aria-modal="true"]')) return;
+      onBackToSelection();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isPlayback, onBackToSelection]);
+
+  const status = isPlayback ? zoneData?.status ?? 'loading' : 'idle';
+  let dataStatusText = '';
+  if (status === 'loading') dataStatusText = t('globeData.loading', { zone: selectedZoneName ?? '' });
+  else if (status === 'ready')
+    dataStatusText = t('globeData.showing', {
+      count: stats.filter((s) => s.stats).length,
+      zone: selectedZoneName ?? '',
+    });
+
   return (
-    <div
-      ref={containerRef}
-      className="globe-view"
-      role="img"
-      aria-label={t('viewMode.globeDescription')}
-    >
+    <div ref={containerRef} className="globe-view">
       {!isLoaded && (
         <div className="globe-loading" aria-hidden="true">
           <div className="globe-skeleton" />
         </div>
       )}
 
-      <Globe
-        ref={globeRef}
-        width={dimensions.width}
-        height={dimensions.height}
-        backgroundColor="rgba(0,0,0,0)"
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-        // Polygon layer for zones
-        polygonsData={polygonData}
-        polygonCapColor={polygonCapColor}
-        polygonSideColor={POLYGON_SIDE_COLOR}
-        polygonStrokeColor={POLYGON_STROKE_COLOR}
-        polygonAltitude={polygonAltitude}
-        polygonLabel="label"
-        onPolygonClick={handlePolygonClick}
-        onPolygonHover={handlePolygonHover}
-        onGlobeReady={handleGlobeReady}
-        atmosphereColor="#3a228a"
-        atmosphereAltitude={0.25}
-        enablePointerInteraction={true}
-      />
+      {/* role="img" only on the canvas: it would hide the overlay controls from AT */}
+      <div className="globe-canvas" role="img" aria-label={t('viewMode.globeDescription')}>
+        <Globe
+          ref={globeRef}
+          width={dimensions.width}
+          height={dimensions.height}
+          backgroundColor="rgba(0,0,0,0)"
+          globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+          bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+          // Polygon layer for zone selection (removed during playback)
+          polygonsData={isPlayback ? NO_POLYGONS : polygonData}
+          polygonCapColor={polygonCapColor}
+          polygonSideColor={POLYGON_SIDE_COLOR}
+          polygonStrokeColor={POLYGON_STROKE_COLOR}
+          polygonAltitude={polygonAltitude}
+          polygonLabel="label"
+          onPolygonClick={handlePolygonClick}
+          onPolygonHover={handlePolygonHover}
+          // Data layer: one dot per zone cell per dataset (playback)
+          pointsData={visibleDots}
+          pointColor={pointColor}
+          pointRadius={pointRadius}
+          pointAltitude={pointAltitude}
+          pointsMerge={true}
+          pointsTransitionDuration={0}
+          onGlobeReady={handleGlobeReady}
+          atmosphereColor="#3a228a"
+          atmosphereAltitude={0.25}
+          enablePointerInteraction={true}
+        />
+      </div>
 
       {currentYear && (
-        <div className="globe-year-display" aria-live="polite">
+        <div className="globe-year-display">
           {selectedZoneName && (
             // Hidden from AT: the role="status" region below already announces selection
             <span className="globe-zone-name" aria-hidden="true">
               {selectedZoneName}
             </span>
           )}
-          <span className="year-label">{t('dateTime.year')}</span>
-          <span className="year-value">{currentYear}</span>
+          <span className="year-label" aria-hidden="true">{t('dateTime.year')}</span>
+          {/* Announced once per year; the month below is visual only (it changes too often) */}
+          <span className="year-value" aria-live="polite">{currentYear}</span>
+          {isPlayback && monthLabel && (
+            <span className="globe-month" aria-hidden="true">{monthLabel}</span>
+          )}
         </div>
       )}
 
-      {/* Zone type indicator */}
-      <div className="globe-zone-type" aria-hidden="true">
-        <span className="zone-type-label">
-          {t(VIEWING_KEYS[zoneViewType])}
-        </span>
-      </div>
+      {isPlayback ? (
+        <div className="globe-data-panel">
+          <button type="button" className="globe-back-button" onClick={onBackToSelection}>
+            <span aria-hidden="true">←</span> {t('globeData.changeZone')}
+            <span className="sr-only"> ({t('globeData.changeZoneHint')})</span>
+          </button>
 
-      {/* Screen reader announcement for selected zone */}
+          <section className="globe-legend" aria-label={t('globeData.legendTitle')}>
+            <h3 className="globe-legend-title">{t('globeData.legendTitle')}</h3>
+            {stats.length === 0 && status === 'ready' && (
+              <p className="globe-data-status">{t('globeData.noSelectedDataset')}</p>
+            )}
+            <ul>
+              {stats.map(({ ds, stats: s, pending }) => (
+                <li key={ds.info.id} className={s ? undefined : 'no-data'}>
+                  <span className="globe-legend-swatch" style={{ backgroundColor: ds.info.color }} aria-hidden="true" />
+                  <span className="globe-legend-name">{t(ds.info.labelKey)}</span>
+                  <span className="globe-legend-range">
+                    {s
+                      ? t('globeData.range', {
+                          min: formatValue(s.min),
+                          max: formatValue(s.max),
+                          units: ds.info.units,
+                        })
+                      : pending
+                        ? t('globeData.loadingShort')
+                        : t('globeData.noDataForMonth')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {status === 'loading' && <p className="globe-data-status">{t('globeData.loadingShort')}</p>}
+            {status === 'error' && (
+              <p className="globe-data-error" role="alert">
+                {t('globeData.error', { message: zoneData?.error ?? '' })}
+              </p>
+            )}
+          </section>
+        </div>
+      ) : (
+        /* Zone type indicator */
+        <div className="globe-zone-type" aria-hidden="true">
+          <span className="zone-type-label">{t(VIEWING_KEYS[zoneViewType])}</span>
+        </div>
+      )}
+
+      {/* Data table alternative to the dots (screen readers) */}
+      {isPlayback && monthLabel && (
+        <table className="sr-only">
+          <caption>{t('globeData.tableCaption', { zone: selectedZoneName ?? '', month: monthLabel })}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t('globeData.dataset')}</th>
+              <th scope="col">{t('globeData.min')}</th>
+              <th scope="col">{t('globeData.mean')}</th>
+              <th scope="col">{t('globeData.max')}</th>
+              <th scope="col">{t('globeData.units')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.map(({ ds, stats: s }) => (
+              <tr key={ds.info.id}>
+                <th scope="row">{t(ds.info.labelKey)}</th>
+                {s ? (
+                  <>
+                    <td>{formatValue(s.min)}</td>
+                    <td>{formatValue(s.mean)}</td>
+                    <td>{formatValue(s.max)}</td>
+                  </>
+                ) : (
+                  <td colSpan={3}>{t('globeData.noDataForMonth')}</td>
+                )}
+                <td>{ds.info.units}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Screen reader announcements: selected zone, then data loading state */}
       <div className="sr-only" role="status" aria-live="polite">
-        {selectedZoneName && t('zones.selected', { zone: selectedZoneName })}
+        {isPlayback ? dataStatusText : selectedZoneName && t('zones.selected', { zone: selectedZoneName })}
       </div>
     </div>
   );

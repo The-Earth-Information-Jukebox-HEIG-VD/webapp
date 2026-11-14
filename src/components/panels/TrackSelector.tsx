@@ -1,49 +1,110 @@
+import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { tracks } from '../../data/tracks';
-import type { TrackState } from '../../types/tracks';
+import type { Track, TrackState } from '../../types/tracks';
+import type { InstrumentsStatus } from '../../hooks/useInstruments';
+import type { ApiErrorKind } from '../../services/sonificationApi';
 import { TrackCheckbox } from './TrackCheckbox';
 import './TrackSelector.css';
 
 interface TrackSelectorProps {
+  /** Tracks built from the backend's /api/instruments */
+  tracks: Track[];
   trackStates: TrackState[];
+  status: InstrumentsStatus;
+  errorKind?: ApiErrorKind | null;
+  /** The server is still converting its data */
+  preparing?: boolean;
   onTrackToggle: (trackId: string, enabled: boolean) => void;
-  onTrackVolumeChange: (trackId: string, volume: number) => void;
+  onRetry: () => void;
 }
 
 /**
- * Track selector component for multi-track sonification
+ * Track selector for multi-track sonification.
  *
- * Allows users to enable/disable tracks and adjust individual volumes.
- * Each track represents a different climate metric with its own instrument.
+ * Lists the instruments the server offers (loaded at runtime) and lets the user
+ * enable several at once. Handles the loading and error states accessibly.
  */
 export function TrackSelector({
+  tracks,
   trackStates,
+  status,
+  errorKind,
+  preparing = false,
   onTrackToggle,
-  onTrackVolumeChange,
+  onRetry,
 }: TrackSelectorProps) {
   const { t } = useTranslation();
 
-  return (
-    <div className="track-selector" role="group" aria-label={t('tracks.title')}>
-      <p className="track-selector-description">
-        Enable multiple tracks to hear different climate metrics simultaneously.
-        Each track uses a different instrument for distinction.
-      </p>
+  const enabledCount = trackStates.filter((s) => s.enabled).length;
+  const rootRef = useRef<HTMLDivElement>(null);
 
-      <div className="track-list">
+  // The error block (and its Retry button) disappears on retry: move focus to
+  // the selector itself so it stays inside the panel's focus trap
+  const handleRetry = useCallback(() => {
+    rootRef.current?.focus();
+    onRetry();
+  }, [onRetry]);
+
+  // One permanently mounted live region; the visible messages below have no role
+  const liveMessage =
+    status === 'loading'
+      ? t('tracks.loading')
+      : status === 'ready' && preparing
+        ? t('errors.serverPreparing')
+        : status === 'ready' && enabledCount === 0
+          ? t('tracks.noneSelected')
+          : '';
+
+  return (
+    <div
+      ref={rootRef}
+      tabIndex={-1}
+      className="track-selector"
+      role="group"
+      aria-label={t('tracks.title')}
+    >
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </div>
+
+      <p className="track-selector-description">{t('tracks.description')}</p>
+
+      {status === 'loading' && (
+        <p className="track-selector-status">
+          {t('tracks.loading')}
+        </p>
+      )}
+
+      {status === 'error' && (
+        <div className="track-selector-status error" role="alert">
+          <p>{t(`errors.${errorKind ?? 'unknown'}`)}</p>
+          <button type="button" className="track-selector-retry" onClick={handleRetry}>
+            {t('tracks.retry')}
+          </button>
+        </div>
+      )}
+
+      {status === 'ready' && preparing && (
+        <p className="track-selector-status">
+          {t('errors.serverPreparing')}
+        </p>
+      )}
+
+      {status === 'ready' && enabledCount === 0 && (
+        <p className="track-selector-status">
+          {t('tracks.noneSelected')}
+        </p>
+      )}
+
+      <div className="track-list" aria-busy={status === 'loading'}>
         {tracks.map((track) => {
           const state = trackStates.find((s) => s.id === track.id);
-          const isEnabled = state?.enabled ?? track.defaultEnabled;
-          const volume = state?.volume ?? track.defaultVolume;
-
           return (
             <TrackCheckbox
               key={track.id}
               track={track}
-              enabled={isEnabled}
-              volume={volume}
+              enabled={state?.enabled ?? false}
               onToggle={(enabled) => onTrackToggle(track.id, enabled)}
-              onVolumeChange={(vol) => onTrackVolumeChange(track.id, vol)}
             />
           );
         })}

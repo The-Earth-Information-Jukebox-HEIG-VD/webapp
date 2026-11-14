@@ -7,13 +7,14 @@
     "skipForward": "Skip forward 10 years",
     "tracks": "Audio tracks ({{count}} active)",
     "jumpToStart": "Jump to start",
-    "jumpToEnd": "Jump to end"
+    "jumpToEnd": "Jump to end",
+    "selectZoneFirst": "Select a zone on the globe to play"
   },
   "status": {
     "playing": "Playing",
     "paused": "Paused",
     "stopped": "Stopped",
-    "loading": "Loading audio..."
+    "loading": "Loading audio…"
   },
   "timeline": {
     "label": "Climate data timeline",
@@ -44,13 +45,25 @@
     "question": "Show keyboard shortcuts"
   },
   "announcements": {
-    "nowPlaying": "Now playing: {{value}}°C anomaly for year {{year}}",
+    "nowPlaying": "Now playing {{year}}: {{reading}}",
     "seekedTo": "Seeked to year {{year}}",
     "trackEnabled": "{{track}} track enabled",
     "trackDisabled": "{{track}} track disabled",
     "playbackStarted": "Playback started from year {{year}}",
     "playbackPaused": "Playback paused at year {{year}}",
     "playbackStopped": "Playback stopped and reset to {{year}}",
-    "playbackComplete": "Playback complete. Data spans from {{startYear}} to {{endYear}}"
+    "playbackComplete": "Playback complete. Data spans from {{startYear}} to {{endYear}}",
+    "anomalyValue": "{{value}} {{units}} vs normal",
+    "absoluteValue": "{{value}} {{units}}"
+  },
+  "loadingChunk": "Loading audio for {{year}}…",
+  "endOfData": "End of the data reached.",
+  "retry": "Retry",
+  "noTrackHint": "Select at least one track to play.",
+  "units": {
+    "degC": "degrees Celsius",
+    "K": "kelvin",
+    "ppm": "parts per million",
+    "percent": "percent"
   }
 }

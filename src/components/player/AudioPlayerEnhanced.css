@@ -79,6 +79,19 @@
   background: var(--color-primary-dark);
 }
 
+/* No zone selected: Play is disabled. The icon keeps >= 3:1 against the
+   button (WCAG 1.4.11) and the reason is spelled out in the hint below. */
+.control-button.play-pause:disabled {
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+  border: 2px dashed var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.player-center {
+  position: relative;
+}
+
 .control-button.play-pause svg {
   width: 30px;
   height: 30px;
@@ -190,4 +203,50 @@
     width: auto;
     overflow: visible;
   }
+}
+
+.audio-player-enhanced {
+  flex-wrap: wrap;
+}
+
+.player-message {
+  flex: 1 0 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.player-message.error {
+  font-weight: 600;
+}
+
+.player-retry {
+  min-height: 44px;
+  padding: 0 var(--spacing-md);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.player-retry:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

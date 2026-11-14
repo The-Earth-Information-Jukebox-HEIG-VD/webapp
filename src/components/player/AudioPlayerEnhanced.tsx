@@ -1,8 +1,11 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Timeline } from './Timeline';
 import { VolumeControl } from './VolumeControl';
 import type { TrackState } from '../../types/tracks';
+import type { SonificationError, SonificationStatus } from '../../hooks/useSonification';
+import type { InstrumentsStatus } from '../../hooks/useInstruments';
+import type { ApiErrorKind } from '../../services/sonificationApi';
 import './AudioPlayerEnhanced.css';
 
 interface AudioPlayerEnhancedProps {
@@ -17,6 +20,20 @@ interface AudioPlayerEnhancedProps {
   onSeekToYear: (year: number) => void;
   onVolumeChange: (volume: number) => void;
   onOpenTrackPanel: () => void;
+  /** Disable Play (e.g. no zone selected yet). Pause stays available. */
+  playDisabled?: boolean;
+  /** Backend request status */
+  status?: SonificationStatus;
+  error?: SonificationError | null;
+  /** Playback reached the end of the data */
+  hasEnded?: boolean;
+  /** false when no track is enabled or no area is selected */
+  canPlay?: boolean;
+  onRetry?: () => void;
+  /** Loading state of the track list (GET /api/instruments) */
+  tracksStatus?: InstrumentsStatus;
+  /** Why the track list failed to load, when tracksStatus is 'error' */
+  tracksErrorKind?: ApiErrorKind | null;
 }
 
 /**
@@ -41,18 +58,82 @@ export function AudioPlayerEnhanced({
   onSeekToYear,
   onVolumeChange,
   onOpenTrackPanel,
+  playDisabled = false,
+  status = 'idle',
+  error = null,
+  hasEnded = false,
+  canPlay = true,
+  onRetry,
+  tracksStatus = 'ready',
+  tracksErrorKind = null,
 }: AudioPlayerEnhancedProps) {
   const { t } = useTranslation('player');
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const playButtonRef = useRef<HTMLButtonElement>(null);
+  const isLoading = status === 'loading';
+  const hasError = status === 'error' && error !== null;
+
+  const handleRetry = useCallback(() => {
+    // The Retry button disappears once clicked: keep keyboard focus in the player
+    playButtonRef.current?.focus();
+    onRetry?.();
+  }, [onRetry]);
+  // Pausing is always allowed (WCAG 1.4.2), only starting playback can be disabled
+  const playBlocked = playDisabled || !canPlay;
+  const playPauseDisabled = playBlocked && !isPlaying;
+
+  // Explain the real blocker, most fundamental first: without the track
+  // list, picking a zone or a track cannot make Play work
+  const playDisabledHint =
+    tracksStatus === 'error'
+      ? t(`common:errors.${tracksErrorKind ?? 'unknown'}`)
+      : tracksStatus === 'loading'
+        ? t('common:tracks.loading')
+        : playDisabled
+          ? t('controls.selectZoneFirst')
+          : !canPlay
+            ? t('noTrackHint')
+            : null;
+
+  // Spoken when Play is activated while blocked (the button stays focusable)
+  const [blockedNotice, setBlockedNotice] = useState('');
+  // Loading is announced on the first load, then only when it takes noticeably long
+  const [loadingNotice, setLoadingNotice] = useState(false);
+  const firstLoad = useRef(true);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingNotice(false);
+      return;
+    }
+    if (firstLoad.current) {
+      firstLoad.current = false;
+      setLoadingNotice(true);
+      return;
+    }
+    const id = window.setTimeout(() => setLoadingNotice(true), 1000);
+    return () => window.clearTimeout(id);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!blockedNotice) return;
+    const id = window.setTimeout(() => setBlockedNotice(''), 6000);
+    return () => window.clearTimeout(id);
+  }, [blockedNotice]);
 
   const handlePlayPause = useCallback(() => {
     if (isPlaying) {
       onPause();
-    } else {
+    } else if (!playBlocked) {
+      setBlockedNotice('');
       onPlay();
+    } else if (playDisabledHint) {
+      // Clear first so repeated activations are announced again
+      setBlockedNotice('');
+      window.setTimeout(() => setBlockedNotice(playDisabledHint), 50);
     }
-  }, [isPlaying, onPlay, onPause]);
+  }, [isPlaying, playBlocked, playDisabledHint, onPlay, onPause]);
 
   const handleVolumeChange = useCallback(
     (newVolume: number) => {
@@ -129,6 +210,29 @@ export function AudioPlayerEnhanced({
 
   return (
     <div className="audio-player-enhanced">
+      {/* Visible status line: loading / error with Retry / end of data / no track */}
+      {isLoading && (
+        <p className="player-message">
+          {t('loadingChunk', { year: currentYear })}
+        </p>
+      )}
+      {hasError && (
+        <p className="player-message error" role="alert">
+          <span>{t(`common:errors.${error.kind}`)}</span>
+          <button type="button" className="player-retry" onClick={handleRetry}>
+            {t('retry')}
+          </button>
+        </p>
+      )}
+      {!isLoading && !hasError && hasEnded && (
+        <p className="player-message">{t('endOfData')}</p>
+      )}
+      {playPauseDisabled && playDisabledHint && (
+        <p id="play-disabled-hint" className="player-message">
+          {playDisabledHint}
+        </p>
+      )}
+
       <div className="player-center">
         <button
           type="button"
@@ -142,7 +246,10 @@ export function AudioPlayerEnhanced({
         <button
           type="button"
           className="control-button play-pause"
+          ref={playButtonRef}
           onClick={handlePlayPause}
+          aria-disabled={playPauseDisabled || undefined}
+          aria-describedby={playPauseDisabled ? 'play-disabled-hint' : undefined}
           aria-label={isPlaying ? t('controls.pause') : t('controls.play')}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -194,9 +301,18 @@ export function AudioPlayerEnhanced({
         </button>
       </div>
 
-      {/* Status announcement for screen readers */}
-      <div className="sr-only" role="status" aria-live="polite">
-        {isPlaying ? t('status.playing') : t('status.paused')}
+      {/* One permanently mounted live region. Play/pause state is carried by the button label. */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {blockedNotice ||
+          (hasError
+            ? ''
+            : isLoading
+              ? loadingNotice
+                ? t('status.loading')
+                : ''
+              : hasEnded
+                ? t('endOfData')
+                : '')}
       </div>
     </div>
   );

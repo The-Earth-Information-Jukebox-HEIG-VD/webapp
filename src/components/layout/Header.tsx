@@ -16,7 +16,7 @@ export function Header() {
     <header className="header" role="banner">
       <div className="header-container">
         <div className="header-logo">
-          <a href="#main-content" className="logo-link">
+          <a href="#home" className="logo-link">
             <GlobeIcon />
             <span className="logo-text">{t('app.title')}</span>
           </a>

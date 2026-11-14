@@ -7,13 +7,14 @@
     "skipForward": "10 Jahre vorspringen",
     "tracks": "Audiospuren ({{count}} aktiv)",
     "jumpToStart": "Zum Anfang springen",
-    "jumpToEnd": "Zum Ende springen"
+    "jumpToEnd": "Zum Ende springen",
+    "selectZoneFirst": "Wählen Sie eine Zone auf dem Globus, um abzuspielen"
   },
   "status": {
     "playing": "Wiedergabe läuft",
     "paused": "Pausiert",
     "stopped": "Gestoppt",
-    "loading": "Audio wird geladen..."
+    "loading": "Audio wird geladen…"
   },
   "timeline": {
     "label": "Klimadaten-Zeitachse",
@@ -44,13 +45,25 @@
     "question": "Tastaturkürzel anzeigen"
   },
   "announcements": {
-    "nowPlaying": "Wiedergabe: {{value}}°C Anomalie für Jahr {{year}}",
+    "nowPlaying": "Wiedergabe {{year}}: {{reading}}",
     "seekedTo": "Gesprungen zu Jahr {{year}}",
     "trackEnabled": "Spur {{track}} aktiviert",
     "trackDisabled": "Spur {{track}} deaktiviert",
     "playbackStarted": "Wiedergabe gestartet ab Jahr {{year}}",
     "playbackPaused": "Wiedergabe pausiert bei Jahr {{year}}",
     "playbackStopped": "Wiedergabe gestoppt und zurückgesetzt auf {{year}}",
-    "playbackComplete": "Wiedergabe abgeschlossen. Daten umfassen {{startYear}} bis {{endYear}}"
+    "playbackComplete": "Wiedergabe abgeschlossen. Daten umfassen {{startYear}} bis {{endYear}}",
+    "anomalyValue": "{{value}} {{units}} gegenüber dem Normalwert",
+    "absoluteValue": "{{value}} {{units}}"
+  },
+  "loadingChunk": "Audio für {{year}} wird geladen…",
+  "endOfData": "Ende der Daten erreicht.",
+  "retry": "Erneut versuchen",
+  "noTrackHint": "Wählen Sie mindestens eine Spur zum Abspielen.",
+  "units": {
+    "degC": "Grad Celsius",
+    "K": "Kelvin",
+    "ppm": "ppm (Teile pro Million)",
+    "percent": "Prozent"
   }
 }
