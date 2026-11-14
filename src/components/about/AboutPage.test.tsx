@@ -30,13 +30,23 @@ describe('AboutPage accessibility', () => {
     await i18n.changeLanguage('en');
     render(<AboutPage />);
     const sources = within(screen.getByRole('region', { name: 'Data sources' }));
-    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /Earth at Night/, /Natural Earth/]) {
+    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /MODIS/, /Earth at Night/, /Natural Earth/]) {
       expect(sources.getByRole('link', { name })).toBeInTheDocument();
     }
     expect(screen.queryByText(/POWER/)).not.toBeInTheDocument();
     expect(screen.queryByText(/press \?/i)).not.toBeInTheDocument();
     // Not stated anywhere in the backend or the data processing: must not be claimed
     expect(screen.queryByText(/1951/)).not.toBeInTheDocument();
+  });
+
+  it('names the instruments the backend plays (sonification v0.2.0)', async () => {
+    await i18n.changeLanguage('en');
+    render(<AboutPage />);
+    const orchestra = within(screen.getByRole('region', { name: /orchestra/i }));
+    for (const text of [/Lightning: timpani/, /Fires: trombones/, /Night lights: synth pad/]) {
+      expect(orchestra.getByText(text)).toBeInTheDocument();
+    }
+    expect(screen.queryByText(/xylophone|harp/i)).not.toBeInTheDocument();
   });
 
   it.each(['fr', 'de'])('is translated in %s, keeping the EarthChestra name', async (lang) => {

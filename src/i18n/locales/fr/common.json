@@ -402,7 +402,7 @@
     "howTracks": "Choisissez les jeux de données à écouter dans le panneau Pistes Audio. Chaque jeu de données est joué par son propre instrument.",
     "howPlay": "Lancez la lecture. Chaque jeu de données est moyenné sur votre zone, mois par mois, et chaque mois devient une mesure musicale.",
     "howPitch": "Les valeurs élevées jouent des notes aiguës, par rapport à l'étendue propre à votre zone : une valeur donne donc toujours la même note.",
-    "howLoudness": "La pluie, la neige, la foudre et les lumières nocturnes ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, et plus il y a d'éclairs, plus le xylophone frappe de coups par temps.",
+    "howLoudness": "La pluie, la neige, la foudre, les feux et les lumières nocturnes ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, plus il y a d'éclairs, plus les timbales frappent de coups par temps, et les trombones enflent avec les feux. Les lumières nocturnes changent une fois par an : la nappe de synthétiseur commence nettement chaque janvier, puis s'estompe lentement au fil de l'année.",
     "howGaps": "Lorsqu'un jeu de données n'a pas de données pour une date (par exemple le CO₂ avant septembre 2002), son instrument se tait.",
     "howGlobe": "Pendant la musique, le globe affiche les données de votre zone : une couleur par jeu de données, et plus la valeur est forte, plus le point est opaque. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
     "orchestraTitle": "L'orchestre",
@@ -412,8 +412,9 @@
       "co2": "CO₂ : contrebasse",
       "rain": "Pluie : violons",
       "snow": "Neige : glockenspiel",
-      "lightning": "Foudre : xylophone",
-      "nightLights": "Lumières nocturnes : harpe"
+      "lightning": "Foudre : timbales",
+      "fires": "Feux : trombones",
+      "nightLights": "Lumières nocturnes : nappe de synthétiseur"
     },
     "dataTitle": "Sources des données",
     "dataText": "Les fichiers de cartes des jeux de données partagent une même grille de 0,25° : un lieu a la même position dans chaque jeu de données.",
@@ -421,6 +422,7 @@
       "gistemp": "anomalie mensuelle de la température de surface (°C), de janvier 1880 à décembre 2025.",
       "imerg": "pluie et neige (la neige en eau de fonte), moyennes mensuelles du taux de précipitation journalier, de juin 2000 à novembre 2026.",
       "lis": "part de chaque pixel de la carte touchée par la foudre, mensuelle, entre 55° S et 55° N, de mars 2017 à juillet 2023.",
+      "modis": "nombre de jours du mois avec au moins un feu détecté (Terra et Aqua), de juillet 2002 à novembre 2026.",
       "nightLights": "lumières nocturnes, luminosité de 0 à 1, une carte par an de 2012 à 2023 ; la carte de chaque année sert pour ses 12 mois.",
       "co2": "concentration mensuelle de CO₂ (ppm), extraite par l'équipe, de septembre 2002 à mars 2022.",
       "naturalEarth": "contours des continents, pays, océans et mers (domaine public)."

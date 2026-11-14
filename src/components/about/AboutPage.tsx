@@ -7,13 +7,14 @@ export const DOCS_URL = 'https://the-earth-information-jukebox-heig-vd.github.io
 const DOCS_TECH_URL = `${DOCS_URL}development/overview/`;
 
 /** Datasets as played by the backend (sonification/music/orchestra.py ORCHESTRA). */
-const INSTRUMENT_KEYS = ['temperature', 'co2', 'rain', 'snow', 'lightning', 'nightLights'] as const;
+const INSTRUMENT_KEYS = ['temperature', 'co2', 'rain', 'snow', 'lightning', 'fires', 'nightLights'] as const;
 
 /** Where each dataset comes from (datasets repository history and READMEs). */
 const SOURCES: { key: string; name: string; href?: string }[] = [
   { key: 'gistemp', name: 'NASA GISTEMP v4', href: 'https://data.giss.nasa.gov/gistemp/' },
   { key: 'imerg', name: 'NASA GPM IMERG', href: 'https://gpm.nasa.gov/data/imerg' },
   { key: 'lis', name: 'ISS LIS (NASA SVS 5011)', href: 'https://svs.gsfc.nasa.gov/5011' },
+  { key: 'modis', name: 'NASA MODIS active fires (FIRMS)', href: 'https://firms.modaps.eosdis.nasa.gov/' },
   { key: 'nightLights', name: 'NASA Earth at Night (SVS 5276)', href: 'https://svs.gsfc.nasa.gov/5276' },
   { key: 'co2', name: 'CO₂' },
   { key: 'naturalEarth', name: 'Natural Earth', href: 'https://www.naturalearthdata.com/' },

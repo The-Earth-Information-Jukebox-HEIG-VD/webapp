@@ -402,7 +402,7 @@
     "howTracks": "Wählen Sie im Bereich Audio-Spuren die Datensätze, die Sie hören möchten. Jeder Datensatz wird von einem eigenen Instrument gespielt.",
     "howPlay": "Starten Sie die Wiedergabe. Jeder Datensatz wird Monat für Monat über Ihre Zone gemittelt, und jeder Monat wird zu einem Takt Musik.",
     "howPitch": "Höhere Werte klingen höher, gemessen am eigenen Wertebereich Ihrer Zone: Ein Wert ergibt also immer denselben Ton.",
-    "howLoudness": "Regen, Schnee, Blitze und Nachtlichter spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, und mehr Blitze bedeuten mehr Xylofonschläge pro Zählzeit.",
+    "howLoudness": "Regen, Schnee, Blitze, Brände und Nachtlichter spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, mehr Blitze bedeuten mehr Paukenschläge pro Zählzeit, und die Posaunen schwellen mit den Bränden an. Nachtlichter ändern sich einmal im Jahr: Das Synthesizer-Pad setzt jeden Januar deutlich ein und klingt dann im Lauf des Jahres langsam ab.",
     "howGaps": "Hat ein Datensatz für ein Datum keine Daten (zum Beispiel CO₂ vor September 2002), schweigt sein Instrument.",
     "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone: eine Farbe pro Datensatz, und je stärker der Wert, desto deckender der Punkt. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
     "orchestraTitle": "Das Orchester",
@@ -412,8 +412,9 @@
       "co2": "CO₂: Kontrabass",
       "rain": "Regen: Violinen",
       "snow": "Schnee: Glockenspiel",
-      "lightning": "Blitze: Xylofon",
-      "nightLights": "Nachtlichter: Harfe"
+      "lightning": "Blitze: Pauken",
+      "fires": "Brände: Posaunen",
+      "nightLights": "Nachtlichter: Synthesizer-Pad"
     },
     "dataTitle": "Datenquellen",
     "dataText": "Die Kartendateien der Datensätze teilen ein Raster von 0,25°, sodass ein Ort in jedem Datensatz dieselbe Position hat.",
@@ -421,6 +422,7 @@
       "gistemp": "monatliche Anomalie der Oberflächentemperatur (°C), Januar 1880 bis Dezember 2025.",
       "imerg": "Regen und Schnee (Schnee als Schmelzwasser), Monatsmittel der täglichen Niederschlagsrate, Juni 2000 bis November 2026.",
       "lis": "Anteil jedes Kartenpixels mit Blitzen, monatlich, zwischen 55° S und 55° N, März 2017 bis Juli 2023.",
+      "modis": "Tage im Monat mit mindestens einem erkannten Feuer (Terra und Aqua), Juli 2002 bis November 2026.",
       "nightLights": "Nachtlichter, Helligkeit von 0 bis 1, eine Karte pro Jahr von 2012 bis 2023; die Karte eines Jahres gilt für seine 12 Monate.",
       "co2": "monatliche CO₂-Konzentration (ppm), vom Team extrahiert, September 2002 bis März 2022.",
       "naturalEarth": "Umrisse von Kontinenten, Ländern, Ozeanen und Meeren (gemeinfrei)."
