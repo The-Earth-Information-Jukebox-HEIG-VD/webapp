@@ -1,0 +1,42 @@
+# Dependencies (will be installed fresh in container)
+node_modules/
+
+# Build output (will be rebuilt in container)
+dist/
+
+# Development files
+.git/
+.gitignore
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test files (not needed in production image)
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage/
+.vitest/
+
+# Documentation
+*.md
+docs/
+
+# Environment files (secrets should be injected at runtime)
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (prevent recursive copy)
+Dockerfile*
+docker-compose*
+.dockerignore
