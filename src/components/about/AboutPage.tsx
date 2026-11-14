@@ -62,6 +62,7 @@ export function AboutPage() {
           <li>{t('about.howPlay')}</li>
           <li>{t('about.howPitch')}</li>
           <li>{t('about.howLoudness')}</li>
+          <li>{t('about.howGaps')}</li>
           <li>{t('about.howGlobe')}</li>
         </ol>
       </section>

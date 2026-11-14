@@ -35,6 +35,8 @@ describe('AboutPage accessibility', () => {
     }
     expect(screen.queryByText(/POWER/)).not.toBeInTheDocument();
     expect(screen.queryByText(/press \?/i)).not.toBeInTheDocument();
+    // Not stated anywhere in the backend or the data processing: must not be claimed
+    expect(screen.queryByText(/1951/)).not.toBeInTheDocument();
   });
 
   it.each(['fr', 'de'])('is translated in %s, keeping the EarthChestra name', async (lang) => {
