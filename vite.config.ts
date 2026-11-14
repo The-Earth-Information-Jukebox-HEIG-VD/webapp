@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  // GitLab Pages deploys to a subpath (/<project-name>/)
+  // In CI, use the project name; locally, use root
+  base: process.env.CI ? `/${process.env.CI_PROJECT_NAME}/` : '/',
   server: {
     port: 5173,
     proxy: {
