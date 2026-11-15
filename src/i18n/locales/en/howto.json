@@ -33,11 +33,11 @@
     },
     "loud": {
       "title": "Louder = more of it",
-      "text": "Rain, snow, lightning, fires, night lights and sea ice only play when present. Temperature and CO₂ always play."
+      "text": "Rain, snow, lightning, fires, night lights, sea ice, vegetation, carbon monoxide and ocean chlorophyll only play when present. Temperature and CO₂ always play."
     },
     "tempo": {
-      "title": "Faster = warmer",
-      "text": "Only with Temperature on: a month warmer than usual for your zone plays faster. Otherwise, and in Vinyl Space and Both, the tempo stays steady."
+      "title": "Faster = more CO₂",
+      "text": "The music speeds up with the global CO₂ of each month, whatever tracks are on: slow in 1880, fastest today. In Vinyl Space and Both, the tempo stays steady."
     },
     "silence": {
       "title": "Silence = no data",

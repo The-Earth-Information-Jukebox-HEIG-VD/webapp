@@ -33,11 +33,11 @@
     },
     "loud": {
       "title": "Plus fort = davantage",
-      "text": "Pluie, neige, éclairs, feux, lumières nocturnes et glace de mer ne jouent que s’ils sont présents. Température et CO₂ jouent toujours."
+      "text": "Pluie, neige, éclairs, feux, lumières nocturnes, glace de mer, végétation, monoxyde de carbone et chlorophylle océanique ne jouent que s’ils sont présents. Température et CO₂ jouent toujours."
     },
     "tempo": {
-      "title": "Plus rapide = plus chaud",
-      "text": "Seulement avec Température activée : un mois plus chaud que d’habitude pour votre zone joue plus vite. Sinon, et en Vinyle L'espace et Les deux, le tempo reste stable."
+      "title": "Plus rapide = plus de CO₂",
+      "text": "La musique accélère avec le CO₂ mondial de chaque mois, quelles que soient les pistes activées : lente en 1880, la plus rapide aujourd’hui. En Vinyle L'espace et Les deux, le tempo reste stable."
     },
     "silence": {
       "title": "Silence = pas de données",

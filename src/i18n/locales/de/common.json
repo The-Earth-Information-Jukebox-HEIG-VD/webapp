@@ -505,7 +505,7 @@
     "teamText": "Entwickelt an der HEIG-VD (Yverdon-les-Bains, Schweiz) für die NASA Space Apps Challenge 2026.",
     "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther und Léo Zmoos.",
     "back": "Zurück zum Globus",
-    "howStyle": "Mit dem Musikstil wählen Sie, wie die Daten gespielt werden: Orchester, Ragtime, Swing, Rock'n'Roll, Funk, Synthpop, House, Trap oder aufgenommene Geräusche von Regen, Feuer und Donner. Die Temperatur bestimmt das Tempo, daher hängt die Zahl der Monate in jedem 30-Sekunden-Abschnitt von Stil und Daten ab.",
+    "howStyle": "Mit dem Musikstil wählen Sie, wie die Daten gespielt werden: Orchester, Ragtime, Swing, Rock'n'Roll, Funk, Synthpop, House, Trap oder aufgenommene Geräusche von Regen, Feuer und Donner. Das globale CO₂ bestimmt das Tempo, daher hängt die Zahl der Monate in jedem 30-Sekunden-Abschnitt von Stil und Daten ab.",
     "howVinyl": "Der Vinyl-Modus spielt die Daten wie eine Schallplatte: Die Nadel kann durch den Raum reisen (ein Datum, die Nadel durchquert Orte), durch die Zeit (ein Ort, die Monate vergehen) oder beides (die Nadel durchquert Orte und das Datum rückt mit jeder Rille weiter)."
   },
   "globeData": {

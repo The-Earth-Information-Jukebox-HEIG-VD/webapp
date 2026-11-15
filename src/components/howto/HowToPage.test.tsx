@@ -50,11 +50,11 @@ describe('HowToPage', () => {
     for (const term of ['Space', 'Time', 'Both']) expect(modes.getByText(term, { selector: 'dt' })).toBeInTheDocument();
   });
 
-  it('says the tempo follows the temperature only when the Temperature track is on (orchestra.py compose)', async () => {
+  it('says the global CO2 sets the tempo whatever the tracks (API v2.13, orchestra.py compose tempo_source="co2")', async () => {
     await i18n.changeLanguage('en');
     render(<HowToPage />);
-    const tempo = screen.getByRole('heading', { level: 3, name: 'Faster = warmer' }).parentElement!;
-    expect(tempo).toHaveTextContent(/only with temperature on/i);
+    const tempo = screen.getByRole('heading', { level: 3, name: 'Faster = more CO₂' }).parentElement!;
+    expect(tempo).toHaveTextContent(/global CO₂ of each month, whatever tracks are on/i);
     expect(tempo).toHaveTextContent(/tempo stays steady/i);
   });
 

@@ -505,7 +505,7 @@
     "teamText": "Built at HEIG-VD (Yverdon-les-Bains, Switzerland) for the NASA Space Apps Challenge 2026.",
     "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther and Léo Zmoos.",
     "back": "Back to the globe",
-    "howStyle": "Music style lets you choose how the data is played: orchestra, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, or recorded sounds of rain, fire and thunder. The temperature sets the tempo, so the number of months in each 30-second stretch changes with the style and the data.",
+    "howStyle": "Music style lets you choose how the data is played: orchestra, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, or recorded sounds of rain, fire and thunder. The global CO₂ sets the tempo, so the number of months in each 30-second stretch changes with the style and the data.",
     "howVinyl": "Vinyl mode plays the data as a record: the needle can travel through space (one date, the needle crosses places), through time (one place, the months go by) or both (the needle crosses places and the date moves on each groove)."
   },
   "globeData": {

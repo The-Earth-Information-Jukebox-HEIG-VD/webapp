@@ -505,7 +505,7 @@
     "teamText": "Réalisé à la HEIG-VD (Yverdon-les-Bains, Suisse) pour le NASA Space Apps Challenge 2026.",
     "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther et Léo Zmoos.",
     "back": "Retour au globe",
-    "howStyle": "Le style musical permet de choisir comment les données sont jouées : orchestre, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, ou sons enregistrés de pluie, de feu et de tonnerre. La température fixe le tempo : le nombre de mois dans chaque tranche de 30 secondes varie donc avec le style et les données.",
+    "howStyle": "Le style musical permet de choisir comment les données sont jouées : orchestre, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, ou sons enregistrés de pluie, de feu et de tonnerre. Le CO₂ mondial fixe le tempo : le nombre de mois dans chaque tranche de 30 secondes varie donc avec le style et les données.",
     "howVinyl": "Le mode vinyle joue les données comme un disque : l'aiguille peut voyager dans l'espace (une date, l'aiguille traverse des lieux), dans le temps (un lieu, les mois défilent) ou les deux (l'aiguille traverse des lieux et la date avance à chaque sillon)."
   },
   "globeData": {
