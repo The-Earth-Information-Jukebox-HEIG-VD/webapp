@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { SpinningLogo } from './components/layout/SpinningLogo';
 import './i18n'; // Initialize i18n
 import './index.css';
 
@@ -15,6 +16,7 @@ if (import.meta.env.DEV) {
 function LoadingFallback() {
   return (
     <div
+      role="status"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -26,7 +28,8 @@ function LoadingFallback() {
         color: 'var(--color-text)',
       }}
     >
-      <img src="/icon-192.png" width={96} height={96} alt="" style={{ borderRadius: '50%' }} />
+      {/* Same animated logo as the header; still with reduced motion (OS setting) */}
+      <SpinningLogo src="/logo-320" size={96} />
       Loading...
     </div>
   );

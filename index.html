@@ -21,6 +21,13 @@
         document.documentElement.setAttribute("data-theme", theme);
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute("content", theme === "light" ? "#f6f7fb" : "#071327");
+        // Saved accessibility toggles (AccessibilityContext, earth-jukebox-accessibility-v2) before
+        // first paint, so the loading screen and header logo stay still when reduced motion is on
+        try {
+          var a11y = JSON.parse(localStorage.getItem("earth-jukebox-accessibility-v2") || "{}");
+          if (a11y.reducedMotion) document.documentElement.classList.add("reduced-motion");
+          if (a11y.highContrast) document.documentElement.classList.add("high-contrast");
+        } catch (e) {}
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
