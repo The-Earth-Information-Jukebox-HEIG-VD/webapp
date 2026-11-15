@@ -1,5 +1,5 @@
 /*
- * Data graph above the player timeline. The SVG stretches (preserveAspectRatio="none",
+ * Data graph above the player controls, across the full page width. The SVG stretches (preserveAspectRatio="none",
  * non-scaling strokes); all text is HTML so it never stretches.
  * Line colours are the track colours, all >= 3:1 on the surface (WCAG 1.4.11).
  */

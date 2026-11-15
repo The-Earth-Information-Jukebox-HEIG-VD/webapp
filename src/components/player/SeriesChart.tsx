@@ -230,8 +230,8 @@ function describeLine(line: ChartLine, t: TFunction, locale: string): string {
 }
 
 /**
- * Line graph of the selected area's data, drawn above the Timeline at the same width
- * (same x axis). One line per dataset, each on its own min-max scale.
+ * Line graph of the selected area's data, drawn across the full player width above the controls
+ * (same x axis as the Timeline: fractions of the period). One line per dataset, each on its own min-max scale.
  * Keyboard users drive it through the Timeline slider; the pointer parts are mouse extras.
  */
 export function SeriesChart({

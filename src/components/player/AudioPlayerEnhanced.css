@@ -1,5 +1,6 @@
 /*
  * Single-row player bar, fixed to the viewport bottom by .player-section (App.css).
+ * The optional data graph sits above it in .player-chart, across the full page width.
  *
  * Accessibility notes:
  * - Every control is at least 44×44px (WCAG 2.5.5 target size, AAA).
@@ -8,12 +9,21 @@
  * - Sizes are in rem where text is involved, so the bar grows with browser zoom.
  */
 .audio-player-enhanced {
+  min-width: 0;
+}
+
+.player-bar {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   max-width: var(--max-content-width);
   margin: 0 auto;
   padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* Data graph: full page width (the player section spans the viewport), same side gutter */
+.player-chart {
+  padding: var(--spacing-sm) var(--spacing-md) 0;
 }
 
 .player-center,
@@ -216,7 +226,8 @@
 
 /* Small screens: drop skip buttons and collapse the volume slider */
 @media (max-width: 640px) {
-  .audio-player-enhanced {
+  .player-bar,
+  .player-chart {
     gap: var(--spacing-sm);
     padding: var(--spacing-xs) var(--spacing-sm);
   }
@@ -242,7 +253,7 @@
   }
 }
 
-.audio-player-enhanced {
+.player-bar {
   flex-wrap: wrap;
 }
 
@@ -289,10 +300,6 @@
 }
 
 /* Data graph option */
-.audio-player-enhanced.has-chart {
-  align-items: flex-end;
-}
-
 .tracks-button.graph-button.pressed {
   background: var(--color-primary);
   border-color: var(--color-primary-light);

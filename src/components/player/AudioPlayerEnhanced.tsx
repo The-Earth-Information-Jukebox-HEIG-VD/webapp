@@ -244,135 +244,144 @@ export function AudioPlayerEnhanced({
 
   return (
     <div className={`audio-player-enhanced${graphOn ? ' has-chart' : ''}`}>
-      {/* Visible status line: loading / error with Retry / end of data / no track */}
-      {isLoading && (
-        <p className="player-message">
-          {t('loadingChunk', { year: currentYear })}
-        </p>
+      {/* Data graph: its own row across the full page width, above the controls.
+          Same x axis as the Timeline (fractions of the period), so hover stays in sync. */}
+      {graph && graphOn && (
+        <div className="player-chart">
+          {graph.content({ hoverFraction, onHoverChange: setHoverFraction })}
+        </div>
       )}
-      {hasError && (
-        <p className="player-message error" role="alert">
-          <span>{t(`common:errors.${error.kind}`)}</span>
-          <button type="button" className="player-retry" onClick={handleRetry}>
-            {t('retry')}
-          </button>
-        </p>
-      )}
-      {!isLoading && !hasError && hasEnded && (
-        <p className="player-message">{t('endOfData')}</p>
-      )}
-      {playPauseDisabled && playDisabledHint && (
-        <p className="player-message">
-          <span id="play-disabled-hint">{playDisabledHint}</span>
-          {!canPlay && !playDisabled && tracksStatus === 'ready' && (
-            <button type="button" className="player-link" onClick={onShowTracks}>
-              {t('chooseSounds')}
+
+      <div className="player-bar">
+        {/* Visible status line: loading / error with Retry / end of data / no track */}
+        {isLoading && (
+          <p className="player-message">
+            {t('loadingChunk', { year: currentYear })}
+          </p>
+        )}
+        {hasError && (
+          <p className="player-message error" role="alert">
+            <span>{t(`common:errors.${error.kind}`)}</span>
+            <button type="button" className="player-retry" onClick={handleRetry}>
+              {t('retry')}
             </button>
-          )}
-        </p>
-      )}
-
-      <div className="player-center">
-        <button
-          type="button"
-          className="control-button skip-back"
-          onClick={() => onSeek(Math.max(0, progress - 0.1))}
-          aria-label={t('controls.skipBackward')}
-        >
-          <SkipBackIcon />
-        </button>
-
-        <button
-          type="button"
-          className="control-button play-pause"
-          ref={playButtonRef}
-          onClick={handlePlayPause}
-          aria-disabled={playPauseDisabled || undefined}
-          aria-describedby={playPauseDisabled ? 'play-disabled-hint' : undefined}
-          aria-label={isPlaying ? t('controls.pause') : t('controls.play')}
-        >
-          {isPlaying ? <PauseIcon /> : <PlayIcon />}
-        </button>
-
-        <button
-          type="button"
-          className="control-button skip-forward"
-          onClick={() => onSeek(Math.min(1, progress + 0.1))}
-          aria-label={t('controls.skipForward')}
-        >
-          <SkipForwardIcon />
-        </button>
-      </div>
-
-      <DatePicker
-        position={position}
-        yearRange={yearRange}
-        timelineEnd={timelineEnd}
-        onSeekToYear={onSeekToYear}
-      />
-
-      <div className="player-timeline">
-        {graph && graphOn && graph.content({ hoverFraction, onHoverChange: setHoverFraction })}
-        <Timeline
-          progress={progress}
-          currentYear={currentYear}
-          startYear={yearRange.start}
-          endYear={yearRange.end}
-          position={position}
-          timelineEnd={timelineEnd}
-          onSeek={onSeek}
-          onSeekToYear={onSeekToYear}
-          onHoverChange={graphOn ? setHoverFraction : undefined}
-          hideHoverTooltip={graphOn}
-        />
-      </div>
-
-      <div className="player-right">
-        <VolumeControl
-          volume={isMuted ? 0 : volume}
-          onVolumeChange={handleVolumeChange}
-          onMuteToggle={handleMuteToggle}
-          isMuted={isMuted}
-        />
-
-        {graph && (
-          <button
-            type="button"
-            className={`tracks-button graph-button${graph.on ? ' pressed' : ''}`}
-            onClick={graph.onToggle}
-            aria-pressed={graph.on}
-            aria-label={t('graph.toggleLabel')}
-          >
-            {graph.on ? <CheckIcon /> : <GraphIcon />}
-            <span className="tracks-label" aria-hidden="true">{t('graph.toggle')}</span>
-          </button>
+          </p>
+        )}
+        {!isLoading && !hasError && hasEnded && (
+          <p className="player-message">{t('endOfData')}</p>
+        )}
+        {playPauseDisabled && playDisabledHint && (
+          <p className="player-message">
+            <span id="play-disabled-hint">{playDisabledHint}</span>
+            {!canPlay && !playDisabled && tracksStatus === 'ready' && (
+              <button type="button" className="player-link" onClick={onShowTracks}>
+                {t('chooseSounds')}
+              </button>
+            )}
+          </p>
         )}
 
-        <button
-          type="button"
-          className={`tracks-button${enabledTracksCount === 0 ? ' empty' : ''}`}
-          onClick={onToggleTracks ?? onShowTracks}
-          aria-expanded={tracksExpanded}
-          aria-label={t('controls.tracks', { count: enabledTracksCount })}
-        >
-          <TracksIcon />
-          <span className="tracks-label" aria-hidden="true">{t('controls.tracksShort')}</span>
-          <span className="tracks-count" aria-hidden="true">{enabledTracksCount}</span>
-        </button>
-      </div>
+        <div className="player-center">
+          <button
+            type="button"
+            className="control-button skip-back"
+            onClick={() => onSeek(Math.max(0, progress - 0.1))}
+            aria-label={t('controls.skipBackward')}
+          >
+            <SkipBackIcon />
+          </button>
 
-      {/* One permanently mounted live region. Play/pause state is carried by the button label. */}
-      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-        {blockedNotice ||
-          (hasError
-            ? ''
-            : isLoading
-              ? loadingNotice
-                ? t('status.loading')
-                : ''
-              : hasEnded
-                ? t('endOfData')
-                : '')}
+          <button
+            type="button"
+            className="control-button play-pause"
+            ref={playButtonRef}
+            onClick={handlePlayPause}
+            aria-disabled={playPauseDisabled || undefined}
+            aria-describedby={playPauseDisabled ? 'play-disabled-hint' : undefined}
+            aria-label={isPlaying ? t('controls.pause') : t('controls.play')}
+          >
+            {isPlaying ? <PauseIcon /> : <PlayIcon />}
+          </button>
+
+          <button
+            type="button"
+            className="control-button skip-forward"
+            onClick={() => onSeek(Math.min(1, progress + 0.1))}
+            aria-label={t('controls.skipForward')}
+          >
+            <SkipForwardIcon />
+          </button>
+        </div>
+
+        <DatePicker
+          position={position}
+          yearRange={yearRange}
+          timelineEnd={timelineEnd}
+          onSeekToYear={onSeekToYear}
+        />
+
+        <div className="player-timeline">
+          <Timeline
+            progress={progress}
+            currentYear={currentYear}
+            startYear={yearRange.start}
+            endYear={yearRange.end}
+            position={position}
+            timelineEnd={timelineEnd}
+            onSeek={onSeek}
+            onSeekToYear={onSeekToYear}
+            onHoverChange={graphOn ? setHoverFraction : undefined}
+            hideHoverTooltip={graphOn}
+          />
+        </div>
+
+        <div className="player-right">
+          <VolumeControl
+            volume={isMuted ? 0 : volume}
+            onVolumeChange={handleVolumeChange}
+            onMuteToggle={handleMuteToggle}
+            isMuted={isMuted}
+          />
+
+          {graph && (
+            <button
+              type="button"
+              className={`tracks-button graph-button${graph.on ? ' pressed' : ''}`}
+              onClick={graph.onToggle}
+              aria-pressed={graph.on}
+              aria-label={t('graph.toggleLabel')}
+            >
+              {graph.on ? <CheckIcon /> : <GraphIcon />}
+              <span className="tracks-label" aria-hidden="true">{t('graph.toggle')}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={`tracks-button${enabledTracksCount === 0 ? ' empty' : ''}`}
+            onClick={onToggleTracks ?? onShowTracks}
+            aria-expanded={tracksExpanded}
+            aria-label={t('controls.tracks', { count: enabledTracksCount })}
+          >
+            <TracksIcon />
+            <span className="tracks-label" aria-hidden="true">{t('controls.tracksShort')}</span>
+            <span className="tracks-count" aria-hidden="true">{enabledTracksCount}</span>
+          </button>
+        </div>
+
+        {/* One permanently mounted live region. Play/pause state is carried by the button label. */}
+        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {blockedNotice ||
+            (hasError
+              ? ''
+              : isLoading
+                ? loadingNotice
+                  ? t('status.loading')
+                  : ''
+                : hasEnded
+                  ? t('endOfData')
+                  : '')}
+        </div>
       </div>
     </div>
   );
