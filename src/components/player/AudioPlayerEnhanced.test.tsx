@@ -3,12 +3,13 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import '../../i18n';
 import { AudioPlayerEnhanced } from './AudioPlayerEnhanced';
+import { createPositionStore } from '../../hooks/usePlaybackPosition';
 
 const noop = () => {};
 const base = {
   isPlaying: false,
-  progress: 0,
   currentYear: 1880,
+  positionStore: createPositionStore(),
   yearRange: { start: 1880, end: 2025 },
   trackStates: [],
   onPlay: noop,
@@ -117,7 +118,14 @@ describe('AudioPlayerEnhanced accessibility', () => {
   });
 
   it('shows the date as a picker button with month and year', () => {
-    render(<AudioPlayerEnhanced {...base} currentYear={1950} position={1950 + 2 / 12} timelineEnd={2026} />);
+    render(
+      <AudioPlayerEnhanced
+        {...base}
+        currentYear={1950}
+        positionStore={createPositionStore(1950 + 2 / 12)}
+        timelineEnd={2026}
+      />
+    );
     const btn = screen.getByRole('button', { name: /go to a date, currently mar 1950/i });
     expect(btn).toHaveAttribute('aria-haspopup', 'dialog');
     expect(screen.getByRole('slider', { name: /timeline/i })).toHaveAttribute('aria-valuetext', 'March 1950');
@@ -136,7 +144,7 @@ describe('AudioPlayerEnhanced accessibility', () => {
           muted++;
         }}
         currentYear={1950}
-        position={1950 + 2 / 12}
+        positionStore={createPositionStore(1950 + 2 / 12)}
         timelineEnd={2026}
       />
     );
@@ -145,6 +153,34 @@ describe('AudioPlayerEnhanced accessibility', () => {
     for (const key of ['ArrowLeft', 'ArrowRight', 'Home', 'End', 'm']) fireEvent.keyDown(go, { key });
     expect(seeked).toBe(0);
     expect(muted).toBe(0);
+  });
+});
+
+describe('AudioPlayerEnhanced live position', () => {
+  it('updates the slider aria-valuetext when the store changes', () => {
+    const store = createPositionStore(1950 + 2 / 12);
+    render(<AudioPlayerEnhanced {...base} positionStore={store} timelineEnd={2026} />);
+    const slider = screen.getByRole('slider', { name: /timeline/i });
+    expect(slider).toHaveAttribute('aria-valuetext', 'March 1950');
+    act(() => store.set(1960 + 5 / 12));
+    expect(slider).toHaveAttribute('aria-valuetext', 'June 1960');
+  });
+
+  it('ArrowRight seeks from the live progress, not a stale render', () => {
+    const store = createPositionStore(1880);
+    const seeks: number[] = [];
+    render(
+      <AudioPlayerEnhanced
+        {...base}
+        positionStore={store}
+        timelineEnd={2026}
+        onSeek={(p) => seeks.push(p)}
+      />
+    );
+    act(() => store.set(1880 + 73)); // half of the 146-year span
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(seeks).toHaveLength(1);
+    expect(seeks[0]).toBeCloseTo(0.52, 5);
   });
 });
 

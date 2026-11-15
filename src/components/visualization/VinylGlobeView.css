@@ -1,0 +1,167 @@
+.vinyl-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #1d1d24 0%, #0a0e17 70%);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.vinyl-stage {
+  position: relative;
+  flex: none;
+  cursor: crosshair;
+}
+
+/* The record: the globe canvas, rotated about its centre */
+.vinyl-turntable {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.vinyl-turntable.is-loaded {
+  opacity: 1;
+}
+
+.vinyl-tonearm {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Light grey on the dark background: > 3:1 (WCAG 1.4.11) */
+.vinyl-tonearm-arm {
+  stroke: #d0d4da;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.vinyl-tonearm-pivot {
+  fill: #9aa0a6;
+  stroke: #e8eaed;
+  stroke-width: 2;
+}
+
+.vinyl-tonearm-head {
+  fill: #ffb74d;
+  stroke: #0a0e17;
+  stroke-width: 1.5;
+}
+
+.vinyl-caption {
+  position: absolute;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: calc(100% - 2 * var(--spacing-md));
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+}
+
+.vinyl-caption-month {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.vinyl-pick-hint {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* No spinning record: it moves once per groove instead (VinylGlobeView) */
+.reduced-motion .vinyl-turntable {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-turntable {
+    transition: none;
+  }
+}
+
+/* Fallback record without WebGL (list view) */
+.vinyl-record-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.vinyl-record-svg {
+  width: min(100%, 320px);
+  height: auto;
+}
+
+.vinyl-record-groove {
+  fill: none;
+  stroke: #5f6368;
+  stroke-width: 1;
+}
+
+.vinyl-record-groove.is-current {
+  stroke: #ffb74d;
+  stroke-width: 3;
+}
+
+.vinyl-record-status {
+  margin: 0;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.vinyl-record-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.vinyl-record-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: var(--spacing-xs);
+}
+
+.vinyl-record-table th,
+.vinyl-record-table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.vinyl-record-table tr[aria-current='true'] {
+  background: var(--color-surface-active);
+}
+
+.high-contrast .vinyl-record-groove {
+  stroke: #ffffff;
+}

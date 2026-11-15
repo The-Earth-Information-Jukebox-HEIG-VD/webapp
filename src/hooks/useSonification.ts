@@ -4,6 +4,9 @@ import { ApiError, periodYear, periodToYear, yearToPeriod, type ApiErrorKind } f
 import type { GridPoint } from '../types/zones';
 import type { Track, TrackState } from '../types/tracks';
 import { isAnomalyUnits } from '../utils/reading';
+import { monthKey } from '../services/volumeData';
+import { splitFractionalYear } from '../utils/formatDate';
+import { createPositionStore, usePlaybackPosition } from './usePlaybackPosition';
 
 export const DEFAULT_YEAR_RANGE = { start: 1880, end: 2025 };
 
@@ -60,6 +63,20 @@ export function computeTimelineEnd(tracks: Track[], enabledIds: ReadonlySet<stri
   return timelineOf(tracks, enabledIds).fractionalEnd;
 }
 
+/** Position, timeline progress (0..1) and displayed year from the raw store value */
+export function derivePlayback(
+  raw: number | null,
+  yearRange: { start: number; end: number },
+  timelineEnd: number
+) {
+  const position = raw ?? yearRange.start;
+  const span = timelineEnd - yearRange.start;
+  const progress = span > 0 ? Math.min(1, Math.max(0, (position - yearRange.start) / span)) : 0;
+  // Same rounding as the displayed date (splitFractionalYear) so year, month and label agree
+  const currentYear = Math.min(yearRange.end, splitFractionalYear(position).year);
+  return { position, progress, currentYear };
+}
+
 const SEEK_DEBOUNCE_MS = 250;
 
 /**
@@ -71,7 +88,8 @@ const SEEK_DEBOUNCE_MS = 250;
 export function useSonification({ tracks, points, zoneId, zoneName }: UseSonificationOptions) {
   const playerRef = useRef<ChunkPlayer | null>(null);
   const [playerState, setPlayerState] = useState<PlayerState>('idle');
-  const [position, setPosition] = useState<number | null>(null);
+  // Fine position lives outside React state (updates ~10x/s): see usePlaybackPosition
+  const [positionStore] = useState(() => createPositionStore());
   const [error, setError] = useState<SonificationError | null>(null);
   const [hasEnded, setHasEnded] = useState(false);
   // Paused by the system (iOS interruption), not by the user: announced to screen readers
@@ -125,7 +143,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
   useEffect(() => {
     const player = new ChunkPlayer();
     player.onProgress = ({ position: p }) => {
-      if (!seekTimer.current) setPosition(p);
+      if (!seekTimer.current) positionStore.set(p);
     };
     player.onStateChange = (s) => setPlayerState(s);
     player.onChunk = (r) => {
@@ -141,7 +159,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     player.onInterrupted = () => setInterrupted(true);
     player.onComplete = () => {
       setHasEnded(true);
-      setPosition(rangeRef.current.fractionalEnd);
+      positionStore.set(rangeRef.current.fractionalEnd);
     };
     playerRef.current = player;
     return () => {
@@ -150,7 +168,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
       player.dispose();
       playerRef.current = null;
     };
-  }, []);
+  }, [positionStore]);
 
   // Zone / tracks -> player (restarts from the current position when playing)
   useEffect(() => {
@@ -181,11 +199,11 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
 
   const stop = useCallback(() => {
     setHasEnded(false);
-    setPosition(null);
+    positionStore.set(null);
     if (seekTimer.current) clearTimeout(seekTimer.current);
     seekTimer.current = null;
     playerRef.current?.stop();
-  }, []);
+  }, [positionStore]);
 
   const seekToYear = useCallback((year: number) => {
     const { start, fractionalEnd } = rangeRef.current;
@@ -193,14 +211,14 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     setError(null);
     setHasEnded(false);
     // The timeline moves at once; the backend is asked once the user stops dragging
-    setPosition(target);
+    positionStore.set(target);
     seekTarget.current = target;
     if (seekTimer.current) clearTimeout(seekTimer.current);
     seekTimer.current = setTimeout(() => {
       seekTimer.current = null;
       playerRef.current?.seek(yearToPeriod(seekTarget.current));
     }, SEEK_DEBOUNCE_MS);
-  }, []);
+  }, [positionStore]);
 
   const seek = useCallback(
     (progress: number) => {
@@ -230,9 +248,15 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
   const currentValue = mainTrackId ? chunk.values[mainTrackId] : null;
   const units = tracks.find((t) => t.id === mainTrackId)?.units ?? null;
 
-  const currentPosition = position ?? yearRange.start;
-  const span = timelineEnd - yearRange.start;
-  const progress = span > 0 ? Math.min(1, Math.max(0, (currentPosition - yearRange.start) / span)) : 0;
+  // Coarse subscriptions only: re-render on year (~36 s) / month (~3 s) changes
+  const currentYear = usePlaybackPosition(
+    positionStore,
+    (raw) => derivePlayback(raw, yearRange, timelineEnd).currentYear
+  );
+  const playbackMonthKey = usePlaybackPosition(positionStore, (raw) => {
+    const { year, month } = splitFractionalYear(raw ?? yearRange.start);
+    return monthKey(year, month);
+  });
   const status: SonificationStatus =
     playerState === 'paused' ? 'idle' : playerState;
 
@@ -244,10 +268,12 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     hasEnded,
     interrupted,
     canPlay,
-    /** Current date as a fractional year (e.g. 1950.25), interpolated within the chunk */
-    position: currentPosition,
-    currentYear: Math.min(yearRange.end, Math.floor(currentPosition)),
-    progress,
+    /** Fine playback position (fractional year, ~10 Hz): subscribe with usePlaybackPosition */
+    positionStore,
+    /** Whole year of the position (changes ~every 36 s) */
+    currentYear,
+    /** "YYYY_MM" of the position (changes ~every 3 s) */
+    playbackMonthKey,
     yearRange,
     /** Right edge of the timeline: fractional year of the month after the last data */
     timelineEnd,

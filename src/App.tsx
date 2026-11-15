@@ -1,19 +1,30 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // Contexts
-import { AccessibilityProvider } from './contexts/AccessibilityContext';
+import { AccessibilityProvider, useAccessibility } from './contexts/AccessibilityContext';
 import { ViewModeProvider, useViewMode } from './contexts/ViewModeContext';
+import {
+  ExperienceModeProvider,
+  useExperienceMode,
+  type ExperienceMode,
+} from './contexts/ExperienceModeContext';
 
 // Layout components
 import { Header, Footer } from './components/layout';
 
 // Visualization components
-import { GlobeView, ListView } from './components/visualization';
+import { GlobeView, ListView, VinylGlobeView, VinylRecordView } from './components/visualization';
 import type { GlobeMode } from './components/visualization/GlobeView';
 
 // Control components
-import { ViewModeToggle, ZoneViewSelector, TrackPanel } from './components/controls';
+import {
+  ViewModeToggle,
+  ZoneViewSelector,
+  TrackPanel,
+  ExperienceModeSwitch,
+  VinylControls,
+} from './components/controls';
 
 // Pages
 import { AboutPage } from './components/about';
@@ -21,8 +32,8 @@ import { useHashRoute } from './hooks/useHashRoute';
 import { getZoneDisplayName } from './utils/zoneName';
 
 // Player components
-import { AudioPlayerEnhanced } from './components/player';
-import { SeriesChart, type ChartLine } from './components/player/SeriesChart';
+import { AudioPlayerEnhanced, VinylPlayerBar } from './components/player';
+import { LiveSeriesChart, type ChartLine } from './components/player/SeriesChart';
 
 // Moments components
 import { KeyMomentsSection } from './components/moments';
@@ -34,8 +45,15 @@ import { useZoneDataFrames } from './hooks/useZoneDataFrames';
 import { useZoneSeries } from './hooks/useZoneSeries';
 import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean';
 import { usePlayerBarHeight } from './hooks/usePlayerBarHeight';
-import { monthKey } from './services/volumeData';
-import { formatReading } from './utils/reading';
+import { useVinylSettings } from './hooks/useVinylSettings';
+import { useVinylSonification, VINYL_SIDE_SECONDS } from './hooks/useVinylSonification';
+import { formatReading, isAnomalyUnits } from './utils/reading';
+import { formatMonthYear } from './utils/formatDate';
+import { periodToYear } from './services/sonificationApi';
+import { formatLatLng, needlePoint, VINYL_CHUNKS } from './utils/vinylGeometry';
+import { regionNameAt } from './utils/regionName';
+import { presetForCenter } from './data/vinylPresets';
+import { useHemisphereLabels } from './components/visualization/useHemisphereLabels';
 import { withViewTransition, prefersReducedMotion } from './utils/motion';
 
 // Types
@@ -58,7 +76,8 @@ import './App.css';
  * - Full accessibility support (always enabled)
  */
 function AppContent() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const hemis = useHemisphereLabels();
   const { viewMode } = useViewMode();
   const route = useHashRoute();
 
@@ -90,7 +109,8 @@ function AppContent() {
     hasEnded,
     interrupted,
     canPlay,
-    position,
+    positionStore,
+    playbackMonthKey,
     mainTrackId,
     currentValue,
     units,
@@ -98,7 +118,6 @@ function AppContent() {
     chunkValues,
     chunkYear,
     currentYear,
-    progress,
     timelineEnd,
     yearRange,
     trackStates,
@@ -134,8 +153,6 @@ function AppContent() {
   }, [pause]);
 
   // Volume data of the selected zone, month by month in step with the music
-  const playbackYear = Math.floor(position);
-  const playbackMonth = Math.min(12, Math.floor((position % 1) * 12) + 1);
   const selectedFeature = useMemo(
     () => (selectedZone ? findZoneFeature(selectedZone) ?? null : null),
     [selectedZone]
@@ -147,7 +164,7 @@ function AppContent() {
   );
   const zoneData = useZoneDataFrames({
     feature: selectedFeature,
-    month: monthKey(playbackYear, playbackMonth),
+    month: playbackMonthKey,
     active: globeMode === 'playback' && viewMode === 'globe',
     enabledTrackIds,
   });
@@ -179,10 +196,76 @@ function AppContent() {
   const playerRef = useRef<HTMLElement>(null);
   usePlayerBarHeight(playerRef);
 
+  // ---- Vinyl mode: one month across the globe, played like a record --------
+  // Same track selection as zone mode (TrackPanel stays wired to useSonification)
+  const { mode, setMode } = useExperienceMode();
+  const { preferences } = useAccessibility();
+  const vinylSettings = useVinylSettings(tracks, enabledTrackIds);
+  const vinyl = useVinylSonification({
+    datasetIds: enabledIdList,
+    center: vinylSettings.center,
+    timePeriod: vinylSettings.timePeriod,
+  });
+  const vinylStarted = vinyl.current !== null || vinyl.isPlaying;
+  const vinylMonthLabel = formatMonthYear(periodToYear(vinylSettings.timePeriod), i18n.language);
+  const [modeNotice, setModeNotice] = useState('');
+
+  // Only one player at a time: leaving a mode pauses its player
+  const handleModeChange = useCallback(
+    (next: ExperienceMode) => {
+      if (next === mode) return;
+      if (next === 'vinyl') {
+        if (isPlaying) pause();
+        setGlobeMode('select');
+      } else if (vinyl.isPlaying) {
+        vinyl.pause();
+      }
+      withViewTransition(() => setMode(next), { crossfadeOnly: true });
+      setModeNotice(t(next === 'vinyl' ? 'experience.switchedVinyl' : 'experience.switchedZones'));
+    },
+    [mode, isPlaying, pause, vinyl, setMode, t]
+  );
+  // Also covers a mode restored from storage
+  useEffect(() => {
+    if (mode === 'vinyl' && isPlaying) pause();
+    if (mode === 'zones' && vinyl.isPlaying) vinyl.pause();
+    // Only when the mode changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  // Both players follow the same volume, so a mode switch keeps the level
+  const setVolumeBoth = useCallback(
+    (v: number) => {
+      setVolume(v);
+      vinyl.setVolume(v);
+    },
+    [setVolume, vinyl]
+  );
+
+  const vinylPlace = useCallback(
+    (k: number) => {
+      const p = needlePoint(vinylSettings.center, (k + 0.5) / VINYL_CHUNKS);
+      return regionNameAt(p, t) ?? formatLatLng(p, i18n.language, hemis);
+    },
+    [vinylSettings.center, t, i18n.language, hemis]
+  );
+  const vinylReading = useMemo(() => {
+    const id = enabledIdList.find((x) => vinyl.chunkValues[x] !== undefined);
+    const tr = tracks.find((x) => x.id === id);
+    if (!id || !tr) return null;
+    return formatReading(vinyl.chunkValues[id], tr.units, isAnomalyUnits(tr.units), t, { speakable: true });
+  }, [enabledIdList, vinyl.chunkValues, tracks, t]);
+  const vinylCentreName = (() => {
+    const preset = presetForCenter(vinylSettings.center);
+    return preset ? t(`vinyl.presets.${preset.id}`) : formatLatLng(vinylSettings.center, i18n.language, hemis);
+  })();
+
   // Datasets with a value in the audible chunk: the tracks actually sounding now
+  const activeStatus = mode === 'vinyl' ? vinyl.status : status;
+  const activeValues = mode === 'vinyl' ? vinyl.chunkValues : chunkValues;
   const soundingIds = useMemo(
-    () => (status === 'playing' ? new Set(Object.keys(chunkValues)) : new Set<string>()),
-    [status, chunkValues]
+    () => (activeStatus === 'playing' ? new Set(Object.keys(activeValues)) : new Set<string>()),
+    [activeStatus, activeValues]
   );
 
   // "Sounds" button / "Choose sounds" link: bring the first track row into view and focus it
@@ -251,9 +334,22 @@ function AppContent() {
           <>
           {/* View Mode Toggle */}
           <section className="datetime-section">
+            {/* Time travel (zones) or Vinyl (one month across the globe) */}
+            <ExperienceModeSwitch value={mode} onChange={handleModeChange} />
             <ViewModeToggle />
-            {/* Zone View Type Toggle */}
-            <ZoneViewSelector value={zoneViewType} onChange={setZoneViewType} />
+            {mode === 'zones' ? (
+              /* Zone View Type Toggle */
+              <ZoneViewSelector value={zoneViewType} onChange={setZoneViewType} />
+            ) : (
+              <VinylControls
+                center={vinylSettings.center}
+                onCenterChange={vinylSettings.setCenter}
+                timePeriod={vinylSettings.timePeriod}
+                onTimePeriodChange={vinylSettings.setTimePeriod}
+                range={vinylSettings.range}
+                clamped={vinylSettings.clamped}
+              />
+            )}
           </section>
 
           <div className={tracksOpen ? 'workspace' : 'workspace tracks-collapsed'}>
@@ -275,7 +371,31 @@ function AppContent() {
 
           {/* Visualization Section */}
           <section className="visualization-section" aria-label={t('app.climateVisualization')}>
-            {viewMode === 'globe' ? (
+            {mode === 'vinyl' ? (
+              viewMode === 'globe' ? (
+                <VinylGlobeView
+                  center={vinylSettings.center}
+                  onCenterPick={vinylSettings.setCenter}
+                  monthLabel={vinylMonthLabel}
+                  chunkIndex={vinyl.chunkIndex}
+                  started={vinylStarted}
+                  isPlaying={vinyl.status === 'playing'}
+                  getLiveProgress={vinyl.getLiveProgress}
+                  history={vinyl.history}
+                  tracks={tracks.filter((tr) => enabledTrackIds.has(tr.id))}
+                  reducedMotion={preferences.reducedMotion}
+                />
+              ) : (
+                <VinylRecordView
+                  center={vinylSettings.center}
+                  monthLabel={vinylMonthLabel}
+                  chunkIndex={vinyl.chunkIndex}
+                  started={vinylStarted}
+                  history={vinyl.history}
+                  tracks={tracks.filter((tr) => enabledTrackIds.has(tr.id))}
+                />
+              )
+            ) : viewMode === 'globe' ? (
               <GlobeView
                 selectedZone={selectedZone}
                 onZoneSelect={handleZoneSelect}
@@ -299,7 +419,8 @@ function AppContent() {
           </section>
           </div>
 
-          {/* Key Moments Section */}
+          {/* Key Moments Section (they jump the zone timeline: zone mode only) */}
+          {mode === 'zones' && (
           <section className="moments-section">
             <KeyMomentsSection
               startYear={yearRange.start}
@@ -308,17 +429,40 @@ function AppContent() {
               onJumpToMoment={handleJumpToMoment}
             />
           </section>
+          )}
           </>
           )}
 
           {/* Player stays on every page so audio can always be paused (WCAG 1.4.2) */}
           {/* Audio Player (Sticky) */}
           <section className="player-section" ref={playerRef} aria-label={t('app.audioControls')}>
+            {mode === 'vinyl' ? (
+              <VinylPlayerBar
+                isPlaying={vinyl.isPlaying}
+                status={vinyl.status}
+                error={vinyl.error}
+                hasEnded={vinyl.hasEnded}
+                canPlay={vinyl.canPlay}
+                chunkIndex={vinyl.chunkIndex}
+                positionStore={vinyl.positionStore}
+                totalSeconds={VINYL_SIDE_SECONDS}
+                trackStates={trackStates}
+                onPlay={vinyl.play}
+                onPause={vinyl.pause}
+                onRetry={vinyl.retry}
+                onSeekToChunk={vinyl.seekToChunk}
+                onVolumeChange={setVolumeBoth}
+                onShowTracks={focusTrackPanel}
+                onToggleTracks={toggleTrackPanel}
+                tracksExpanded={tracksExpanded}
+                tracksStatus={instruments.status}
+                tracksErrorKind={instruments.errorKind}
+              />
+            ) : (
             <AudioPlayerEnhanced
               isPlaying={isPlaying}
-              progress={progress}
               currentYear={currentYear}
-              position={position}
+              positionStore={positionStore}
               timelineEnd={timelineEnd}
               yearRange={yearRange}
               trackStates={trackStates}
@@ -326,7 +470,7 @@ function AppContent() {
               onPause={pause}
               onSeek={seek}
               onSeekToYear={seekToYear}
-              onVolumeChange={setVolume}
+              onVolumeChange={setVolumeBoth}
               onShowTracks={focusTrackPanel}
               onToggleTracks={toggleTrackPanel}
               tracksExpanded={tracksExpanded}
@@ -343,7 +487,7 @@ function AppContent() {
                 on: graphOn,
                 onToggle: () => setGraphOn(!graphOn),
                 content: ({ hoverFraction, onHoverChange }) => (
-                  <SeriesChart
+                  <LiveSeriesChart
                     lines={chartLines}
                     status={
                       !selectedZone || enabledIdList.length === 0 ? 'idle' : zoneSeries.status
@@ -354,7 +498,7 @@ function AppContent() {
                     startYear={yearRange.start}
                     endYear={yearRange.end}
                     timelineEnd={timelineEnd}
-                    position={position}
+                    positionStore={positionStore}
                     hoverFraction={hoverFraction}
                     onHoverChange={onHoverChange}
                     onSeek={seek}
@@ -362,6 +506,7 @@ function AppContent() {
                 ),
               }}
             />
+            )}
           </section>
         </main>
 
@@ -375,15 +520,30 @@ function AppContent() {
         aria-atomic="true"
         className="sr-only"
       >
-        {isPlaying && reading && chunkYear !== null && (
+        {mode === 'zones' && isPlaying && reading && chunkYear !== null && (
           t('player:announcements.nowPlaying', { reading, year: chunkYear })
+        )}
+        {mode === 'vinyl' && vinyl.isPlaying && vinyl.current && (
+          t(vinylReading ? 'vinyl.nowPlaying' : 'vinyl.nowPlayingNoValue', {
+            k: vinyl.current.chunkIndex + 1,
+            n: VINYL_CHUNKS,
+            place: vinylPlace(vinyl.current.chunkIndex),
+            reading: vinylReading,
+          })
         )}
       </div>
 
-      {/* Announce the selected zone */}
+      {/* Announce the selected zone (zones) or the record's centre and month (vinyl) */}
       <div className="sr-only" role="status" aria-live="polite">
-        {selectedZone && selectedPoints.length > 0 &&
-          t('zones.zoneSelected', { zone: getZoneDisplayName(selectedZone, t) })}
+        {mode === 'zones'
+          ? selectedZone && selectedPoints.length > 0 &&
+            t('zones.zoneSelected', { zone: getZoneDisplayName(selectedZone, t) })
+          : t('vinyl.centred', { place: vinylCentreName, month: vinylMonthLabel })}
+      </div>
+
+      {/* Mode switch announcement */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {modeNotice}
       </div>
     </>
   );
@@ -396,7 +556,9 @@ function App() {
   return (
     <AccessibilityProvider>
       <ViewModeProvider>
-        <AppContent />
+        <ExperienceModeProvider>
+          <AppContent />
+        </ExperienceModeProvider>
       </ViewModeProvider>
     </AccessibilityProvider>
   );

@@ -406,8 +406,8 @@
     "intro": "EarthChestra turns Earth data, mostly from NASA, into orchestral music. Choose a place on Earth, listen to how it has changed over time, and watch the data on the globe as the music plays.",
     "howTitle": "How it works",
     "howZone": "Choose a zone on the globe or in the list: a continent, a country, an ocean or a sea.",
-    "howTracks": "Choose the datasets to hear in the Audio Tracks panel. Each dataset is played by its own instrument.",
-    "howPlay": "Press Play. Each dataset is averaged over your zone, month by month, and every month becomes one bar of music.",
+    "howTracks": "Select Sounds to open the \"What do you want to hear?\" panel and choose the datasets to hear. Each dataset is played by its own instrument.",
+    "howPlay": "Press Play. Each dataset is averaged over your zone, month by month, and every month becomes one bar of music. Use the date button to go to a given month, and Graph to see your zone's values as a chart.",
     "howPitch": "Higher values play higher notes, measured against your zone's own range, so a value always gives the same note.",
     "howLoudness": "Rain, snow, lightning, fires and night lights only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
@@ -438,7 +438,7 @@
     "techFrontend": "Web app: React, TypeScript and Vite. The 3D globe uses react-globe.gl (three.js), and the sound plays through the Web Audio API.",
     "techBackend": "Music: a Python service (FastAPI) averages each dataset over your zone, on maps reduced to 1° (2° for temperature), writes an orchestral score (MIDI) and renders it to MP3, in pieces that play back to back.",
     "techData": "Globe: the browser reads the datasets' map files (NumPy) straight from the server and downloads only the part that covers your zone.",
-    "techDeploy": "Deployment: Docker Compose runs the web app (nginx), the music service and a container that installs the datasets.",
+    "techDeploy": "Deployment: Docker Compose runs the web app (nginx), the music service and a container that installs the datasets. On a small server, the datasets can instead be read from a folder on the server.",
     "docsLink": "Read the full technical documentation",
     "newTab": "opens in a new tab",
     "a11yTitle": "Accessibility",
@@ -476,5 +476,77 @@
     "noSelectedDataset": "None of the selected tracks has data to show on the globe.",
     "playedBy": "played by {{instrument}}",
     "instrument": "Instrument"
+  },
+  "experience": {
+    "label": "How do you want to listen?",
+    "zones": "Time travel",
+    "zonesHint": "One zone, through the years",
+    "vinyl": "Vinyl",
+    "vinylHint": "One month, across the globe",
+    "switchedZones": "Time travel mode. Vinyl playback paused.",
+    "switchedVinyl": "Vinyl mode. Zone playback paused."
+  },
+  "vinyl": {
+    "date": "Month to play",
+    "month": "Month",
+    "year": "Year",
+    "dateHint": "Data for all selected sounds: {{start}} – {{end}}.",
+    "dateDisjointHint": "The selected sounds have no month in common ({{start}} – {{end}}): some will stay silent.",
+    "dateClamped": "The month was moved to fit the selected sounds.",
+    "place": "Centre of the record",
+    "preset": "Place",
+    "presetCustom": "Custom position",
+    "lat": "Latitude",
+    "lng": "Longitude",
+    "latHint": "-90 (south) to 90 (north)",
+    "lngHint": "-180 (west) to 180 (east)",
+    "errors": {
+      "required": "Enter a value.",
+      "notNumber": "Enter a number, e.g. 48.8.",
+      "latRange": "Latitude must be between -90 and 90.",
+      "lngRange": "Longitude must be between -180 and 180."
+    },
+    "apply": "Apply",
+    "pickHint": "Or click the globe to place the centre of the record.",
+    "restartHint": "Changing the month or the centre starts the record again from the edge.",
+    "recordLabel": "The globe as a vinyl record, centred on {{centre}}, playing {{month}}. The needle spirals from the edge to the centre.",
+    "grooveOf": "Groove {{k}} of {{n}}",
+    "caption": {
+      "centre": "Centre {{centre}}",
+      "near": "near {{region}}"
+    },
+    "centred": "Record centred on {{place}}, {{month}}.",
+    "nowPlaying": "Groove {{k}} of {{n}}, near {{place}}: {{reading}}",
+    "nowPlayingNoValue": "Groove {{k}} of {{n}}, near {{place}}",
+    "hemi": {
+      "n": "N",
+      "s": "S",
+      "e": "E",
+      "w": "W"
+    },
+    "table": {
+      "caption": "Grooves of the record centred on {{centre}}, {{month}}",
+      "groove": "Groove",
+      "start": "Starts at",
+      "end": "Ends at",
+      "region": "Region crossed",
+      "playing": "playing",
+      "notPlayed": "Not played yet",
+      "noData": "No data",
+      "meanNote": "Values are the mean along the groove."
+    },
+    "presets": {
+      "north-pole": "North Pole",
+      "south-pole": "South Pole",
+      "europe": "Europe",
+      "africa": "Africa",
+      "north-america": "North America",
+      "south-america": "South America",
+      "asia": "Asia",
+      "oceania": "Oceania",
+      "pacific": "Pacific Ocean",
+      "atlantic": "Atlantic Ocean",
+      "indian-ocean": "Indian Ocean"
+    }
   }
 }
