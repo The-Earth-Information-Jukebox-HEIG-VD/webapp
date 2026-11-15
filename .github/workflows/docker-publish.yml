@@ -8,6 +8,11 @@ on:
       - 'v*'
     branches:
       - 'fb-docker-support'  # For testing the workflow
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to make the GitHub release for (e.g. v1.4.0)
+        required: true
 
 env:
   REGISTRY: ghcr.io
@@ -15,6 +20,8 @@ env:
 
 jobs:
   build:
+    # a manual run only (re)creates the release of an existing tag: no image rebuild
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     permissions:
@@ -67,7 +74,10 @@ jobs:
   # once the image is published
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: >-
+      always() &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && needs.build.result == 'success') ||
+       github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -75,7 +85,7 @@ jobs:
       - name: Create the GitHub release (notes from the commits since the previous tag)
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           if gh release view "$TAG" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             echo "Release $TAG already exists"
