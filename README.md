@@ -104,3 +104,14 @@ src/
 ## Accessibility
 
 Accessibility is a requirement: every UI change should keep keyboard navigation, visible focus, screen reader support and colour contrast. `npm run lint` checks the `jsx-a11y` rules, component tests run axe (jest-axe), and in development `@axe-core/react` checks the first page render and logs violations to the browser console. That package does not support React 18 and later, so views rendered afterwards are not re-checked: use a browser extension such as axe DevTools for those.
+
+## AI assistance
+
+This web interface (EarthChestra) was developed with the help of AI assistants, Google Gemini and Anthropic Claude. In this repository they were used for:
+
+- **Research and information gathering:** the Web Audio API, 3D globe rendering (three.js, react-globe.gl) and WCAG 2.1 AA practices.
+- **Data analysis and interpretation:** how dataset values are turned into globe colours, the zone series chart and its data table.
+- **Coding, debugging and troubleshooting:** React and TypeScript components, audio playback (`ChunkPlayer`, iOS audio unlock), the backend client and the tests.
+- **Writing, editing and translating:** interface text, the English, French and German translations (i18next) and this README.
+
+The team checked what the AI suggested and is responsible for the content of this repository.
