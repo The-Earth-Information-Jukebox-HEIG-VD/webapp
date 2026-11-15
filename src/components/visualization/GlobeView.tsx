@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateInstrument } from '../../utils/instrumentName';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { ZoneFeature, ZoneViewType, GridPoint } from '../../types/zones';
 import { getZoneFeatures, findZoneFeature } from '../../data/zones';
@@ -393,9 +394,9 @@ export function GlobeView({
                   <span className="globe-legend-name">{t(ds.info.labelKey)}</span>
                   {instruments.map((ins) => (
                     <span key={ins.id} className="globe-legend-instrument" data-sounding={ins.sounding || undefined}>
-                      <span aria-hidden="true"><NoteIcon /> {ins.instrument}</span>
+                      <span aria-hidden="true"><NoteIcon /> {translateInstrument(ins.instrument, t)}</span>
                       <span className="sr-only">
-                        {t('globeData.playedBy', { instrument: ins.instrument })}
+                        {t('globeData.playedBy', { instrument: translateInstrument(ins.instrument, t) })}
                         {ins.sounding && ` (${t('tracks.sounding')})`}
                       </span>
                       {ins.sounding && (
@@ -452,7 +453,7 @@ export function GlobeView({
             {stats.map(({ ds, stats: s, instruments }) => (
               <tr key={ds.info.id}>
                 <th scope="row">{t(ds.info.labelKey)}</th>
-                <td>{instruments.map((i) => i.instrument).join(', ')}</td>
+                <td>{instruments.map((i) => translateInstrument(i.instrument, t)).join(', ')}</td>
                 {s ? (
                   <>
                     <td>{formatValue(s.min)}</td>

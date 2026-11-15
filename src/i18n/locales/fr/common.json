@@ -615,6 +615,11 @@
     "hint": "Comment les données sont jouées : {{description}}",
     "infoLabel": "À propos du style musical",
     "changed": "Style musical : {{name}}",
-    "loading": "Chargement des styles…"
+    "loading": "Chargement des styles…",
+    "recommendedGroup": "Recommandés",
+    "funGroup": "Pour s’amuser",
+    "and": " et ",
+    "recommendedNote": "{{names}} sont les styles sur lesquels nous avons le plus travaillé : ce sont eux qui transmettent le message climatique le plus clairement. Les autres sont là pour s’amuser.",
+    "funNote": "Ce style est là pour s’amuser : les changements des données s’entendent mieux avec les styles recommandés."
   }
 }

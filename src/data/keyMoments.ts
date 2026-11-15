@@ -96,14 +96,23 @@ const CODE_STATUS: Record<string, MomentStatus> = { u: 'upcoming', a: 'active', 
  * Status of each moment relative to the position, encoded as one character per
  * moment (a primitive, so a position-store selector only re-renders when a
  * moment changes status, not ~10 times a second).
+ *
+ * A moment is only 'active' when the playhead is in its window AND its zone is
+ * the selected one: the same months in another zone are not that event.
  */
-export function encodeMomentStatuses(moments: KeyMoment[], position: number | null): string {
+export function encodeMomentStatuses(
+  moments: KeyMoment[],
+  position: number | null,
+  zoneId: string | null
+): string {
   return moments
     .map((m) => {
       if (position === null) return STATUS_CODE.upcoming;
       const [from, to] = momentBounds(m);
       if (position < from) return STATUS_CODE.upcoming;
-      return STATUS_CODE[position < to ? 'active' : 'past'];
+      if (position >= to) return STATUS_CODE.past;
+      const inZone = zoneId !== null && m.zoneIds.includes(zoneId);
+      return STATUS_CODE[inZone ? 'active' : 'upcoming'];
     })
     .join('');
 }

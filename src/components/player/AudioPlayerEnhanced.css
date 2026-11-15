@@ -309,5 +309,5 @@
 }
 
 .tracks-button.graph-button.pressed:hover {
-  background: var(--color-primary-light);
+  background: var(--color-primary-dark);
 }

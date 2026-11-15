@@ -37,6 +37,13 @@
   color: var(--color-on-primary);
 }
 
+/* Selected + hovered: darker yellow. Must beat .view-mode-button:hover:not(:disabled),
+   which would otherwise put navy text on the dark hover surface */
+.view-mode-button.active:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  color: var(--color-on-primary);
+}
+
 .view-mode-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;

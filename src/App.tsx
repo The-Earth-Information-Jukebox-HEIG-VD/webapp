@@ -142,6 +142,7 @@ function AppContent() {
     seekToYear,
     setVolume,
     setTrackEnabled,
+    jumpTo,
     monthFilter,
     setMonthFilter,
   } = useSonification({
@@ -345,7 +346,8 @@ function AppContent() {
   }, [tracksExpanded, setTracksOpen, focusTrackPanel]);
 
   // Key event: with no zone selected, select the event's zone first (and show
-  // its layer on the globe), then move the timeline to the event's first month
+  // its layer on the globe); select the event's dataset as the only track, then
+  // move the timeline to the event's first month
   const handleJumpToMoment = useCallback((moment: KeyMoment) => {
     if (selectedZone === null) {
       const feature = findZoneFeature(moment.zoneIds[0]);
@@ -358,8 +360,8 @@ function AppContent() {
         );
       }
     }
-    seekToYear(periodToYear(moment.start));
-  }, [selectedZone, handleZoneSelect, seekToYear]);
+    jumpTo([moment.dataset], periodToYear(moment.start));
+  }, [selectedZone, handleZoneSelect, jumpTo]);
 
   // Backend value of the current chunk, e.g. "+1.2 °C vs normal" (screen reader announcement)
   // With several tracks, name the track the value belongs to (the first enabled one with a value)
@@ -491,6 +493,7 @@ function AppContent() {
               selectedZone={selectedZone}
               positionStore={positionStore}
               onJumpToMoment={handleJumpToMoment}
+              monthFilter={monthFilter}
             />
           </section>
           )}

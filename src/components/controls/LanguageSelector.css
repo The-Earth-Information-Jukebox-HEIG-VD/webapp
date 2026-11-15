@@ -100,6 +100,11 @@
   font-weight: 700; /* non-colour cue besides aria-current (1.4.1) */
 }
 
+/* Selected + hovered: stronger yellow tint (yellow text stays >= 5:1) */
+.language-option.active:hover {
+  background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
 .language-option-code {
   font-weight: 600;
   font-size: var(--font-size-sm);

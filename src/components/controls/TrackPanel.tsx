@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateInstrument } from '../../utils/instrumentName';
 import type { Track, TrackState } from '../../types/tracks';
 import type { InstrumentsStatus } from '../../hooks/useInstruments';
 import { periodYear, type ApiErrorKind } from '../../services/sonificationApi';
@@ -154,7 +155,7 @@ export function TrackPanel({
                 <span id={nameId} className="track-row-name">{name}</span>
                 {track.instrument && (
                   <span id={instrumentId} className="track-row-instrument">
-                    {track.instrument}
+                    {translateInstrument(track.instrument, t)}
                     {sounding && (
                       <span className="sounding-bars" data-testid="sounding" aria-hidden="true">
                         <i /><i /><i />

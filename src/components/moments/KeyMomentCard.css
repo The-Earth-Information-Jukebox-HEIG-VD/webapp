@@ -4,8 +4,10 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--color-surface-hover);
+  /* Transparent until active, so the yellow border never shifts the layout */
+  border: 3px solid transparent;
   border-radius: var(--radius-lg);
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .key-moment-card:hover {
@@ -14,6 +16,8 @@
 
 .key-moment-card.active {
   background: var(--color-primary-tint);
+  /* The event being played in its own zone (user request: yellow border) */
+  border-color: var(--color-primary);
 }
 
 .moment-image {

@@ -58,10 +58,30 @@ describe('keyMoments', () => {
 
   it('encodes each moment status relative to the position', () => {
     const moments = getMomentsForZone('usa', 1880, 2025); // Harvey 2017, California 2020, Uri 2021
-    const s = encodeMomentStatuses(moments, periodToYear('2020-09') + 0.01);
+    const s = encodeMomentStatuses(moments, periodToYear('2020-09') + 0.01, 'usa');
     expect([0, 1, 2].map((i) => decodeMomentStatus(s, i))).toEqual(['past', 'active', 'upcoming']);
-    expect(encodeMomentStatuses(moments, null)).toBe('uuu');
+    expect(encodeMomentStatuses(moments, null, 'usa')).toBe('uuu');
     // The window includes its whole last month
-    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08), 0)).toBe('active');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08, 'usa'), 0)).toBe('active');
+  });
+
+  it('is active from one month before to one month after the event', () => {
+    const moments = getMomentsForZone('pakistan', 1880, 2025); // peak Aug 2022
+    const status = (period: string, offset = 0) =>
+      decodeMomentStatus(encodeMomentStatuses(moments, periodToYear(period) + offset, 'pakistan'), 0);
+    expect(status('2022-06', 0.08)).toBe('upcoming'); // end of June: two months before
+    expect(status('2022-07')).toBe('active'); // start of the month before
+    expect(status('2022-08')).toBe('active');
+    expect(status('2022-09', 0.08)).toBe('active'); // end of the month after
+    expect(status('2022-10')).toBe('past'); // two months after
+  });
+
+  it('is only active in its own zone', () => {
+    const moments = getMomentsForZone(null, 1880, 2025);
+    const i = moments.findIndex((m) => m.id === 'pakistan-floods-2022');
+    const at = periodToYear('2022-08');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, at, 'pakistan'), i)).toBe('active');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, at, null), i)).toBe('upcoming');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, at, 'india'), i)).toBe('upcoming');
   });
 });

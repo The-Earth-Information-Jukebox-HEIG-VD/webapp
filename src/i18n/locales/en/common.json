@@ -615,6 +615,11 @@
     "hint": "How the data is played: {{description}}",
     "infoLabel": "About the music style",
     "changed": "Music style: {{name}}",
-    "loading": "Loading styles…"
+    "loading": "Loading styles…",
+    "recommendedGroup": "Recommended",
+    "funGroup": "Just for fun",
+    "and": " and ",
+    "recommendedNote": "{{names}} are the styles we worked on most: they carry the climate message most clearly. The others are here to have fun with.",
+    "funNote": "This style is just for fun: the changes in the data are easier to hear with the recommended ones."
   }
 }

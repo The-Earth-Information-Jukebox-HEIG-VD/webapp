@@ -8,7 +8,7 @@ import { createPositionStore } from '../../hooks/usePlaybackPosition';
 import { periodToYear } from '../../services/sonificationApi';
 import { keyMoments } from '../../data/keyMoments';
 
-function setup(selectedZone: string | null, position: number | null = null) {
+function setup(selectedZone: string | null, position: number | null = null, monthFilter: number | null = null) {
   const onJump = vi.fn();
   const utils = render(
     <KeyMomentsSection
@@ -17,6 +17,7 @@ function setup(selectedZone: string | null, position: number | null = null) {
       selectedZone={selectedZone}
       positionStore={createPositionStore(position)}
       onJumpToMoment={onJump}
+      monthFilter={monthFilter}
     />
   );
   return { onJump, ...utils };
@@ -58,6 +59,20 @@ describe('KeyMomentsSection', () => {
   it('marks the event being played', () => {
     setup('pakistan', periodToYear('2022-08'));
     expect(screen.getByText('Playing now')).toBeInTheDocument();
+    expect(screen.getByRole('listitem')).toHaveClass('active');
+    expect(screen.getByRole('listitem')).toHaveAttribute('aria-current', 'true');
+  });
+
+  it('uses the month shown in month travel, not the raw playhead', () => {
+    // Month travel "August": mid-way through the 2022 bar the playhead is past
+    // the window in raw terms, but it still stands for August 2022
+    setup('pakistan', periodToYear('2022-08') + 0.4, 8);
+    expect(screen.getByText('Playing now')).toBeInTheDocument();
+  });
+
+  it('does not mark an event when no zone is selected', () => {
+    setup(null, periodToYear('2022-08'));
+    expect(screen.queryByText('Playing now')).not.toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {

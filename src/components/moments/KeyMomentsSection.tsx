@@ -8,6 +8,7 @@ import {
 import type { KeyMoment } from '../../types/keyMoments';
 import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
 import { getZoneDisplayName } from '../../utils/zoneName';
+import { snapToMonth } from '../../services/sonificationApi';
 import { KeyMomentCard } from './KeyMomentCard';
 import './KeyMomentsSection.css';
 
@@ -19,6 +20,8 @@ interface KeyMomentsSectionProps {
   /** Fine playback position (fractional year) */
   positionStore: PositionStore;
   onJumpToMoment: (moment: KeyMoment) => void;
+  /** Month travel (1-12): the playhead stands for that month of its year */
+  monthFilter?: number | null;
 }
 
 /**
@@ -32,6 +35,7 @@ export function KeyMomentsSection({
   selectedZone,
   positionStore,
   onJumpToMoment,
+  monthFilter = null,
 }: KeyMomentsSectionProps) {
   const { t } = useTranslation();
 
@@ -40,9 +44,15 @@ export function KeyMomentsSection({
     [selectedZone, startYear, endYear]
   );
 
-  // One character per moment: re-renders only when a moment changes status
+  // One character per moment: re-renders only when a moment changes status.
+  // In month travel the playhead crosses a whole year per bar: use the month it
+  // stands for (the one the timeline shows), not the raw position.
   const statuses = usePlaybackPosition(positionStore, (position) =>
-    encodeMomentStatuses(moments, position)
+    encodeMomentStatuses(
+      moments,
+      position === null ? null : snapToMonth(position, monthFilter),
+      selectedZone
+    )
   );
 
   return (

@@ -297,6 +297,34 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     [tracks]
   );
 
+  // Seek waiting for a track change: the timeline range (and so the clamp in
+  // seekToYear) depends on the enabled tracks, so it must run after they apply
+  const pendingSeek = useRef<number | null>(null);
+  useEffect(() => {
+    if (pendingSeek.current === null) return;
+    const year = pendingSeek.current;
+    pendingSeek.current = null;
+    seekToYear(year);
+  }, [datasetKey, seekToYear]);
+
+  /**
+   * Enable exactly `trackIds` (the unavailable ones are skipped; if none is
+   * available the selection is kept), then move the timeline to `year`.
+   */
+  const jumpTo = useCallback(
+    (trackIds: string[], year: number) => {
+      const wanted = trackIds.filter((id) => tracks.some((t) => t.id === id && t.available));
+      const nextKey = tracks.filter((t) => wanted.includes(t.id)).map((t) => t.id).join(',');
+      if (wanted.length === 0 || nextKey === datasetKey) {
+        seekToYear(year);
+        return;
+      }
+      pendingSeek.current = year;
+      setUserEnabled(new Set(wanted));
+    },
+    [tracks, datasetKey, seekToYear]
+  );
+
   const mainTrackId = datasetIds.find((id) => chunk.values[id] !== undefined) ?? null;
   const currentValue = mainTrackId ? chunk.values[mainTrackId] : null;
   const units = tracks.find((t) => t.id === mainTrackId)?.units ?? null;
@@ -357,6 +385,8 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     seekToYear,
     setVolume,
     setTrackEnabled,
+    /** Select exactly these tracks, then seek (once their date range applies) */
+    jumpTo,
   };
 }
 

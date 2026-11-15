@@ -55,7 +55,7 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
   const isActive = status === 'active';
 
   return (
-    <li className={`key-moment-card ${status}`}>
+    <li className={`key-moment-card ${status}`} aria-current={isActive ? 'true' : undefined}>
       {moment.image && (
         <img
           className="moment-image"

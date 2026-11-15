@@ -615,6 +615,11 @@
     "hint": "Wie die Daten gespielt werden: {{description}}",
     "infoLabel": "Über den Musikstil",
     "changed": "Musikstil: {{name}}",
-    "loading": "Stile werden geladen…"
+    "loading": "Stile werden geladen…",
+    "recommendedGroup": "Empfohlen",
+    "funGroup": "Einfach zum Spaß",
+    "and": " und ",
+    "recommendedNote": "{{names}} sind die Stile, an denen wir am meisten gearbeitet haben: Sie vermitteln die Klimabotschaft am klarsten. Die anderen sind zum Ausprobieren und Spaßhaben da.",
+    "funNote": "Dieser Stil ist zum Spaß da: Veränderungen in den Daten hört man mit den empfohlenen Stilen besser."
   }
 }
