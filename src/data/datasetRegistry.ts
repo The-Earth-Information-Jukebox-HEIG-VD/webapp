@@ -110,6 +110,17 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     color: firstTrackColor(['night_lights', 'nightlights']),
     display: { min: 0, max: 0.5, mode: 'linear' },
   },
+  {
+    // Days with a fire per month (2002-07 to 2026-11); 94% of cells are 0, p99.5 = 17
+    id: 'fires',
+    folder: 'fires_2002_2026',
+    prefix: 'fires',
+    labelKey: 'globeData.datasets.fires',
+    trackIds: ['fires'],
+    units: '',
+    color: firstTrackColor(['fires']),
+    display: { min: 0, max: 17, mode: 'linear' },
+  },
 ];
 
 /**
