@@ -98,5 +98,16 @@
     "error": "Das Datendiagramm konnte nicht geladen werden.",
     "unavailable": "Keine Daten für diese Auswahl.",
     "lineNoData": "{{name}}: keine Daten in diesem Gebiet."
+  },
+  "vinyl": {
+    "play": "Platte abspielen",
+    "pause": "Platte pausieren",
+    "prevGroove": "Vorherige Rille",
+    "nextGroove": "Nächste Rille",
+    "grooveOf": "Rille {{k}} von {{n}}",
+    "sliderValue": "Rille {{k}} von {{n}}, {{elapsed}} von {{total}}",
+    "loadingGroove": "Rille {{k}} wird geladen…",
+    "ended": "Ende der Platte. Abspielen startet wieder am Rand.",
+    "shortcuts": "Im Schallplattenmodus wechseln die Pfeiltasten zur vorherigen oder nächsten Rille, Pos1 und Ende zur ersten oder letzten."
   }
 }

@@ -6,6 +6,7 @@
  *   GET  /api/health            server status
  *   POST /api/zones/zone-data   selected points + one period in, 30 s of audio out
  *   POST /api/zones/series      full monthly series of the selected area, for the data graph
+ *   POST /api/zones/groove      vinyl mode: a path at one date in, its music + one stop per point out (v2.6)
  *
  * The embedded base64 `audio_data` is played as is.
  */
@@ -44,6 +45,49 @@ export interface ZoneDataResponse {
   /** Mean over the points at time_period, per dataset_id, in the units of /api/instruments */
   values: Record<string, number>;
   point_count: number;
+}
+
+/** A point of a vinyl groove (longitudes past 180 are wrapped by the backend). */
+export interface GroovePoint {
+  lat: number;
+  lng: number;
+}
+
+export interface GrooveRequest {
+  zone_id: string | null;
+  dataset_ids: string[];
+  /** The fixed date, "YYYY-MM" (or "YYYY") */
+  time_period: string;
+  /** Points of `path` per 3 s bar: 4 = one point per beat (0.75 s) */
+  points_per_bar: 1 | 2 | 4;
+  /** Each point is the mean over a disc of this radius (0.1 to 10) */
+  radius_deg: number;
+  /** Whole bars: a multiple of points_per_bar, at most 20 bars and 80 points */
+  path: GroovePoint[];
+}
+
+export interface GrooveStop {
+  /** Snapped to the backend's 0.5° grid */
+  lat: number;
+  lng: number;
+  /** null: no data under the needle there (silent); 0: data that says "none" */
+  values: Record<string, number | null>;
+}
+
+export interface GrooveResponse {
+  zone_id: string | null;
+  time_period: string;
+  /** Datasets that have data along the path at that date */
+  dataset_ids: string[];
+  /** Base64 MP3 */
+  audio_data: string;
+  duration_s: number;
+  bar_seconds: number;
+  points_per_bar: number;
+  /** stops[i] plays from i * stop_seconds */
+  stop_seconds: number;
+  radius_deg: number;
+  stops: GrooveStop[];
 }
 
 export interface ZoneSeriesRequest {
@@ -197,6 +241,18 @@ async function request<T>(path: string, init: RequestInit, signal?: AbortSignal)
 export function fetchZoneData(req: ZoneDataRequest, signal?: AbortSignal): Promise<ZoneDataResponse> {
   return request<ZoneDataResponse>(
     '/zones/zone-data',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    },
+    signal
+  );
+}
+
+export function fetchGroove(req: GrooveRequest, signal?: AbortSignal): Promise<GrooveResponse> {
+  return request<GrooveResponse>(
+    '/zones/groove',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

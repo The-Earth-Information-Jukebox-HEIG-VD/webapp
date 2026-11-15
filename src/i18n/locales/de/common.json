@@ -475,5 +475,78 @@
     "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus.",
     "playedBy": "gespielt von {{instrument}}",
     "instrument": "Instrument"
+  },
+  "experience": {
+    "label": "Wie möchten Sie zuhören?",
+    "zones": "Zeitreise",
+    "zonesHint": "Eine Zone, durch die Jahre",
+    "vinyl": "Schallplatte",
+    "vinylHint": "Ein Monat, rund um den Globus",
+    "switchedZones": "Modus Zeitreise. Schallplatte pausiert.",
+    "switchedVinyl": "Modus Schallplatte. Zonen-Wiedergabe pausiert."
+  },
+  "vinyl": {
+    "date": "Monat zum Abspielen",
+    "month": "Monat",
+    "year": "Jahr",
+    "dateHint": "Daten für alle gewählten Klänge: {{start}} – {{end}}.",
+    "dateDisjointHint": "Die gewählten Klänge haben keinen gemeinsamen Monat ({{start}} – {{end}}): einige bleiben stumm.",
+    "dateClamped": "Der Monat wurde an die gewählten Klänge angepasst.",
+    "place": "Mitte der Schallplatte",
+    "preset": "Ort",
+    "presetCustom": "Eigene Position",
+    "lat": "Breitengrad",
+    "lng": "Längengrad",
+    "latHint": "-90 (Süden) bis 90 (Norden)",
+    "lngHint": "-180 (Westen) bis 180 (Osten)",
+    "errors": {
+      "required": "Geben Sie einen Wert ein.",
+      "notNumber": "Geben Sie eine Zahl ein, z. B. 48,8.",
+      "latRange": "Der Breitengrad muss zwischen -90 und 90 liegen.",
+      "lngRange": "Der Längengrad muss zwischen -180 und 180 liegen."
+    },
+    "apply": "Übernehmen",
+    "pickHint": "Oder klicken Sie auf den Globus, um die Mitte der Platte zu setzen.",
+    "restartHint": "Ein neuer Monat oder eine neue Mitte startet die Platte wieder am Rand.",
+    "recordLabel": "Der Globus als Schallplatte, zentriert auf {{centre}}, spielt {{month}}. Die Nadel läuft spiralförmig vom Rand zur Mitte.",
+    "grooveOf": "Rille {{k}} von {{n}}",
+    "caption": {
+      "centre": "Mitte {{centre}}",
+      "near": "nahe {{region}}"
+    },
+    "centred": "Platte zentriert auf {{place}}, {{month}}.",
+    "nowPlaying": "Rille {{k}} von {{n}}, nahe {{place}}: {{reading}}",
+    "nowPlayingNoValue": "Rille {{k}} von {{n}}, nahe {{place}}",
+    "hemi": {
+      "n": "N",
+      "s": "S",
+      "e": "O",
+      "w": "W"
+    },
+    "table": {
+      "caption": "Rillen der Platte, zentriert auf {{centre}}, {{month}}",
+      "groove": "Rille",
+      "start": "Beginn",
+      "end": "Ende",
+      "region": "Durchquerte Region",
+      "playing": "läuft",
+      "notPlayed": "Noch nicht gespielt",
+      "noData": "Keine Daten",
+      "meanNote": "Die Werte sind der Mittelwert entlang der Rille."
+    },
+    "presets": {
+      "north-pole": "Nordpol",
+      "south-pole": "Südpol",
+      "europe": "Europa",
+      "africa": "Afrika",
+      "north-america": "Nordamerika",
+      "south-america": "Südamerika",
+      "asia": "Asien",
+      "oceania": "Ozeanien",
+      "pacific": "Pazifischer Ozean",
+      "atlantic": "Atlantischer Ozean",
+      "indian-ocean": "Indischer Ozean"
+    },
+    "simulated": "Simuliert: Dieser Server hat noch keinen Rillen-Endpunkt (API v2.6), jede Rille ist ein Mittelwert über ihr Band."
   }
 }

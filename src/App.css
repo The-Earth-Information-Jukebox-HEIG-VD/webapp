@@ -126,6 +126,10 @@
     overflow-y: auto;
   }
 
+  .workspace > .visualization-section > .vinyl-record-view {
+    overflow-y: auto;
+  }
+
   /* Track panel collapsed: a slim bar above the view, which takes the full width.
      The row height no longer comes from the panel, so the view gets its own. */
   .workspace.tracks-collapsed {

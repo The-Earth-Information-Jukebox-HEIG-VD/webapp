@@ -475,5 +475,78 @@
     "noSelectedDataset": "Aucune des pistes sélectionnées n'a de données à afficher sur le globe.",
     "playedBy": "joué par {{instrument}}",
     "instrument": "Instrument"
+  },
+  "experience": {
+    "label": "Comment voulez-vous écouter ?",
+    "zones": "Voyage dans le temps",
+    "zonesHint": "Une zone, au fil des années",
+    "vinyl": "Vinyle",
+    "vinylHint": "Un mois, à travers le globe",
+    "switchedZones": "Mode voyage dans le temps. Lecture du vinyle en pause.",
+    "switchedVinyl": "Mode vinyle. Lecture de la zone en pause."
+  },
+  "vinyl": {
+    "date": "Mois à écouter",
+    "month": "Mois",
+    "year": "Année",
+    "dateHint": "Données pour tous les sons choisis : {{start}} – {{end}}.",
+    "dateDisjointHint": "Les sons choisis n’ont aucun mois en commun ({{start}} – {{end}}) : certains resteront muets.",
+    "dateClamped": "Le mois a été ajusté aux sons choisis.",
+    "place": "Centre du disque",
+    "preset": "Lieu",
+    "presetCustom": "Position personnalisée",
+    "lat": "Latitude",
+    "lng": "Longitude",
+    "latHint": "-90 (sud) à 90 (nord)",
+    "lngHint": "-180 (ouest) à 180 (est)",
+    "errors": {
+      "required": "Saisissez une valeur.",
+      "notNumber": "Saisissez un nombre, p. ex. 48,8.",
+      "latRange": "La latitude doit être comprise entre -90 et 90.",
+      "lngRange": "La longitude doit être comprise entre -180 et 180."
+    },
+    "apply": "Appliquer",
+    "pickHint": "Ou cliquez sur le globe pour placer le centre du disque.",
+    "restartHint": "Changer le mois ou le centre relance le disque depuis le bord.",
+    "recordLabel": "Le globe en disque vinyle, centré sur {{centre}}, jouant {{month}}. Le saphir trace une spirale du bord vers le centre.",
+    "grooveOf": "Sillon {{k}} sur {{n}}",
+    "caption": {
+      "centre": "Centre {{centre}}",
+      "near": "près de {{region}}"
+    },
+    "centred": "Disque centré sur {{place}}, {{month}}.",
+    "nowPlaying": "Sillon {{k}} sur {{n}}, près de {{place}} : {{reading}}",
+    "nowPlayingNoValue": "Sillon {{k}} sur {{n}}, près de {{place}}",
+    "hemi": {
+      "n": "N",
+      "s": "S",
+      "e": "E",
+      "w": "O"
+    },
+    "table": {
+      "caption": "Sillons du disque centré sur {{centre}}, {{month}}",
+      "groove": "Sillon",
+      "start": "Début",
+      "end": "Fin",
+      "region": "Région traversée",
+      "playing": "en cours",
+      "notPlayed": "Pas encore joué",
+      "noData": "Pas de données",
+      "meanNote": "Les valeurs sont la moyenne le long du sillon."
+    },
+    "presets": {
+      "north-pole": "Pôle Nord",
+      "south-pole": "Pôle Sud",
+      "europe": "Europe",
+      "africa": "Afrique",
+      "north-america": "Amérique du Nord",
+      "south-america": "Amérique du Sud",
+      "asia": "Asie",
+      "oceania": "Océanie",
+      "pacific": "Océan Pacifique",
+      "atlantic": "Océan Atlantique",
+      "indian-ocean": "Océan Indien"
+    },
+    "simulated": "Simulé : ce serveur n’a pas encore le point d’accès des sillons (API v2.6), chaque sillon est une moyenne sur sa bande."
   }
 }
