@@ -1,13 +1,18 @@
 # EarthChestra – Webapp
 
-Web interface of **EarthChestra** (NASA Space Apps Challenge 2026, HEIG-VD). Pick a zone on a 3D globe, choose datasets, and listen to them played by an orchestra. The music is composed by the [sonification backend](https://github.com/The-Earth-Information-Jukebox-HEIG-VD/sonification). While it plays, the globe draws the zone's data as coloured dots, one colour per dataset.
+Web interface of **EarthChestra**, the app of the Earth Information Jukebox project (NASA Space Apps Challenge 2026, HEIG-VD). Pick a zone on a 3D globe, choose datasets, and listen to them played by an orchestra. The music is composed by the [sonification backend](https://github.com/The-Earth-Information-Jukebox-HEIG-VD/sonification). While it plays, the globe draws the zone's data as coloured dots, one colour per dataset.
 
 Full technical documentation: <https://the-earth-information-jukebox-heig-vd.github.io/documentation>
 
 ## Features
 
 - 3D globe ([react-globe.gl](https://github.com/vasturiano/react-globe.gl) / three.js) and an accessible list view to select a continent, country, ocean or sea
-- Audio tracks panel: one dataset per instrument; the music arrives from the backend in chunks played back to back (Web Audio API)
+- Sounds panel ("What do you want to hear?"): one dataset per instrument; the music arrives from the backend in chunks played back to back (Web Audio API)
+- Zone series chart: the Graph toggle shows the zone's values over time, full width, with a data table for screen readers
+- Date picker ("Go to a date") to jump to any month of the timeline
+- Big zones are sent to the backend as a compact `mask` (a few kB instead of megabytes of points, `src/utils/zoneMask.ts`)
+- iOS silent-switch handling: playback stays audible when the ringer switch is on silent (`src/audio/iosAudioUnlock.ts`)
+- In development: a vinyl experience mode, where one month of data plays as a record whose grooves cross the globe. The backend endpoint exists (`POST /api/zones/groove`, API v2.6); the webapp side is not merged yet
 - During playback, the zone's values from the datasets volume are drawn on the globe, in step with the music
 - English, French and German (i18next)
 - Built for WCAG 2.1 AA: keyboard shortcuts (Space, ←/→, Home/End, M, Escape), screen reader announcements, data tables for the globe
@@ -79,12 +84,13 @@ To run the whole stack (webapp, backend, datasets), use the [`deployment`](https
 ```
 src/
 ├── main.tsx, App.tsx   entry point and app shell
-├── components/         UI: about, controls, layout, moments, panels, player, visualization (globe, list)
+├── components/         UI: about, controls, layout, moments, player, visualization (globe, list)
+│                       (the root files AudioPlayer, DataSelector, DataVisualizer, InfoPanel, KeyboardShortcuts and AudioTranscript are legacy and unused)
 ├── hooks/              useSonification, useInstruments, useZoneDataFrames, useHashRoute, …
 ├── services/           sonificationApi.ts (backend client), volumeData.ts (datasets reader)
-├── audio/              ChunkPlayer.ts (plays the backend's audio chunks)
+├── audio/              ChunkPlayer.ts (plays the backend's audio chunks), iosAudioUnlock.ts (iOS silent switch)
 ├── data/               dataset registry (colours, units), key moments, zone outlines (Natural Earth)
-├── utils/              .npy parser, geometry, zone grid cells, formatting
+├── utils/              .npy parser, geometry, zone grid cells, zone mask, formatting
 ├── i18n/               translations (en, fr, de)
 ├── contexts/           accessibility and view mode
 ├── styles/             CSS variables, accessibility, animations

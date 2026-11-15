@@ -13,9 +13,9 @@
 
 - **Forms**: every `<input>` has an associated `<label>` (`htmlFor`/`id` or wrap).
 - **Buttons**: semantic `<button>`; `aria-label` when icon-only.
-- **Modals**: trap focus, close on Escape, `aria-modal="true"`.
+- **Dialogs**: close on Escape and give focus back to the trigger. A true modal (`aria-modal="true"`) also traps focus. The `DatePicker` popover is a non-modal `role="dialog"` (no `aria-modal`, no focus trap): it closes on Escape, outside click or Tab out. Known issue: the global Escape handler in `GlobeView.tsx` only skips when an `aria-modal` is open, so Escape in the date picker also returns to zone selection.
 - **Charts/visualizations**: include a hidden `<table>` with the full data.
-- **Audio/sonification**: provide an `AudioTranscript` explaining the mapping.
+- **Audio/sonification**: the text alternatives are the `sr-only` data tables and summaries (`SeriesChart.tsx` table + `graph.summary`, `GlobeView.tsx` table) plus `aria-live` announcements. `AudioTranscript` is a legacy, unused component.
 - **Dynamic content**: `aria-live` regions for status updates.
-- Player controls must keep: Space (play/pause), arrows (seek), Home/End (jump); `?` opens `KeyboardShortcuts`.
+- Player controls must keep: Space (play/pause), arrows (seek), Home/End (jump), M (mute), handled in `AudioPlayerEnhanced.tsx`; Escape returns to zone selection (`GlobeView.tsx`). On the timeline slider: arrows 2%, Shift+arrows 1 month, PageUp/PageDown 1 year (`Timeline.tsx`). There is no `?` shortcut: `KeyboardShortcuts` is a legacy, unused component.
 - In `npm run dev`, axe-core logs violations to the browser console — check it after UI changes.
