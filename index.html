@@ -7,6 +7,22 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#071327" />
+    <!-- No-flash theme: sets data-theme before first paint. Same rules as src/contexts/ThemeContext.tsx (saved choice, else the system setting). -->
+    <script>
+      (function () {
+        var theme = "dark";
+        try {
+          var saved = localStorage.getItem("earth-jukebox-theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+          else if (window.matchMedia && !window.matchMedia("(prefers-color-scheme: dark)").matches) theme = "light";
+        } catch (e) {
+          try { if (window.matchMedia && !window.matchMedia("(prefers-color-scheme: dark)").matches) theme = "light"; } catch (e2) {}
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", theme === "light" ? "#f6f7fb" : "#071327");
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="EarthChestra - NASA Earth observations played by an orchestra, shown live on a 3D globe" />
     <title>EarthChestra | NASA Space Apps 2026</title>

@@ -14,17 +14,18 @@
   line-height: 1.8;
 }
 
-/* Color-blind safe palette (activated via .color-blind-mode class) */
+/* Color-blind safe palette (activated via .color-blind-mode class).
+   The warm (orange) / cool (blue) tokens already are colour-blind safe in each
+   theme (see variables.css); only the pattern swatches carry their own colours. */
 .color-blind-mode {
-  /* Override warm/cool colors to blue/orange (already default) */
-  --color-warm: #e67e22;
-  --color-warm-light: #f39c12;
-  --color-cool: #3498db;
-  --color-cool-light: #5dade2;
-
   /* Add pattern indicators for charts */
   --pattern-warm: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L8 8M8 0L0 8' stroke='%23e67e22' stroke-width='1'/%3E%3C/svg%3E");
   --pattern-cool: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='4' cy='4' r='2' fill='%233498db'/%3E%3C/svg%3E");
+}
+
+.color-blind-mode[data-theme="light"] {
+  --pattern-warm: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L8 8M8 0L0 8' stroke='%23a8480c' stroke-width='1'/%3E%3C/svg%3E");
+  --pattern-cool: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='4' cy='4' r='2' fill='%231f6a9c'/%3E%3C/svg%3E");
 }
 
 /* Add texture/pattern indicators in color-blind mode */
@@ -47,8 +48,11 @@
   scroll-behavior: auto !important;
 }
 
-/* High contrast mode */
-.high-contrast {
+/* High contrast mode. It wins over both theme blocks: :root.high-contrast is
+   more specific than [data-theme], and dark islands (the globe stage) get the
+   dark high-contrast values too. */
+:root.high-contrast,
+.high-contrast [data-theme="dark"] {
   --color-background: #000000;
   --color-surface: #1a1a1a;
   --color-surface-hover: #333333;
@@ -61,9 +65,47 @@
   --color-control-border: #ffffff;
   --color-primary: #ffe38a;
   --color-primary-light: #fff0c2;
+  --color-primary-text: #ffe38a;
+  --color-link: #ffe38a;
+  --color-link-hover: #ffffff;
+  --color-sounding: #ffe38a;
+  --color-focus: #ffff00;
   --color-on-primary: #000000;
   --color-warm: #ffaa00;
   --color-cool: #00aaff;
+}
+
+/* High contrast on the light theme: white page, black text and borders */
+:root.high-contrast[data-theme="light"] {
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #e6e6e6;
+  --color-surface-active: #d0d0d0;
+  --color-surface-elevated: #ffffff;
+  --color-text: #000000;
+  --color-text-secondary: #1a1a1a;
+  --color-text-muted: #1a1a1a;
+  --color-text-inverse: #ffffff;
+  --color-border: #000000;
+  --color-border-light: #333333;
+  --color-control-border: #000000;
+  --color-primary: #0000cc;
+  --color-primary-dark: #000099;
+  --color-primary-light: #1a1ab3;
+  --color-primary-text: #0000cc;
+  --color-on-primary: #ffffff;
+  --color-secondary-text: #0000cc;
+  --color-land-text: #004d33;
+  --color-link: #0000cc;
+  --color-link-hover: #000099;
+  --color-sounding: #0000cc;
+  --color-focus: #0000cc;
+  --color-error: #8a0000;
+  --color-warning: #6b4500;
+  --color-success: #005a1a;
+  --color-info: #0000cc;
+  --color-warm: #8a3a00;
+  --color-cool: #00408f;
 }
 
 .high-contrast button,
@@ -78,9 +120,18 @@
   outline-offset: 4px !important;
 }
 
+.high-contrast[data-theme="light"] :focus-visible {
+  outline-color: #0000cc !important;
+}
+
+/* The dark stage keeps the yellow ring in the light high-contrast theme */
+:root.high-contrast [data-theme="dark"] :focus-visible {
+  outline-color: #ffff00 !important;
+}
+
 /* Enhanced focus indicators for all modes */
 :focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

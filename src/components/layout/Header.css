@@ -32,7 +32,7 @@
 }
 
 .logo-link:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: none;
 }
 

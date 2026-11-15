@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { KeyMoment, MomentDataset } from '../../types/keyMoments';
 import type { MomentStatus } from '../../data/keyMoments';
-import { TRACK_COLORS } from '../../data/trackColors';
+import { trackColor, TRACK_COLORS_DARK } from '../../data/trackColors';
+import { useContext } from 'react';
+import ThemeContext from '../../contexts/ThemeContext';
 import { getZoneDisplayName } from '../../utils/zoneName';
 import './KeyMomentCard.css';
 
@@ -45,6 +47,8 @@ const DATASET_ICONS: Record<MomentDataset, () => ReactNode> = {
  */
 export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCardProps) {
   const { t, i18n } = useTranslation();
+  // Optional: renders (and tests) without a ThemeProvider fall back to dark
+  const resolvedTheme = useContext(ThemeContext)?.resolvedTheme ?? 'dark';
   const key = `moments.${moment.i18nKey}`;
   const title = t(`${key}.title`);
   const zoneName = getZoneDisplayName(moment.zoneIds[0], t);
@@ -71,7 +75,7 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
           <span className="moment-dataset">
             <span
               className="moment-dataset-icon"
-              style={{ color: TRACK_COLORS[moment.dataset] }}
+              style={{ color: moment.dataset in TRACK_COLORS_DARK ? trackColor(moment.dataset, resolvedTheme) : undefined }}
               aria-hidden="true"
             >
               <Icon />

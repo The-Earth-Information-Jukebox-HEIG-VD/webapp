@@ -38,6 +38,7 @@ export function VinylRecordView({ center, monthLabel, chunkIndex, started, histo
     <div className="vinyl-record-view">
       <svg
         className="vinyl-record-svg"
+        data-theme="dark"
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
         aria-label={t(travel === 'time' ? 'vinyl.recordLabelTime' : 'vinyl.recordLabel', { centre: formatLatLng(center, i18n.language, hemis), month: monthLabel })}
@@ -52,9 +53,9 @@ export function VinylRecordView({ center, monthLabel, chunkIndex, started, histo
             className={current === k ? 'vinyl-record-groove is-current' : 'vinyl-record-groove'}
           />
         ))}
-        <circle cx={SIZE / 2} cy={SIZE / 2} r={INNER - 2} fill="#f5d078" />
-        <circle cx={SIZE / 2} cy={SIZE / 2} r={3} fill="#071327" />
-        {current !== null && <circle cx={SIZE / 2 + ringRadius(current)} cy={SIZE / 2} r={5} fill="#ffffff" stroke="#071327" />}
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={INNER - 2} style={{ fill: 'var(--color-primary)' }} />
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={3} style={{ fill: 'var(--color-background)' }} />
+        {current !== null && <circle cx={SIZE / 2 + ringRadius(current)} cy={SIZE / 2} r={5} style={{ fill: 'var(--color-text)', stroke: 'var(--color-background)' }} />}
       </svg>
       <p className="vinyl-record-status">
         {monthLabel} · {t('vinyl.grooveOf', { k: (current ?? 0) + 1, n: VINYL_CHUNKS })}

@@ -70,7 +70,7 @@
 .vinyl-field select:focus-visible,
 .vinyl-field input:focus-visible,
 .vinyl-apply:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -136,11 +136,11 @@
   width: 24px;
   height: 24px;
   margin: 10px 0 0;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-primary-text);
 }
 
 .vinyl-radio input:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

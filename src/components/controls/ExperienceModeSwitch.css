@@ -38,13 +38,19 @@
 }
 
 .experience-option:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.experience-option.active {
+.experience-option.active,
+.experience-option.active:hover:not(:disabled) {
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--selected-ring);
+}
+
+.experience-option.active:hover:not(:disabled) {
+  background: var(--color-primary-light);
 }
 
 /* Selected + hovered: darker yellow (on-primary text stays ~10:1) */

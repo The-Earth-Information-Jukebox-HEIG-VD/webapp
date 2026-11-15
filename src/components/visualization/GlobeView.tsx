@@ -325,7 +325,7 @@ export function GlobeView({
     });
 
   return (
-    <div ref={containerRef} className="globe-view">
+    <div ref={containerRef} className="globe-view" data-theme="dark">
       {!isLoaded && (
         <div className="globe-loading" aria-hidden="true">
           <div className="globe-skeleton" />

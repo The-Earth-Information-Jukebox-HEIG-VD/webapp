@@ -20,7 +20,7 @@
 }
 
 .language-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -90,12 +90,12 @@
 }
 
 .language-option:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: -3px;
 }
 
 .language-option.active {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   background: var(--color-primary-tint);
   font-weight: 700; /* non-colour cue besides aria-current (1.4.1) */
 }
@@ -119,7 +119,7 @@
 .check-icon {
   width: 16px;
   height: 16px;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 /* Mobile adjustments */

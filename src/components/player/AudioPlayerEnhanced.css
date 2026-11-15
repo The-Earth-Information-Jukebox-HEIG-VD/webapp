@@ -69,7 +69,7 @@
 }
 
 .control-button:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -83,6 +83,7 @@
   height: 52px;
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--selected-ring);
 }
 
 .control-button.play-pause:hover {
@@ -92,6 +93,7 @@
 /* No zone selected: Play is disabled. The icon keeps >= 3:1 against the
    button (WCAG 1.4.11) and the reason is spelled out in the hint below. */
 .control-button.play-pause:disabled {
+  box-shadow: none;
   background: var(--color-surface-hover);
   color: var(--color-text-secondary);
   cursor: not-allowed;
@@ -126,7 +128,7 @@
 .tracks-button:hover { background: var(--color-surface-hover); }
 
 .tracks-button:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -148,7 +150,7 @@
   padding: 0 var(--spacing-sm);
   background: transparent;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font: inherit;
   font-weight: 600;
   text-decoration: underline;
@@ -156,7 +158,7 @@
 }
 
 .player-link:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -214,7 +216,7 @@
 
 .audio-player-enhanced .track-progress {
   height: 8px;
-  background: var(--color-primary); /* solid, matches the play button */
+  background: var(--color-primary-text); /* solid; the brand colour as a graphic (darker variant in the light theme) */
 }
 
 .audio-player-enhanced .thumb-indicator {
@@ -288,7 +290,7 @@
 }
 
 .player-retry:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -306,6 +308,7 @@
 .tracks-button.graph-button.pressed {
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--selected-ring);
 }
 
 .tracks-button.graph-button.pressed:hover {
