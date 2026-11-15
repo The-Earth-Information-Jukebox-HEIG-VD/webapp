@@ -12,6 +12,7 @@ import {
   type ZoneDataRequest,
   type ZoneDataResponse,
 } from './sonificationApi';
+import { encodeMask } from '../utils/zoneMask';
 
 function req(over: Partial<ZoneDataRequest> = {}): ZoneDataRequest {
   return {
@@ -36,7 +37,7 @@ async function failure(call: Promise<unknown>): Promise<ApiError> {
 }
 
 describe('fetchZoneData', () => {
-  it('posts to /api/zones/zone-data with dataset_ids, mean aggregation and the points unchanged', async () => {
+  it('posts to /api/zones/zone-data with dataset_ids, mean aggregation and the area as a mask', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse({
         zone_id: 'europe', dataset_ids: ['temperature'], time_period: '2025-06', next_time_period: null,
@@ -53,11 +54,24 @@ describe('fetchZoneData', () => {
     expect(init.method).toBe('POST');
     expect(JSON.parse(init.body)).toEqual({
       zone_id: 'europe', zone_name: 'Europe', dataset_ids: ['temperature', 'precipitation'],
-      points, time_period: '2015-01', aggregation: 'mean',
+      mask: await encodeMask(points), time_period: '2015-01', aggregation: 'mean',
     });
     // null next_time_period = end of the data
     expect(res.next_time_period).toBeNull();
     expect(res.values.temperature).toBe(1.4);
+  });
+
+  it('sends the points unchanged when the browser cannot compress a mask', async () => {
+    vi.stubGlobal('CompressionStream', undefined);
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal('fetch', fetchMock);
+    const points = [{ lat: 48.8, lng: 2.3, x: 512, y: 234 }];
+
+    await fetchZoneData(req({ points }));
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.points).toEqual(points);
+    expect(body).not.toHaveProperty('mask');
   });
 
   it('reads a string detail', async () => {
