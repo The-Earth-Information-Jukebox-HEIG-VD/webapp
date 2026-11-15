@@ -8,10 +8,12 @@
  *   POST /api/zones/series      full monthly series of the selected area, for the data graph
  *   POST /api/zones/groove      vinyl mode: a path at one date in, its music + one stop per point out (v2.6)
  *
- * The embedded base64 `audio_data` is played as is.
+ * The embedded base64 `audio_data` is played as is. The selected points are sent
+ * as a compact `mask` (utils/zoneMask.ts) when the browser can build one.
  */
 
 import type { GridPoint } from '../types/zones';
+import { maskFor } from '../utils/zoneMask';
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -24,7 +26,7 @@ export interface ZoneDataRequest {
   zone_name: string | null;
   /** dataset_id of every track to combine into one piece */
   dataset_ids: string[];
-  /** Sent unchanged: the backend uses lat/lng and ignores x/y */
+  /** Sent as a `mask` when possible, else unchanged (the backend uses lat/lng, ignores x/y) */
   points: GridPoint[];
   /** "YYYY-MM" */
   time_period: string;
@@ -238,13 +240,26 @@ async function request<T>(path: string, init: RequestInit, signal?: AbortSignal)
 // Endpoints
 // ---------------------------------------------------------------------------
 
-export function fetchZoneData(req: ZoneDataRequest, signal?: AbortSignal): Promise<ZoneDataResponse> {
+/**
+ * The JSON body of a request on an area: `points` replaced by the same cells as a
+ * `mask` (a few kB instead of up to 14 MB, re-sent with every chunk), or the
+ * points unchanged when no mask can be built.
+ */
+export async function areaBody(req: ZoneDataRequest | ZoneSeriesRequest): Promise<string> {
+  const mask = await maskFor(req.points);
+  if (mask === null) return JSON.stringify(req);
+  const body: Record<string, unknown> = { ...req, mask };
+  delete body.points;
+  return JSON.stringify(body);
+}
+
+export async function fetchZoneData(req: ZoneDataRequest, signal?: AbortSignal): Promise<ZoneDataResponse> {
   return request<ZoneDataResponse>(
     '/zones/zone-data',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
+      body: await areaBody(req),
     },
     signal
   );
@@ -262,13 +277,13 @@ export function fetchGroove(req: GrooveRequest, signal?: AbortSignal): Promise<G
   );
 }
 
-export function fetchZoneSeries(req: ZoneSeriesRequest, signal?: AbortSignal): Promise<ZoneSeriesResponse> {
+export async function fetchZoneSeries(req: ZoneSeriesRequest, signal?: AbortSignal): Promise<ZoneSeriesResponse> {
   return request<ZoneSeriesResponse>(
     '/zones/series',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
+      body: await areaBody(req),
     },
     signal
   );

@@ -4,8 +4,8 @@ import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { ZoneFeature, ZoneViewType, GridPoint } from '../../types/zones';
 import { getZoneFeatures, findZoneFeature } from '../../data/zones';
 import { getPointsInFeature, getFeatureView } from '../../utils/geometry';
-import { GRID_RES_DEG, valueToAlpha } from '../../data/datasetRegistry';
 import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
+import { useSpotLayer } from './useSpotLayer';
 import type { Track } from '../../types/tracks';
 import { prefersReducedMotion } from '../../utils/motion';
 import './GlobeView.css';
@@ -42,7 +42,7 @@ interface GlobeViewProps {
   onZoneSelect: (zoneId: string, points: GridPoint[]) => void;
   zoneViewType: ZoneViewType;
   currentYear?: number;
-  /** 'select': zone polygons; 'playback': the zone's data as colored dots. */
+  /** 'select': zone polygons; 'playback': the zone's data as flowing spots. */
   mode?: GlobeMode;
   /** Volume data of the selected zone (playback mode). */
   zoneData?: ZoneDataFrames;
@@ -96,24 +96,6 @@ const POLYGON_SIDE_COLOR = () => 'rgba(100, 150, 200, 0.15)';
 const POLYGON_STROKE_COLOR = () => 'rgba(255, 255, 255, 0.5)';
 const NO_POLYGONS: object[] = [];
 
-/** Positions of up to 6 datasets inside one grid cell, as [lat, lng] fractions of the cell (3 x 2). */
-const DOT_OFFSETS: [number, number][] = [
-  [-0.25, -0.33],
-  [-0.25, 0],
-  [-0.25, 0.33],
-  [0.25, -0.33],
-  [0.25, 0],
-  [0.25, 0.33],
-];
-
-/** One dot = one dataset at one zone cell. Objects are stable per zone. */
-interface DataDot {
-  lat: number;
-  lng: number;
-  cell: number;
-  dataset: number;
-}
-
 interface DatasetStats {
   min: number;
   max: number;
@@ -149,8 +131,9 @@ function formatValue(v: number): string {
  *
  * Select mode: climate zones as interactive polygons.
  * Playback mode: the zone polygons are removed and the stored values of every
- * dataset of the data volume are drawn as colored dots (one color per dataset,
- * opacity from the value), updated as the music plays.
+ * dataset of the data volume are drawn as flowing spots (one color per dataset,
+ * size from the value, no spot where there is nothing), growing and shrinking
+ * as the music plays (useSpotLayer / flowSpots.ts).
  */
 export function GlobeView({
   selectedZone,
@@ -274,53 +257,12 @@ export function GlobeView({
     return feature ? t(feature.properties.nameKey) : selectedZone;
   }, [selectedZone, t]);
 
-  // ── Playback: data dots ─────────────────────────────────────────────
+  // ── Playback: flowing spots ─────────────────────────────────────────
   const grid = isPlayback ? zoneData?.grid ?? null : null;
   const datasets = useMemo(() => zoneData?.datasets ?? [], [zoneData?.datasets]);
   const frame = isPlayback ? zoneData?.frame ?? null : null;
 
-  // Every possible dot of the zone, built once per (zone grid, datasets)
-  const allDots = useMemo<DataDot[]>(() => {
-    if (!grid) return [];
-    const cellDeg = grid.stride * GRID_RES_DEG;
-    const dots: DataDot[] = [];
-    grid.cells.forEach((cell, c) => {
-      datasets.forEach((_, d) => {
-        const [dy, dx] = DOT_OFFSETS[d % DOT_OFFSETS.length];
-        dots.push({ lat: cell.lat + dy * cellDeg, lng: cell.lng + dx * cellDeg, cell: c, dataset: d });
-      });
-    });
-    return dots;
-  }, [grid, datasets]);
-
-  // Dots visible this month: covered by the dataset, not NaN, non-zero opacity
-  const visibleDots = useMemo(() => {
-    if (!frame) return [];
-    const series = datasets.map((ds) => frame.get(ds.info.id) ?? null);
-    return allDots.filter((dot) => {
-      const values = series[dot.dataset];
-      return values ? valueToAlpha(values[dot.cell], datasets[dot.dataset].info.display) > 0 : false;
-    });
-  }, [allDots, frame, datasets]);
-
-  const pointColor = useMemo(() => {
-    const series = datasets.map((ds) => frame?.get(ds.info.id) ?? null);
-    return (d: object) => {
-      const dot = d as DataDot;
-      const ds = datasets[dot.dataset].info;
-      const value = series[dot.dataset]?.[dot.cell] ?? NaN;
-      // Keep a floor of opacity so low values stay perceptible on the globe
-      const alpha = 0.15 + 0.85 * valueToAlpha(value, ds.display);
-      return hexToRgba(ds.color, alpha);
-    };
-  }, [frame, datasets]);
-
-  const pointRadius = useMemo(() => {
-    const r = (grid?.stride ?? 1) * GRID_RES_DEG * 0.16; // 3 x 2 dots per cell must not overlap
-    return () => r;
-  }, [grid]);
-
-  const pointAltitude = useCallback((d: object) => 0.004 + (d as DataDot).dataset * 0.001, []);
+  useSpotLayer(globeRef, isLoaded, grid, datasets, frame);
 
   // Per dataset, the stored values of this month in the zone (shown in the legend and table)
   const stats = useMemo(
@@ -398,13 +340,7 @@ export function GlobeView({
           polygonLabel="label"
           onPolygonClick={handlePolygonClick}
           onPolygonHover={handlePolygonHover}
-          // Data layer: one dot per zone cell per dataset (playback)
-          pointsData={visibleDots}
-          pointColor={pointColor}
-          pointRadius={pointRadius}
-          pointAltitude={pointAltitude}
-          pointsMerge={true}
-          pointsTransitionDuration={0}
+          // Playback data: drawn by useSpotLayer on its own skin over the globe
           onGlobeReady={handleGlobeReady}
           atmosphereColor="#3a228a"
           atmosphereAltitude={0.25}
@@ -489,7 +425,7 @@ export function GlobeView({
         </div>
       )}
 
-      {/* Data table alternative to the dots (screen readers) */}
+      {/* Data table alternative to the spots (screen readers) */}
       {isPlayback && monthLabel && (
         <table className="sr-only">
           <caption>{t('globeData.tableCaption', { zone: selectedZoneName ?? '', month: monthLabel })}</caption>
