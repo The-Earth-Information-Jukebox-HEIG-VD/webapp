@@ -4,6 +4,7 @@ import { useCompactOnScroll } from '../../hooks/useCompactOnScroll';
 import { Navigation } from './Navigation';
 import { LanguageSelector } from '../controls/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
+import { SpinningLogo } from './SpinningLogo';
 import './Header.css';
 
 /**
@@ -30,10 +31,7 @@ export function Header() {
       <div className="header-container">
         <div className="header-logo">
           <a href="#home" className="logo-link">
-            <picture>
-              <source srcSet="/logo-96.webp" type="image/webp" />
-              <img className="logo-icon" src="/logo-96.png" width={40} height={40} alt="" />
-            </picture>
+            <SpinningLogo src="/logo-96" size={40} imgClassName="logo-icon" />
             <span className="logo-text">{t('app.title')}</span>
           </a>
         </div>

@@ -7,11 +7,16 @@
   line-height: 1.6;
 }
 
+.about-logo-wrap {
+  display: flex;
+  width: 160px;
+  margin: 0 auto var(--spacing-md);
+}
+
 .about-logo {
   display: block;
   width: 160px;
   height: 160px;
-  margin: 0 auto var(--spacing-md);
 }
 
 .about-title {

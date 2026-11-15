@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SpinningLogo } from '../layout/SpinningLogo';
 import './AboutPage.css';
 
 /** Public technical documentation (MkDocs site of the `documentation` repository). */
@@ -63,10 +64,7 @@ export function AboutPage() {
 
   return (
     <article className="about-page" aria-labelledby="about-title">
-      <picture>
-        <source srcSet="/logo-320.webp" type="image/webp" />
-        <img className="about-logo" src="/logo-320.png" width={160} height={160} alt="" />
-      </picture>
+      <SpinningLogo src="/logo-320" size={160} imgClassName="about-logo" className="about-logo-wrap" />
       <h1 id="about-title" className="about-title" ref={headingRef} tabIndex={-1}>
         {t('about.title')}
       </h1>
