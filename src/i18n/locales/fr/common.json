@@ -430,6 +430,11 @@
     "select": "Choisir la langue",
     "current": "Langue actuelle"
   },
+  "theme": {
+    "darkMode": "Mode sombre",
+    "darkOn": "Thème sombre activé",
+    "lightOn": "Thème clair activé"
+  },
   "dateTime": {
     "year": "Année",
     "month": "Mois",

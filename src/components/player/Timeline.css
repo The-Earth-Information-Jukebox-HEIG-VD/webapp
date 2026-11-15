@@ -26,7 +26,7 @@
 }
 
 .timeline-track:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 4px;
 }
 
@@ -47,7 +47,7 @@
   left: 0;
   height: 8px;
   transform: translateY(-50%);
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border-radius: var(--radius-full);
   transition: width 0.1s ease;
 }
@@ -134,7 +134,7 @@
 .thumb-indicator {
   width: 16px;
   height: 16px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border: 3px solid var(--color-background);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-md);

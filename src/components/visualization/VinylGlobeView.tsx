@@ -318,7 +318,7 @@ export function VinylGlobeView({
   const head = Math.max(4, size * 0.012);
 
   return (
-    <div ref={containerRef} className="vinyl-view">
+    <div ref={containerRef} className="vinyl-view" data-theme="dark">
       {!isLoaded && (
         <div className="globe-loading" aria-hidden="true">
           <div className="globe-skeleton" />

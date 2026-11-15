@@ -35,14 +35,14 @@
 }
 
 .nav-link:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 /* Current page: yellow + underline (the underline is the non-colour cue, WCAG 1.4.1) */
 .nav-link.active,
 .nav-link.active:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: underline;
 }
 

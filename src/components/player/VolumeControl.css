@@ -25,7 +25,7 @@
 }
 
 .volume-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -63,7 +63,7 @@
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border: 3px solid var(--color-background);
   box-sizing: border-box;
   border-radius: var(--radius-full);
@@ -73,7 +73,7 @@
 .volume-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 3px solid var(--color-background);
@@ -81,12 +81,12 @@
 }
 
 .volume-slider:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-focus);
   outline-offset: 4px;
 }
 
 .volume-slider:focus-visible::-webkit-slider-thumb {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

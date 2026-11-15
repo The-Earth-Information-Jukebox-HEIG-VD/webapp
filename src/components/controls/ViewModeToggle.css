@@ -28,13 +28,19 @@
 }
 
 .view-mode-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.view-mode-button.active {
+.view-mode-button.active,
+.view-mode-button.active:hover:not(:disabled) {
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--selected-ring);
+}
+
+.view-mode-button.active:hover:not(:disabled) {
+  background: var(--color-primary-light);
 }
 
 /* Selected + hovered: darker yellow. Must beat .view-mode-button:hover:not(:disabled),

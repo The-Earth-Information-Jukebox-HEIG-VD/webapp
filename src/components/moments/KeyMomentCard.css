@@ -131,7 +131,7 @@
 }
 
 .moment-jump-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -152,7 +152,7 @@
 
 .playing-dot {
   width: 3px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border-radius: 1px;
   animation: playingDots 1.2s ease-in-out infinite;
 }

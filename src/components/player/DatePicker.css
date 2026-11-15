@@ -19,13 +19,13 @@
 }
 
 .date-picker-trigger:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-text);
 }
 
 .date-picker-trigger:focus-visible,
 .date-picker-popover select:focus-visible,
 .date-picker-popover button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

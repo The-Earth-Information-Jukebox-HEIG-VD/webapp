@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useCompactOnScroll } from '../../hooks/useCompactOnScroll';
 import { Navigation } from './Navigation';
 import { LanguageSelector } from '../controls/LanguageSelector';
+import { ThemeToggle } from './ThemeToggle';
 import './Header.css';
 
 /**
@@ -40,6 +41,7 @@ export function Header() {
         <Navigation />
 
         <div className="header-actions">
+          <ThemeToggle />
           <LanguageSelector />
         </div>
       </div>

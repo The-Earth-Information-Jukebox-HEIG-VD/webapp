@@ -9,6 +9,6 @@
   color: var(--color-text);
   font: inherit;
 }
-.style-selector-select:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+.style-selector-select:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 .style-selector-label-row { display: flex; align-items: center; gap: var(--spacing-xs); }
 

@@ -84,7 +84,7 @@
 }
 
 .zone-row:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: -3px;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .select-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .tree-continent-header:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: -3px;
 }
 
@@ -263,7 +263,7 @@
 }
 
 .tree-country:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: -3px;
 }
 

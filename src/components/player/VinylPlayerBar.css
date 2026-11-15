@@ -17,12 +17,38 @@
   flex: 1;
   min-width: 80px;
   min-height: 44px;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-primary-text);
   cursor: pointer;
+  /* The native track is pale grey (1.4:1 on a light page, WCAG 1.4.11): draw a
+     6px track in the control-border tone inside the 44px hit area. */
+  padding: 0;
+  border: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(var(--color-control-border), var(--color-control-border)) center / 100% 6px no-repeat;
+}
+
+.vinyl-timeline input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary-text);
+  border: 3px solid var(--color-background);
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+}
+
+.vinyl-timeline input[type='range']::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary-text);
+  border: 3px solid var(--color-background);
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
 }
 
 .vinyl-timeline input[type='range']:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

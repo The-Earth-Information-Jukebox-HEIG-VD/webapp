@@ -25,7 +25,7 @@
   cursor: pointer;
 }
 .track-panel-toggle:hover { background: var(--color-surface-hover); }
-.track-panel-toggle:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+.track-panel-toggle:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 .track-panel-toggle-action {
   display: inline-flex;
   align-items: center;
@@ -97,7 +97,7 @@
 .track-row:focus-visible,
 .track-panel-retry:focus-visible,
 .player-link:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

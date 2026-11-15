@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 // Contexts
 import { AccessibilityProvider, useAccessibility } from './contexts/AccessibilityContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { ViewModeProvider, useViewMode } from './contexts/ViewModeContext';
 import {
   ExperienceModeProvider,
@@ -104,7 +105,8 @@ function AppContent() {
   // Tracks come from the backend's /api/instruments
   // Music style: shared by zone and vinyl mode (the instrument names depend on it)
   const musicStyle = useMusicStyle();
-  const instruments = useInstruments(musicStyle.genre);
+  const { resolvedTheme } = useTheme();
+  const instruments = useInstruments(musicStyle.genre, resolvedTheme);
   // The style list is fetched once at start; if that failed (backend not up yet),
   // fetch it again as soon as the track list loads, so the selector comes back
   const { reload: reloadStyles, failed: stylesFailed } = musicStyle;
@@ -638,11 +640,13 @@ function AppContent() {
 function App() {
   return (
     <AccessibilityProvider>
-      <ViewModeProvider>
-        <ExperienceModeProvider>
-          <AppContent />
-        </ExperienceModeProvider>
-      </ViewModeProvider>
+      <ThemeProvider>
+        <ViewModeProvider>
+          <ExperienceModeProvider>
+            <AppContent />
+          </ExperienceModeProvider>
+        </ViewModeProvider>
+      </ThemeProvider>
     </AccessibilityProvider>
   );
 }

@@ -23,7 +23,7 @@
 }
 
 .about-title:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 4px;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .about-page a:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
