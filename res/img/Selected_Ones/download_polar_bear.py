@@ -15,7 +15,7 @@ for it in IMAGES:
     out = os.path.join(HERE, it["file"])
     if os.path.exists(out) and os.path.getsize(out) > 1000:
         ok += 1; continue
-    req = urllib.request.Request(it["url"], headers={"User-Agent": "EarthInformationJukebox/1.0 (NASA Space Apps student project)"})
+    req = urllib.request.Request(it["url"], headers={"User-Agent": "EarthInformationJukebox/1.0 (NASA Space Apps project)"})
     try:
         with urllib.request.urlopen(req, timeout=180) as r, open(out, "wb") as f:
             f.write(r.read())
