@@ -15,7 +15,8 @@
     "playing": "Lecture en cours",
     "paused": "En pause",
     "stopped": "Arrêté",
-    "loading": "Chargement de l'audio…"
+    "loading": "Chargement de l'audio…",
+    "interrupted": "Lecture mise en pause par le système. Appuyez sur Lecture pour reprendre."
   },
   "timeline": {
     "label": "Chronologie des données climatiques",

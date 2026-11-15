@@ -15,7 +15,8 @@
     "playing": "Playing",
     "paused": "Paused",
     "stopped": "Stopped",
-    "loading": "Loading audio…"
+    "loading": "Loading audio…",
+    "interrupted": "Playback paused by the system. Press Play to resume."
   },
   "timeline": {
     "label": "Climate data timeline",

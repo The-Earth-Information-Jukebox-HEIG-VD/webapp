@@ -88,6 +88,7 @@ function AppContent() {
     status,
     error,
     hasEnded,
+    interrupted,
     canPlay,
     position,
     mainTrackId,
@@ -333,6 +334,7 @@ function AppContent() {
               status={status}
               error={error}
               hasEnded={hasEnded}
+              interrupted={interrupted}
               canPlay={canPlay}
               onRetry={retry}
               tracksStatus={instruments.status}

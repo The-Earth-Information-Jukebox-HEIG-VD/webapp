@@ -48,6 +48,8 @@ interface AudioPlayerEnhancedProps {
   error?: SonificationError | null;
   /** Playback reached the end of the data */
   hasEnded?: boolean;
+  /** Playback was paused by the system (iOS interruption), not by the user */
+  interrupted?: boolean;
   /** false when no track is enabled or no area is selected */
   canPlay?: boolean;
   onRetry?: () => void;
@@ -89,6 +91,7 @@ export function AudioPlayerEnhanced({
   status = 'idle',
   error = null,
   hasEnded = false,
+  interrupted = false,
   canPlay = true,
   onRetry,
   tracksStatus = 'ready',
@@ -380,7 +383,9 @@ export function AudioPlayerEnhanced({
                   : ''
                 : hasEnded
                   ? t('endOfData')
-                  : '')}
+                  : interrupted && !isPlaying
+                    ? t('status.interrupted')
+                    : '')}
         </div>
       </div>
     </div>
