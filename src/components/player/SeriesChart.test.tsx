@@ -174,8 +174,17 @@ describe('SeriesChart dashes', () => {
   });
 
   it('every known track has its own dash pattern (1.4.1: not colour alone)', () => {
-    const ids = ['temperature', 'precipitation', 'co2', 'snow', 'lightning', 'night_lights', 'fires'];
+    const ids = [
+      'temperature', 'precipitation', 'co2', 'snow', 'lightning', 'night_lights', 'fires', 'sea_ice',
+      'vegetation', 'chlorophyll', 'carbon_monoxide',
+    ];
     expect(new Set(ids.map((id) => dashFor(id) ?? 'solid')).size).toBe(ids.length);
+  });
+
+  it('backend id aliases share the dash of their canonical track', () => {
+    expect(dashFor('ndvi')).toBe(dashFor('vegetation'));
+    expect(dashFor('co')).toBe(dashFor('carbon_monoxide'));
+    expect(dashFor('ocean_chlorophyll')).toBe(dashFor('chlorophyll'));
   });
 
   it('unknown ids get a deterministic dash', () => {

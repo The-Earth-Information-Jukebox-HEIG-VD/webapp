@@ -7,7 +7,7 @@ export const DOCS_URL = 'https://the-earth-information-jukebox-heig-vd.github.io
 const DOCS_TECH_URL = `${DOCS_URL}development/overview/`;
 
 /** Datasets as played by the backend (sonification/music/orchestra.py ORCHESTRA). */
-const INSTRUMENT_KEYS = ['temperature', 'co2', 'rain', 'snow', 'lightning', 'fires', 'nightLights'] as const;
+const INSTRUMENT_KEYS = ['temperature', 'co2', 'rain', 'snow', 'lightning', 'fires', 'nightLights', 'seaIce'] as const;
 
 /** Where each dataset comes from (datasets repository history and READMEs). */
 const SOURCES: { key: string; name: string; href?: string }[] = [
@@ -16,8 +16,21 @@ const SOURCES: { key: string; name: string; href?: string }[] = [
   { key: 'lis', name: 'ISS LIS (NASA SVS 5011)', href: 'https://svs.gsfc.nasa.gov/5011' },
   { key: 'modis', name: 'NASA MODIS active fires (FIRMS)', href: 'https://firms.modaps.eosdis.nasa.gov/' },
   { key: 'nightLights', name: 'NASA Earth at Night (SVS 5276)', href: 'https://svs.gsfc.nasa.gov/5276' },
+  { key: 'nsidc', name: 'NSIDC Sea Ice Index', href: 'https://nsidc.org/data/g02135' },
   { key: 'co2', name: 'CO₂' },
   { key: 'naturalEarth', name: 'Natural Earth', href: 'https://www.naturalearthdata.com/' },
+];
+
+/**
+ * Datasets already in the datasets repository and ready in the web app
+ * (colours, globe registry, names) but not played by the backend yet.
+ * Not shown: move an entry into SOURCES, before CO₂, once the server lists
+ * its track in GET /api/instruments (and add its instrument above).
+ */
+export const UPCOMING_SOURCES: { key: string; name: string; href?: string }[] = [
+  { key: 'modisNdvi', name: 'NASA MODIS Terra vegetation index (NDVI)', href: 'https://modis.gsfc.nasa.gov/data/dataprod/mod13.php' },
+  { key: 'mopitt', name: 'NASA Terra MOPITT carbon monoxide', href: 'https://asdc.larc.nasa.gov/project/MOPITT' },
+  { key: 'oceanColor', name: 'NASA MODIS Aqua ocean chlorophyll (OceanColor)', href: 'https://oceancolor.gsfc.nasa.gov/' },
 ];
 
 /** Link opening in a new tab, announced as such to screen reader users. */
@@ -65,6 +78,7 @@ export function AboutPage() {
           <li>{t('about.howZone')}</li>
           <li>{t('about.howTracks')}</li>
           <li>{t('about.howPlay')}</li>
+          <li>{t('about.howMonths')}</li>
           <li>{t('about.howPitch')}</li>
           <li>{t('about.howLoudness')}</li>
           <li>{t('about.howGaps')}</li>

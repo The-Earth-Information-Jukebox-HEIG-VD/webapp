@@ -50,6 +50,34 @@ describe('keyMoments', () => {
     expect(getMomentsForZone('switzerland', 1880, 2025)).toEqual([]);
   });
 
+  it('also lists the moments of a country under its continent', () => {
+    const ids = (zone: string) => getMomentsForZone(zone, 1880, 2025).map((m) => m.id);
+    expect(ids('asia')).toEqual([
+      'indonesia-peat-fires-2015',
+      'yakutia-wildfires-2021', // Russia belongs to Asia in the zone data
+      'pakistan-floods-2022',
+      'uae-oman-floods-2024', // two Asian countries: listed once
+    ]);
+    expect(ids('northAmerica')).toEqual([
+      'hurricane-harvey-2017',
+      'california-wildfires-2020',
+      'winter-storm-uri-2021',
+      'quebec-wildfires-2023',
+    ]);
+    expect(ids('europe')).toEqual(['storm-filomena-2021']);
+    expect(ids('africa')).toEqual(['storm-daniel-2023']);
+    expect(ids('oceania')).toEqual(['black-summer-2019']);
+    expect(ids('southAmerica')).toEqual([]);
+    // Not the other way round: a continent's moment is not listed under its countries
+    expect(ids('india')).toEqual([]);
+  });
+
+  it('is not active on the continent around its zone (the card offers the zone itself)', () => {
+    const moments = getMomentsForZone('asia', 1880, 2025);
+    const i = moments.findIndex((m) => m.id === 'pakistan-floods-2022');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2022-08'), 'asia'), i)).toBe('upcoming');
+  });
+
   it('leaves out moments outside the data range', () => {
     const ids = getMomentsForZone(null, 1880, 2020).map((m) => m.id);
     expect(ids).toContain('black-summer-2019');

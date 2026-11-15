@@ -1,5 +1,6 @@
 import type { KeyMoment, MomentDataset } from '../types/keyMoments';
 import { addMonths, periodToYear } from '../services/sonificationApi';
+import { findZoneFeature } from './zones';
 
 import indonesiaImg from '../assets/events/indonesia-peat-fires-2015.jpg';
 import harveyImg from '../assets/events/hurricane-harvey-2017.jpg';
@@ -71,8 +72,18 @@ export function momentBounds(m: KeyMoment): [number, number] {
 }
 
 /**
+ * Whether a moment happened in a zone: one of its own zones, or the zone that
+ * contains one of them (`parentId`: a country's continent, a sea's ocean), so
+ * the Pakistan floods are also listed under Asia.
+ */
+export function momentInZone(m: KeyMoment, zoneId: string): boolean {
+  return m.zoneIds.some((id) => id === zoneId || findZoneFeature(id)?.properties.parentId === zoneId);
+}
+
+/**
  * Moments to show for the selected zone: all of them when no zone is selected,
- * otherwise only those that happened in that zone. Moments outside the
+ * otherwise those that happened in that zone or in a country (sea) inside it.
+ * Moments outside the
  * enabled tracks' data range [startYear, endYear] are left out.
  */
 export function getMomentsForZone(
@@ -81,7 +92,7 @@ export function getMomentsForZone(
   endYear: number
 ): KeyMoment[] {
   return keyMoments.filter((m) => {
-    if (zoneId !== null && !m.zoneIds.includes(zoneId)) return false;
+    if (zoneId !== null && !momentInZone(m, zoneId)) return false;
     const [from, to] = momentBounds(m);
     return to > startYear && from < endYear + 1;
   });
@@ -98,7 +109,9 @@ const CODE_STATUS: Record<string, MomentStatus> = { u: 'upcoming', a: 'active', 
  * moment changes status, not ~10 times a second).
  *
  * A moment is only 'active' when the playhead is in its window AND its zone is
- * the selected one: the same months in another zone are not that event.
+ * the selected one: the same months in another zone are not that event. On the
+ * continent (ocean) around it the card offers to select the event's own zone, so
+ * it is not 'active' there either.
  */
 export function encodeMomentStatuses(
   moments: KeyMoment[],

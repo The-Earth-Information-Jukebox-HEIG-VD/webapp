@@ -1,0 +1,164 @@
+{
+  "title": "How to use EarthChestra",
+  "lead": "Four steps to hear a place on Earth change over the years. Then a few tools to dig deeper.",
+  "showsLabel": "What it shows",
+  "quick": {
+    "title": "Quick start",
+    "zone": {
+      "title": "Pick a zone",
+      "text": "Click a continent, a country, an ocean or a sea on the globe. The buttons above it switch between Continents, Countries and Oceans & seas.",
+      "shows": "The data of every dataset, averaged over that zone."
+    },
+    "sounds": {
+      "title": "Choose your sounds",
+      "text": "Open Sounds and tick one or more datasets: temperature, rain, snow, CO₂, lightning, fires, night lights…",
+      "shows": "Each dataset plays its own instrument. A small bar moves beside it while it is sounding."
+    },
+    "play": {
+      "title": "Press Play",
+      "text": "The music moves through time, month by month, starting where the timeline is (at first, its beginning).",
+      "shows": "The date in the player follows the music."
+    },
+    "watch": {
+      "title": "Watch the globe",
+      "text": "Coloured spots appear on your zone as the months go by. Change zone (or Escape) picks another one.",
+      "shows": "Where it rains, burns or shines, and how much, month after month."
+    }
+  },
+  "read": {
+    "title": "Read the music",
+    "pitch": {
+      "title": "Higher note = higher value",
+      "text": "Compared with your zone's own range (in Vinyl Space and Both: the dataset's range worldwide)."
+    },
+    "loud": {
+      "title": "Louder = more of it",
+      "text": "Rain, snow, lightning, fires, night lights and sea ice only play when present. Temperature and CO₂ always play."
+    },
+    "tempo": {
+      "title": "Faster = warmer",
+      "text": "Only with Temperature on: a month warmer than usual for your zone plays faster. Otherwise, and in Vinyl Space and Both, the tempo stays steady."
+    },
+    "silence": {
+      "title": "Silence = no data",
+      "text": "E.g. CO₂ before September 2002."
+    },
+    "spots": {
+      "title": "Bigger spot = stronger value",
+      "text": "One colour per dataset, shown in the globe legend."
+    },
+    "ring": {
+      "title": "Filled = warmer, ring = colder",
+      "text": "For temperature, compared with normal."
+    }
+  },
+  "explore": {
+    "title": "Explore in time",
+    "note": "These tools are in Time travel mode.",
+    "date": {
+      "title": "Date button",
+      "text": "In the player, open it and choose a year and a month.",
+      "shows": "Jump straight to the moment you care about."
+    },
+    "timeline": {
+      "title": "Timeline",
+      "text": "Drag it, or use the arrow keys, to move through the years.",
+      "shows": "Where you are in the whole period of data."
+    },
+    "graph": {
+      "title": "Graph",
+      "text": "Turns on a chart of your zone's values, one line per dataset.",
+      "shows": "Long-term trends at a glance. Each line has its own scale, and 0 = normal for temperature."
+    },
+    "months": {
+      "title": "Months",
+      "text": "Choose one month to hear it year after year, e.g. every July.",
+      "shows": "The seasons step aside, so the change over the decades stands out."
+    },
+    "events": {
+      "title": "Key events",
+      "text": "Cards under the globe: El Niño, wildfires, floods, storms… Press Play on one.",
+      "shows": "The event's zone, dataset and dates, ready to hear."
+    }
+  },
+  "events": {
+    "title": "Key events",
+    "note": "In Time travel mode, the Key events cards are under the globe.",
+    "find": {
+      "title": "Find an event",
+      "text": "Select a zone to see its events, or no zone to see them all.",
+      "shows": "El Niño, wildfires, hurricanes and floods, snowstorms and the Hunga Tonga eruption."
+    },
+    "play": {
+      "title": "Press Play on a card",
+      "text": "The zone is selected if needed, only the event's dataset stays on, and the timeline moves to a month before the event. Press Play in the player if the music was stopped.",
+      "shows": "The music starts just before the event, so you hear it arrive."
+    },
+    "listen": {
+      "title": "Listen to the change",
+      "text": "Follow the event's instrument: it plays higher or louder as the event grows, then settles back.",
+      "shows": "\"Playing now\" appears on the card while the music is inside the event's dates."
+    },
+    "cardTitle": "What a card tells you",
+    "card": {
+      "sound": "Dataset",
+      "soundText": "The track you will hear, with its icon and colour.",
+      "place": "Zone",
+      "placeText": "Where it happened (shown when no zone is selected).",
+      "data": "In our data",
+      "dataText": "The months when the event shows in the data (\"Peak in our data\" for El Niño).",
+      "when": "When it happened",
+      "whenText": "The real dates of the event."
+    }
+  },
+  "modes": {
+    "title": "Two ways to listen",
+    "zones": {
+      "title": "Time travel",
+      "tagline": "One zone, through the years",
+      "text": "Everything above: pick a zone, the months go by."
+    },
+    "vinyl": {
+      "title": "Vinyl",
+      "tagline": "The globe becomes a record",
+      "text": "Choose the centre of the record (a place, coordinates or a click on the globe) and a month.",
+      "travelLabel": "The needle travels through",
+      "space": "one date, the needle spirals from the edge to the centre, across places.",
+      "time": "one place, the needle stays on the centre while the months go by.",
+      "both": "the needle crosses places and the date moves on by a month or a year on each groove."
+    }
+  },
+  "custom": {
+    "title": "Make it yours",
+    "style": {
+      "title": "Music style",
+      "text": "Orchestra and Realistic sounds tell the climate story best. Swing, funk, house… are just for fun."
+    },
+    "view": {
+      "title": "Globe or List view",
+      "text": "The list is a keyboard and screen reader friendly way to pick a zone."
+    },
+    "theme": {
+      "title": "Light or dark",
+      "text": "The sun/moon button in the header. The globe stays dark."
+    },
+    "language": {
+      "title": "Language",
+      "text": "English, Français or Deutsch, from the header."
+    }
+  },
+  "keys": {
+    "title": "Keyboard shortcuts",
+    "left": "Left arrow",
+    "right": "Right arrow",
+    "space": "Play or pause",
+    "arrows": "Back or forward 2% of the timeline (previous or next groove in Vinyl)",
+    "homeEnd": "Start or end",
+    "m": "Mute or unmute",
+    "escape": "Back to zone selection, once a zone is playing",
+    "shiftArrows": "On the timeline: one month back or forward",
+    "pageUpDown": "On the timeline: one year back or forward"
+  },
+  "start": "Start listening",
+  "about": "Where does the data come from? Read About"
+}

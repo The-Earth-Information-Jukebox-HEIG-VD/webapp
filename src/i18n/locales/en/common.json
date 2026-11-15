@@ -8,6 +8,7 @@
   },
   "nav": {
     "home": "Home",
+    "howTo": "How to use",
     "about": "About",
     "accessibility": "Accessibility Options"
   },
@@ -337,7 +338,10 @@
     "hide": "Hide",
     "selectedCount_one": "{{count}} track selected",
     "selectedCount_other": "{{count}} tracks selected",
-    "sea_ice": "Sea ice"
+    "sea_ice": "Sea ice",
+    "vegetation": "Vegetation (NDVI)",
+    "chlorophyll": "Ocean chlorophyll",
+    "carbon_monoxide": "Carbon monoxide"
   },
   "moments": {
     "title": "Key events",
@@ -456,8 +460,9 @@
     "howZone": "Choose a zone on the globe or in the list: a continent, a country, an ocean or a sea.",
     "howTracks": "Select Sounds to open the \"What do you want to hear?\" panel and choose the datasets to hear. Each dataset is played by its own instrument.",
     "howPlay": "Press Play. Each dataset is averaged over your zone, month by month, and every month becomes one bar of music. Use the date button to go to a given month, and Graph to see your zone's values as a chart.",
+    "howMonths": "In Time travel, the Months menu plays one month year after year (for example every July), to hear how the same season changes; choose \"Every month\" to go back.",
     "howPitch": "Higher values play higher notes, measured against your zone's own range, so a value always gives the same note.",
-    "howLoudness": "Rain, snow, lightning, fires and night lights only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
+    "howLoudness": "Rain, snow, lightning, fires, night lights and sea ice only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
     "howGlobe": "While the music plays, the globe shows the data of your zone as spots: one colour per dataset, and the stronger the value, the bigger the spot. Where there is nothing, there is no spot, so spots appear, grow and fade as the months go by. Temperature is a filled spot when warmer than normal and a ring when colder. Select Change zone or press Escape to pick another zone.",
     "orchestraTitle": "The orchestra",
@@ -469,7 +474,8 @@
       "snow": "Snow: glockenspiel",
       "lightning": "Lightning: timpani",
       "fires": "Fires: trombones",
-      "nightLights": "Night lights: synth pad"
+      "nightLights": "Night lights: synth pad",
+      "seaIce": "Sea ice: bowed glass"
     },
     "dataTitle": "Data sources",
     "dataText": "The datasets' map files share one grid of 0.25°, so a place has the same position in every dataset.",
@@ -479,7 +485,11 @@
       "lis": "share of each map pixel with lightning, monthly, between 55°S and 55°N, March 2017 to July 2023.",
       "modis": "days of the month with at least one fire detected (Terra and Aqua), July 2002 to November 2026.",
       "nightLights": "night-time lights, brightness from 0 to 1, one map per year from 2012 to 2023; each year's map is used for its 12 months.",
+      "nsidc": "share of the sea covered by ice (%), monthly, January 1979 to October 2026.",
       "co2": "monthly CO₂ concentration (ppm), extracted by the team, September 2002 to March 2022.",
+      "modisNdvi": "vegetation greenness (NDVI, from −0.2 to 1), monthly, March 2000 to October 2026; the ocean has no value.",
+      "mopitt": "carbon monoxide in the whole air column (×10¹⁸ molecules/cm²), monthly, April 2000 to October 2024; 20 months are missing at NASA.",
+      "oceanColor": "ocean chlorophyll-a concentration (mg/m³), monthly geometric mean, July 2002 to October 2026; land and cloud-covered sea have no value.",
       "naturalEarth": "outlines of continents, countries, oceans and seas (public domain)."
     },
     "techTitle": "Under the hood",
@@ -522,7 +532,10 @@
       "snow": "Snow",
       "nightlights": "Night lights",
       "fires": "Fires",
-      "sea_ice": "Sea ice"
+      "sea_ice": "Sea ice",
+      "vegetation_ndvi": "Vegetation (NDVI)",
+      "chlorophyll": "Ocean chlorophyll",
+      "carbon_monoxide": "Carbon monoxide"
     },
     "noSelectedDataset": "None of the selected tracks has data to show on the globe.",
     "playedBy": "played by {{instrument}}",

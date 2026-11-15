@@ -8,6 +8,7 @@ import { snapToMonth } from '../../services/sonificationApi';
 import { formatReading, formatUnits } from '../../utils/reading';
 import { buildTicks } from './Timeline';
 import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
+import { canonicalTrackId } from '../../data/trackColors';
 import './SeriesChart.css';
 
 export interface ChartLine {
@@ -47,7 +48,10 @@ interface SeriesChartProps {
 export const VIEW_W = 1000;
 export const VIEW_H = 100;
 export const MARGIN_Y = 6;
-const DASHES = ['', '6 3', '2 3', '8 3 2 3', '1 4', '12 4', '4 2 1 2', '10 2 2 2 2 2'];
+const DASHES = [
+  '', '6 3', '2 3', '8 3 2 3', '1 4', '12 4', '4 2 1 2', '10 2 2 2 2 2',
+  '3 6', '8 2 1 2 1 2', '16 3 3 3',
+];
 /** Fixed dash per known track id: the pattern follows the track, never its rank. */
 const TRACK_DASH_INDEX: Record<string, number> = {
   temperature: 0,
@@ -58,11 +62,14 @@ const TRACK_DASH_INDEX: Record<string, number> = {
   night_lights: 5,
   fires: 6,
   sea_ice: 7,
+  vegetation: 8,
+  chlorophyll: 9,
+  carbon_monoxide: 10,
 };
 
 /** Dash pattern of a line: stable per id, whatever other lines are shown. */
 export function dashFor(id: string): string | undefined {
-  let idx = TRACK_DASH_INDEX[id];
+  let idx = TRACK_DASH_INDEX[canonicalTrackId(id)];
   if (idx === undefined) {
     let h = 0;
     for (let k = 0; k < id.length; k++) h = (h * 31 + id.charCodeAt(k)) >>> 0;

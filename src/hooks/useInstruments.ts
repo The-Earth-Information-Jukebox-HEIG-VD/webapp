@@ -8,7 +8,13 @@ import {
   type InstrumentInfo,
 } from '../services/sonificationApi';
 import type { Track } from '../types/tracks';
-import { TRACK_COLORS, FALLBACK_TRACK_COLOR, trackColor, type TrackSurface } from '../data/trackColors';
+import {
+  TRACK_COLORS,
+  FALLBACK_TRACK_COLOR,
+  canonicalTrackId,
+  trackColor,
+  type TrackSurface,
+} from '../data/trackColors';
 
 export { TRACK_COLORS, FALLBACK_TRACK_COLOR };
 
@@ -19,7 +25,8 @@ const DEFAULT_ENABLED = new Set(['temperature']);
 export function instrumentToTrack(info: InstrumentInfo, surface: TrackSurface = 'dark'): Track {
   return {
     id: info.dataset_id,
-    nameKey: `tracks.${info.dataset_id}`,
+    // Aliases (e.g. ndvi -> vegetation) share the canonical name key
+    nameKey: `tracks.${canonicalTrackId(info.dataset_id)}`,
     label: info.name,
     instrument: info.instrument,
     role: info.role,

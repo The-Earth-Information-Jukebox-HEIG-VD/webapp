@@ -8,6 +8,7 @@
   },
   "nav": {
     "home": "Accueil",
+    "howTo": "Mode d’emploi",
     "about": "À propos",
     "accessibility": "Options d'accessibilité"
   },
@@ -337,7 +338,10 @@
     "hide": "Masquer",
     "selectedCount_one": "{{count}} piste sélectionnée",
     "selectedCount_other": "{{count}} pistes sélectionnées",
-    "sea_ice": "Glace de mer"
+    "sea_ice": "Glace de mer",
+    "vegetation": "Végétation (NDVI)",
+    "chlorophyll": "Chlorophylle océanique",
+    "carbon_monoxide": "Monoxyde de carbone"
   },
   "moments": {
     "title": "Événements marquants",
@@ -456,8 +460,9 @@
     "howZone": "Choisissez une zone sur le globe ou dans la liste : un continent, un pays, un océan ou une mer.",
     "howTracks": "Sélectionnez Sons pour ouvrir le panneau « Que voulez-vous entendre ? » et choisir les jeux de données à écouter. Chaque jeu de données est joué par son propre instrument.",
     "howPlay": "Lancez la lecture. Chaque jeu de données est moyenné sur votre zone, mois par mois, et chaque mois devient une mesure musicale. Le bouton de date permet d'aller à un mois donné, et Graphique d'afficher les valeurs de votre zone sous forme de courbes.",
+    "howMonths": "En Voyage dans le temps, le menu Mois joue un seul mois année après année (par exemple chaque juillet), pour entendre comment une même saison change ; choisissez « Tous les mois » pour revenir.",
     "howPitch": "Les valeurs élevées jouent des notes aiguës, par rapport à l'étendue propre à votre zone : une valeur donne donc toujours la même note.",
-    "howLoudness": "La pluie, la neige, la foudre, les feux et les lumières nocturnes ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, plus il y a d'éclairs, plus les timbales frappent de coups par temps, et les trombones enflent avec les feux. Les lumières nocturnes changent une fois par an : la nappe de synthétiseur commence nettement chaque janvier, puis s'estompe lentement au fil de l'année.",
+    "howLoudness": "La pluie, la neige, la foudre, les feux, les lumières nocturnes et la glace de mer ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, plus il y a d'éclairs, plus les timbales frappent de coups par temps, et les trombones enflent avec les feux. Les lumières nocturnes changent une fois par an : la nappe de synthétiseur commence nettement chaque janvier, puis s'estompe lentement au fil de l'année.",
     "howGaps": "Lorsqu'un jeu de données n'a pas de données pour une date (par exemple le CO₂ avant septembre 2002), son instrument se tait.",
     "howGlobe": "Pendant la musique, le globe affiche les données de votre zone sous forme de taches : une couleur par jeu de données, et plus la valeur est forte, plus la tache est grande. Là où il n'y a rien, il n'y a pas de tache : les taches apparaissent, grandissent et s'effacent au fil des mois. La température est une tache pleine quand il fait plus chaud que la normale et un anneau quand il fait plus froid. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
     "orchestraTitle": "L'orchestre",
@@ -469,7 +474,8 @@
       "snow": "Neige : glockenspiel",
       "lightning": "Foudre : timbales",
       "fires": "Feux : trombones",
-      "nightLights": "Lumières nocturnes : nappe de synthétiseur"
+      "nightLights": "Lumières nocturnes : nappe de synthétiseur",
+      "seaIce": "Glace de mer : verre frotté"
     },
     "dataTitle": "Sources des données",
     "dataText": "Les fichiers de cartes des jeux de données partagent une même grille de 0,25° : un lieu a la même position dans chaque jeu de données.",
@@ -479,7 +485,11 @@
       "lis": "part de chaque pixel de la carte touchée par la foudre, mensuelle, entre 55° S et 55° N, de mars 2017 à juillet 2023.",
       "modis": "nombre de jours du mois avec au moins un feu détecté (Terra et Aqua), de juillet 2002 à novembre 2026.",
       "nightLights": "lumières nocturnes, luminosité de 0 à 1, une carte par an de 2012 à 2023 ; la carte de chaque année sert pour ses 12 mois.",
+      "nsidc": "part de la mer couverte de glace (%), mensuelle, de janvier 1979 à octobre 2026.",
       "co2": "concentration mensuelle de CO₂ (ppm), extraite par l'équipe, de septembre 2002 à mars 2022.",
+      "modisNdvi": "verdure de la végétation (NDVI, de −0,2 à 1), mensuelle, de mars 2000 à octobre 2026 ; l'océan n'a pas de valeur.",
+      "mopitt": "monoxyde de carbone dans toute la colonne d'air (×10¹⁸ molécules/cm²), mensuel, d'avril 2000 à octobre 2024 ; 20 mois manquent chez la NASA.",
+      "oceanColor": "concentration de chlorophylle a dans l'océan (mg/m³), moyenne géométrique mensuelle, de juillet 2002 à octobre 2026 ; les terres et la mer sous les nuages n'ont pas de valeur.",
       "naturalEarth": "contours des continents, pays, océans et mers (domaine public)."
     },
     "techTitle": "Sous le capot",
@@ -522,7 +532,10 @@
       "snow": "Neige",
       "nightlights": "Lumières nocturnes",
       "fires": "Feux",
-      "sea_ice": "Glace de mer"
+      "sea_ice": "Glace de mer",
+      "vegetation_ndvi": "Végétation (NDVI)",
+      "chlorophyll": "Chlorophylle océanique",
+      "carbon_monoxide": "Monoxyde de carbone"
     },
     "noSelectedDataset": "Aucune des pistes sélectionnées n'a de données à afficher sur le globe.",
     "playedBy": "joué par {{instrument}}",

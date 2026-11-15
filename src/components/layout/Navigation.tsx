@@ -14,6 +14,7 @@ export function Navigation() {
 
   const navItems = [
     { id: 'home', href: '#home', label: t('nav.home') },
+    { id: 'howto', href: '#how-to-use', label: t('nav.howTo') },
     { id: 'about', href: '#about', label: t('nav.about') },
   ];
 

@@ -8,6 +8,14 @@ const UNIT_SYMBOLS: Record<string, string> = {
   degK: 'K',
   K: 'K',
   ppm: 'ppm',
+  // Ocean chlorophyll (the backend code is not fixed yet: accept the usual spellings)
+  'mg/m3': 'mg/m³',
+  'mg/m^3': 'mg/m³',
+  'mg m-3': 'mg/m³',
+  // Carbon monoxide total column
+  '1e18 molecules/cm2': '×10¹⁸ molec/cm²',
+  '10^18 molecules/cm2': '×10¹⁸ molec/cm²',
+  'x10^18 molecules/cm2': '×10¹⁸ molec/cm²',
 };
 
 /** Backend unit codes -> i18n key (player:units.*) of the spoken name. */
@@ -17,6 +25,14 @@ const SPOKEN_KEYS: Record<string, string> = {
   degK: 'K',
   K: 'K',
   ppm: 'ppm',
+  'mg/m3': 'mgPerM3',
+  'mg/m^3': 'mgPerM3',
+  'mg m-3': 'mgPerM3',
+  'mg/m³': 'mgPerM3',
+  '1e18 molecules/cm2': 'coColumn',
+  '10^18 molecules/cm2': 'coColumn',
+  'x10^18 molecules/cm2': 'coColumn',
+  '×10¹⁸ molec/cm²': 'coColumn',
 };
 
 const MINUS = '−';

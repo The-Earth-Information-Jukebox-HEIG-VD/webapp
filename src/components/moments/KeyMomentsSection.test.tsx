@@ -44,6 +44,16 @@ describe('KeyMomentsSection', () => {
     );
   });
 
+  it('lists the events of the countries of a selected continent, naming their country', async () => {
+    await i18n.changeLanguage('en');
+    const { onJump } = setup('asia');
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    const button = screen.getByRole('button', { name: /Pakistan floods: select Pakistan and play Jul\s–\sSep 2022/ });
+    expect(screen.getByText('United Arab Emirates, Oman')).toBeInTheDocument();
+    fireEvent.click(button);
+    expect(onJump).toHaveBeenCalledWith(expect.objectContaining({ id: 'pakistan-floods-2022' }));
+  });
+
   it('shows a message when the zone has no event', () => {
     setup('switzerland');
     expect(screen.queryByRole('list')).not.toBeInTheDocument();

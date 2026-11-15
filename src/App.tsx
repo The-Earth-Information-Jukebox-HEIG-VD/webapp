@@ -30,6 +30,7 @@ import {
 
 // Pages
 import { AboutPage } from './components/about';
+import { HowToPage } from './components/howto';
 import { useHashRoute } from './hooks/useHashRoute';
 import { getZoneDisplayName } from './utils/zoneName';
 
@@ -324,14 +325,14 @@ function AppContent() {
         document.querySelector<HTMLElement>('#track-panel-body:not([hidden]) [data-track-row]') ??
         document.querySelector<HTMLElement>('#tracks-section [tabindex="-1"]');
       if (!target) {
-        // Coming from the About route the home page may not be rendered yet
+        // Coming from the About / How to use route the home page may not be rendered yet
         if (attempt < 10) window.setTimeout(() => focusRow(attempt + 1), 50);
         return;
       }
       target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
       target.focus({ preventScroll: true });
     };
-    if (window.location.hash === '#about') {
+    if (window.location.hash === '#about' || window.location.hash === '#how-to-use') {
       window.location.hash = '#';
       window.setTimeout(() => focusRow(), 50);
     } else {
@@ -339,19 +340,20 @@ function AppContent() {
     }
   }, [setTracksOpen]);
 
-  // "Sounds" button: show/hide the track panel. On the About page the panel is not
+  // "Sounds" button: show/hide the track panel. On the About / How to use pages the panel is not
   // rendered, so the button always brings it back (and focuses it) there.
-  const tracksExpanded = route !== 'about' && tracksOpen;
+  const tracksExpanded = route === 'home' && tracksOpen;
   const toggleTrackPanel = useCallback(() => {
     if (tracksExpanded) setTracksOpen(false);
     else focusTrackPanel();
   }, [tracksExpanded, setTracksOpen, focusTrackPanel]);
 
-  // Key event: with no zone selected, select the event's zone first (and show
-  // its layer on the globe); select the event's dataset as the only track, then
-  // move the timeline to the event's first month
+  // Key event: when no zone, or only the continent (ocean) around it, is selected,
+  // select the event's own zone first (and show its layer on the globe), so the
+  // event is not averaged away over a whole continent; select the event's dataset
+  // as the only track, then move the timeline to the event's first month
   const handleJumpToMoment = useCallback((moment: KeyMoment) => {
-    if (selectedZone === null) {
+    if (selectedZone === null || !moment.zoneIds.includes(selectedZone)) {
       const feature = findZoneFeature(moment.zoneIds[0]);
       if (feature) {
         const { type } = feature.properties;
@@ -390,6 +392,8 @@ function AppContent() {
         <main id="main-content" className="app-main">
           {route === 'about' ? (
             <AboutPage />
+          ) : route === 'howto' ? (
+            <HowToPage />
           ) : (
           <>
           {/* View Mode Toggle */}

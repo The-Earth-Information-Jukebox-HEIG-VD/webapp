@@ -27,7 +27,9 @@ interface KeyMomentsSectionProps {
 /**
  * Key events (extreme events, El Niño) as clickable cards.
  *
- * Only the events of the selected zone are listed; with no zone, all of them.
+ * Only the events of the selected zone (or of the countries / seas inside it) are
+ * listed; with no zone, all of them. An event whose own zone is not the selected
+ * one shows its zone, and playing it selects that zone.
  */
 export function KeyMomentsSection({
   startYear,
@@ -72,7 +74,7 @@ export function KeyMomentsSection({
               key={moment.id}
               moment={moment}
               status={decodeMomentStatus(statuses, i)}
-              showZone={selectedZone === null}
+              showZone={selectedZone === null || !moment.zoneIds.includes(selectedZone)}
               onJump={() => onJumpToMoment(moment)}
             />
           ))}

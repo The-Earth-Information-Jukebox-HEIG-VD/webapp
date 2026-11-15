@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 
-export type Route = 'home' | 'about';
+export type Route = 'home' | 'howto' | 'about';
 
 function routeFromHash(hash: string): Route {
-  return hash === '#about' ? 'about' : 'home';
+  if (hash === '#about') return 'about';
+  if (hash === '#how-to-use') return 'howto';
+  return 'home';
 }
 
 /**
  * Minimal hash-based router for the single-page app.
  *
- * `#about` shows the About page; any other hash (including `#home`, the bare `#`
+ * `#about` shows the About page, `#how-to-use` the tutorial; any other hash (including `#home`, the bare `#`
  * used by the skip link and Home link) shows the main jukebox view.
  * Hash routing keeps browser Back/Forward working without a router dependency.
  */

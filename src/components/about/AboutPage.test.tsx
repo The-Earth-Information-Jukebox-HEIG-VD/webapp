@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import i18n from '../../i18n';
-import { AboutPage, DOCS_URL } from './AboutPage';
+import { AboutPage, DOCS_URL, UPCOMING_SOURCES } from './AboutPage';
 
 describe('AboutPage accessibility', () => {
   // jsdom has no scrolling
@@ -30,8 +30,12 @@ describe('AboutPage accessibility', () => {
     await i18n.changeLanguage('en');
     render(<AboutPage />);
     const sources = within(screen.getByRole('region', { name: 'Data sources' }));
-    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /MODIS/, /Earth at Night/, /Natural Earth/]) {
+    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /MODIS active fires/, /Earth at Night/, /Sea Ice Index/, /Natural Earth/]) {
       expect(sources.getByRole('link', { name })).toBeInTheDocument();
+    }
+    // In the datasets repository but not played by the backend yet: not claimed
+    for (const { name } of UPCOMING_SOURCES) {
+      expect(sources.queryByText(name)).not.toBeInTheDocument();
     }
     expect(screen.queryByText(/POWER/)).not.toBeInTheDocument();
     expect(screen.queryByText(/press \?/i)).not.toBeInTheDocument();
@@ -43,10 +47,18 @@ describe('AboutPage accessibility', () => {
     await i18n.changeLanguage('en');
     render(<AboutPage />);
     const orchestra = within(screen.getByRole('region', { name: /orchestra/i }));
-    for (const text of [/Lightning: timpani/, /Fires: trombones/, /Night lights: synth pad/]) {
+    for (const text of [/Lightning: timpani/, /Fires: trombones/, /Night lights: synth pad/, /Sea ice: bowed glass/]) {
       expect(orchestra.getByText(text)).toBeInTheDocument();
     }
     expect(screen.queryByText(/xylophone|harp/i)).not.toBeInTheDocument();
+  });
+
+  it('explains month travel; key events are covered by the How-to page', async () => {
+    await i18n.changeLanguage('en');
+    render(<AboutPage />);
+    const how = within(screen.getByRole('region', { name: 'How it works' }));
+    expect(how.getByText(/Months menu plays one month year after year/)).toBeInTheDocument();
+    expect(how.queryByText(/Key events/)).not.toBeInTheDocument();
   });
 
   it.each(['fr', 'de'])('is translated in %s, keeping the EarthChestra name', async (lang) => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import i18n from '../i18n';
-import { formatReading, isAnomalyUnits } from './reading';
+import { formatReading, formatUnits, isAnomalyUnits, speakableUnits } from './reading';
 
 const t = i18n.t.bind(i18n) as Parameters<typeof formatReading>[3];
 
@@ -41,6 +41,17 @@ describe('formatReading', () => {
     expect(formatReading(399.49, 'ppm', false, t)).toBe('399 ppm');
     expect(formatReading(2.45, 'mm/day', false, t)).toBe('2.5 mm/day');
     expect(formatReading(2.45, 'mm/day', false, t, { speakable: true })).toBe('2.5 millimetres per day');
+  });
+
+  it('shows and speaks the chlorophyll and carbon monoxide units', async () => {
+    expect(formatUnits('mg/m3')).toBe('mg/m³');
+    expect(formatUnits('1e18 molecules/cm2')).toBe('×10¹⁸ molec/cm²');
+    expect(speakableUnits('mg/m3', t)).toBe('milligrams per cubic metre');
+    expect(speakableUnits('×10¹⁸ molec/cm²', t)).toMatch(/molecules per square centimetre/);
+    await i18n.changeLanguage('fr');
+    expect(speakableUnits('mg/m³', t)).toBe('milligrammes par mètre cube');
+    await i18n.changeLanguage('de');
+    expect(speakableUnits('mg/m3', t)).toBe('Milligramm pro Kubikmeter');
   });
 
   it('detects anomaly units', () => {

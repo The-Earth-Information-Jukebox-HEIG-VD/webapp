@@ -134,6 +134,42 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     color: firstTrackColor(['sea_ice']),
     display: { min: 0, max: 100, mode: 'linear' },
   },
+  {
+    // MODIS Terra NDVI (-0.2..1, ocean = NaN); stored 0-0.99, p99.5 = 0.905
+    id: 'vegetation_ndvi',
+    folder: 'vegetation_ndvi_2000_2026',
+    prefix: 'ndvi',
+    labelKey: 'globeData.datasets.vegetation_ndvi',
+    trackIds: ['vegetation', 'ndvi', 'vegetation_ndvi'],
+    units: 'NDVI',
+    color: firstTrackColor(['vegetation']),
+    display: { min: 0, max: 0.9, mode: 'linear' },
+  },
+  {
+    // MOPITT total column, x10^18 molecules/cm2: 1.0 floor, median 1.6,
+    // p99.5 = 3.3. The range starts near the median so only plumes show.
+    id: 'carbon_monoxide',
+    folder: 'carbon_monoxide_2000_2024',
+    prefix: 'co',
+    labelKey: 'globeData.datasets.carbon_monoxide',
+    trackIds: ['carbon_monoxide', 'co'],
+    units: '×10¹⁸ molec/cm²',
+    color: firstTrackColor(['carbon_monoxide']),
+    display: { min: 1.5, max: 3.3, mode: 'linear' },
+  },
+  {
+    // MODIS Aqua ocean chlorophyll-a, mg/m3 (land / clouds = NaN). Very skewed
+    // (median 0.14, p95 1.2, p99.5 7): spots saturate at 2 so the open ocean
+    // still shows, blooms reach the biggest spot.
+    id: 'chlorophyll',
+    folder: 'chlorophyll_2002_2026',
+    prefix: 'chlorophyll',
+    labelKey: 'globeData.datasets.chlorophyll',
+    trackIds: ['chlorophyll', 'ocean_chlorophyll', 'chlorophyll_a'],
+    units: 'mg/m³',
+    color: firstTrackColor(['chlorophyll']),
+    display: { min: 0, max: 2, mode: 'linear' },
+  },
 ];
 
 /**

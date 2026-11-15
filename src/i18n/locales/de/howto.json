@@ -1,0 +1,164 @@
+{
+  "title": "So funktioniert EarthChestra",
+  "lead": "Vier Schritte, um zu hören, wie sich ein Ort der Erde über die Jahre verändert. Danach ein paar Werkzeuge, um tiefer einzutauchen.",
+  "showsLabel": "Was es zeigt",
+  "quick": {
+    "title": "Schnellstart",
+    "zone": {
+      "title": "Zone wählen",
+      "text": "Klicken Sie auf dem Globus auf einen Kontinent, ein Land, einen Ozean oder ein Meer. Die Schaltflächen darüber wechseln zwischen Kontinenten, Ländern sowie Ozeanen und Meeren.",
+      "shows": "Die Daten jedes Datensatzes, gemittelt über diese Zone."
+    },
+    "sounds": {
+      "title": "Klänge wählen",
+      "text": "Öffnen Sie Klänge und wählen Sie einen oder mehrere Datensätze: Temperatur, Regen, Schnee, CO₂, Blitze, Brände, Nachtlichter…",
+      "shows": "Jeder Datensatz spielt sein eigenes Instrument. Ein kleiner Balken daneben bewegt sich, während er klingt."
+    },
+    "play": {
+      "title": "Wiedergabe drücken",
+      "text": "Die Musik geht Monat für Monat durch die Zeit, ab der Position der Zeitleiste (anfangs ihr Beginn).",
+      "shows": "Das Datum im Player folgt der Musik."
+    },
+    "watch": {
+      "title": "Den Globus beobachten",
+      "text": "Farbige Punkte erscheinen im Lauf der Monate auf Ihrer Zone. Zone wechseln (oder Escape) wählt eine andere.",
+      "shows": "Wo es regnet, brennt oder leuchtet, und wie stark, Monat für Monat."
+    }
+  },
+  "read": {
+    "title": "Die Musik lesen",
+    "pitch": {
+      "title": "Höherer Ton = höherer Wert",
+      "text": "Gemessen am eigenen Wertebereich Ihrer Zone (bei Schallplatte Raum und Beides: am weltweiten Bereich des Datensatzes)."
+    },
+    "loud": {
+      "title": "Lauter = mehr davon",
+      "text": "Regen, Schnee, Blitze, Brände, Nachtlichter und Meereis spielen nur, wenn sie vorhanden sind. Temperatur und CO₂ spielen immer."
+    },
+    "tempo": {
+      "title": "Schneller = wärmer",
+      "text": "Nur mit eingeschalteter Temperatur: Ein Monat, der für Ihre Zone wärmer als üblich ist, spielt schneller. Sonst, und bei Schallplatte Raum und Beides, bleibt das Tempo gleich."
+    },
+    "silence": {
+      "title": "Stille = keine Daten",
+      "text": "Z. B. CO₂ vor September 2002."
+    },
+    "spots": {
+      "title": "Größerer Punkt = stärkerer Wert",
+      "text": "Eine Farbe pro Datensatz, siehe Legende des Globus."
+    },
+    "ring": {
+      "title": "Gefüllt = wärmer, Ring = kälter",
+      "text": "Bei der Temperatur, im Vergleich zum Normalwert."
+    }
+  },
+  "explore": {
+    "title": "Durch die Zeit",
+    "note": "Diese Werkzeuge gibt es im Modus Zeitreise.",
+    "date": {
+      "title": "Datums-Schaltfläche",
+      "text": "Im Player öffnen und ein Jahr und einen Monat wählen.",
+      "shows": "Springen Sie direkt zum Moment, der Sie interessiert."
+    },
+    "timeline": {
+      "title": "Zeitleiste",
+      "text": "Ziehen Sie sie oder nutzen Sie die Pfeiltasten, um durch die Jahre zu gehen.",
+      "shows": "Wo Sie sich im gesamten Datenzeitraum befinden."
+    },
+    "graph": {
+      "title": "Diagramm",
+      "text": "Zeigt die Werte Ihrer Zone als Diagramm, eine Linie pro Datensatz.",
+      "shows": "Langfristige Trends auf einen Blick. Jede Linie hat ihre eigene Skala; bei der Temperatur ist 0 = normal."
+    },
+    "months": {
+      "title": "Monate",
+      "text": "Wählen Sie einen Monat, um ihn Jahr für Jahr zu hören, z. B. jeden Juli.",
+      "shows": "Die Jahreszeiten treten zurück, die Veränderung über Jahrzehnte tritt hervor."
+    },
+    "events": {
+      "title": "Wichtige Ereignisse",
+      "text": "Karten unter dem Globus: El Niño, Waldbrände, Überschwemmungen, Stürme… Drücken Sie bei einer auf Wiedergabe.",
+      "shows": "Zone, Datensatz und Zeitraum des Ereignisses, bereit zum Anhören."
+    }
+  },
+  "events": {
+    "title": "Wichtige Ereignisse",
+    "note": "Im Zeitreise-Modus stehen die Karten „Wichtige Ereignisse“ unter dem Globus.",
+    "find": {
+      "title": "Ein Ereignis finden",
+      "text": "Wählen Sie eine Zone, um ihre Ereignisse zu sehen, oder keine, um alle zu sehen.",
+      "shows": "El Niño, Waldbrände, Hurrikane und Überschwemmungen, Schneestürme und der Ausbruch des Hunga Tonga."
+    },
+    "play": {
+      "title": "Auf einer Karte „anhören“ drücken",
+      "text": "Die Zone wird bei Bedarf gewählt, nur der Datensatz des Ereignisses bleibt aktiv, und die Zeitleiste springt einen Monat vor das Ereignis. Drücken Sie im Player auf Wiedergabe, wenn die Musik gestoppt war.",
+      "shows": "Die Musik beginnt kurz vor dem Ereignis, so hören Sie es kommen."
+    },
+    "listen": {
+      "title": "Die Veränderung hören",
+      "text": "Folgen Sie dem Instrument des Ereignisses: Es spielt höher oder lauter, während das Ereignis wächst, und beruhigt sich dann wieder.",
+      "shows": "„Wird gerade abgespielt“ erscheint auf der Karte, solange die Musik in den Daten des Ereignisses ist."
+    },
+    "cardTitle": "Was eine Karte zeigt",
+    "card": {
+      "sound": "Datensatz",
+      "soundText": "Die Spur, die Sie hören werden, mit Symbol und Farbe.",
+      "place": "Zone",
+      "placeText": "Wo es geschah (angezeigt, wenn keine Zone gewählt ist).",
+      "data": "In unseren Daten",
+      "dataText": "Die Monate, in denen das Ereignis in den Daten sichtbar ist („Höhepunkt in unseren Daten“ bei El Niño).",
+      "when": "Wann es geschah",
+      "whenText": "Die tatsächlichen Daten des Ereignisses."
+    }
+  },
+  "modes": {
+    "title": "Zwei Arten zu hören",
+    "zones": {
+      "title": "Zeitreise",
+      "tagline": "Eine Zone, durch die Jahre",
+      "text": "Alles oben: Zone wählen, die Monate ziehen vorbei."
+    },
+    "vinyl": {
+      "title": "Schallplatte",
+      "tagline": "Der Globus wird zur Schallplatte",
+      "text": "Wählen Sie die Mitte der Platte (einen Ort, Koordinaten oder einen Klick auf den Globus) und einen Monat.",
+      "travelLabel": "Die Nadel reist durch",
+      "space": "ein Datum, die Nadel läuft spiralförmig vom Rand zur Mitte, über Orte hinweg.",
+      "time": "ein Ort, die Nadel bleibt in der Mitte, während die Monate vorbeiziehen.",
+      "both": "die Nadel überquert Orte und das Datum rückt mit jeder Rille um einen Monat oder ein Jahr vor."
+    }
+  },
+  "custom": {
+    "title": "Nach Ihrem Geschmack",
+    "style": {
+      "title": "Musikstil",
+      "text": "Orchester und realistische Klänge erzählen die Klimageschichte am deutlichsten. Swing, Funk, House… sind zum Spaß da."
+    },
+    "view": {
+      "title": "Globus- oder Listenansicht",
+      "text": "Mit der Liste lässt sich eine Zone gut per Tastatur und Screenreader wählen."
+    },
+    "theme": {
+      "title": "Hell oder dunkel",
+      "text": "Die Sonne/Mond-Schaltfläche in der Kopfzeile. Der Globus bleibt dunkel."
+    },
+    "language": {
+      "title": "Sprache",
+      "text": "English, Français oder Deutsch, in der Kopfzeile."
+    }
+  },
+  "keys": {
+    "title": "Tastenkürzel",
+    "left": "Pfeil nach links",
+    "right": "Pfeil nach rechts",
+    "space": "Wiedergabe oder Pause",
+    "arrows": "2 % der Zeitleiste zurück oder vor (vorherige oder nächste Rille im Schallplatten-Modus)",
+    "homeEnd": "Anfang oder Ende",
+    "m": "Ton aus oder ein",
+    "escape": "Zurück zur Zonenauswahl, sobald eine Zone spielt",
+    "shiftArrows": "Auf der Zeitleiste: einen Monat zurück oder vor",
+    "pageUpDown": "Auf der Zeitleiste: ein Jahr zurück oder vor"
+  },
+  "start": "Jetzt anhören",
+  "about": "Woher stammen die Daten? Über das Projekt lesen"
+}

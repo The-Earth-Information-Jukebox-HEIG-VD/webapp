@@ -1,0 +1,164 @@
+{
+  "title": "Mode d’emploi d’EarthChestra",
+  "lead": "Quatre étapes pour entendre un lieu de la Terre changer au fil des années. Puis quelques outils pour aller plus loin.",
+  "showsLabel": "Ce que ça montre",
+  "quick": {
+    "title": "Démarrage rapide",
+    "zone": {
+      "title": "Choisissez une zone",
+      "text": "Cliquez sur un continent, un pays, un océan ou une mer sur le globe. Les boutons au-dessus passent des continents aux pays, aux océans et mers.",
+      "shows": "Les données de chaque jeu, moyennées sur cette zone."
+    },
+    "sounds": {
+      "title": "Choisissez vos sons",
+      "text": "Ouvrez Sons et cochez un ou plusieurs jeux de données : température, pluie, neige, CO₂, éclairs, feux, lumières nocturnes…",
+      "shows": "Chaque jeu joue son propre instrument. Une petite barre bouge à côté quand il sonne."
+    },
+    "play": {
+      "title": "Appuyez sur Lecture",
+      "text": "La musique avance dans le temps, mois par mois, à partir de la position de la frise (au départ, son début).",
+      "shows": "La date dans le lecteur suit la musique."
+    },
+    "watch": {
+      "title": "Regardez le globe",
+      "text": "Des points colorés apparaissent sur votre zone au fil des mois. Changer de zone (ou Échap) en choisit une autre.",
+      "shows": "Où il pleut, brûle ou brille, et combien, mois après mois."
+    }
+  },
+  "read": {
+    "title": "Lire la musique",
+    "pitch": {
+      "title": "Note plus aiguë = valeur plus haute",
+      "text": "Par rapport à la plage propre à votre zone (en Vinyle L'espace et Les deux : la plage du jeu de données sur toute la Terre)."
+    },
+    "loud": {
+      "title": "Plus fort = davantage",
+      "text": "Pluie, neige, éclairs, feux, lumières nocturnes et glace de mer ne jouent que s’ils sont présents. Température et CO₂ jouent toujours."
+    },
+    "tempo": {
+      "title": "Plus rapide = plus chaud",
+      "text": "Seulement avec Température activée : un mois plus chaud que d’habitude pour votre zone joue plus vite. Sinon, et en Vinyle L'espace et Les deux, le tempo reste stable."
+    },
+    "silence": {
+      "title": "Silence = pas de données",
+      "text": "Par ex. le CO₂ avant septembre 2002."
+    },
+    "spots": {
+      "title": "Point plus grand = valeur plus forte",
+      "text": "Une couleur par jeu de données, indiquée dans la légende du globe."
+    },
+    "ring": {
+      "title": "Plein = plus chaud, anneau = plus froid",
+      "text": "Pour la température, par rapport à la normale."
+    }
+  },
+  "explore": {
+    "title": "Explorer le temps",
+    "note": "Ces outils sont dans le mode Voyage dans le temps.",
+    "date": {
+      "title": "Bouton de date",
+      "text": "Dans le lecteur, ouvrez-le et choisissez une année et un mois.",
+      "shows": "Allez droit au moment qui vous intéresse."
+    },
+    "timeline": {
+      "title": "Frise chronologique",
+      "text": "Faites-la glisser, ou utilisez les flèches, pour avancer dans les années.",
+      "shows": "Où vous en êtes dans toute la période de données."
+    },
+    "graph": {
+      "title": "Graphique",
+      "text": "Affiche une courbe des valeurs de votre zone, une ligne par jeu de données.",
+      "shows": "Les tendances longues d’un coup d’œil. Chaque ligne a sa propre échelle ; pour la température, 0 = normal."
+    },
+    "months": {
+      "title": "Mois",
+      "text": "Choisissez un mois pour l’entendre d’année en année, par ex. chaque juillet.",
+      "shows": "Les saisons s’effacent, le changement au fil des décennies ressort."
+    },
+    "events": {
+      "title": "Événements marquants",
+      "text": "Des cartes sous le globe : El Niño, incendies, inondations, tempêtes… Appuyez sur Lecture sur l’une d’elles.",
+      "shows": "La zone, le jeu de données et les dates de l’événement, prêts à écouter."
+    }
+  },
+  "events": {
+    "title": "Événements marquants",
+    "note": "En mode Voyage dans le temps, les cartes Événements marquants sont sous le globe.",
+    "find": {
+      "title": "Trouver un événement",
+      "text": "Sélectionnez une zone pour voir ses événements, ou aucune pour les voir tous.",
+      "shows": "El Niño, feux de forêt, ouragans et inondations, tempêtes de neige et l'éruption du Hunga Tonga."
+    },
+    "play": {
+      "title": "Appuyez sur Écouter sur une carte",
+      "text": "La zone est sélectionnée si besoin, seul le jeu de données de l'événement reste actif, et la ligne du temps se place un mois avant l'événement. Si la musique était arrêtée, appuyez sur le bouton de lecture du lecteur.",
+      "shows": "La musique commence juste avant l'événement : vous l'entendez arriver."
+    },
+    "listen": {
+      "title": "Écouter le changement",
+      "text": "Suivez l'instrument de l'événement : il joue plus haut ou plus fort à mesure que l'événement grandit, puis revient au calme.",
+      "shows": "« En cours de lecture » s'affiche sur la carte tant que la musique est dans les dates de l'événement."
+    },
+    "cardTitle": "Ce que dit une carte",
+    "card": {
+      "sound": "Jeu de données",
+      "soundText": "La piste que vous allez entendre, avec son icône et sa couleur.",
+      "place": "Zone",
+      "placeText": "Où l'événement a eu lieu (affiché quand aucune zone n'est sélectionnée).",
+      "data": "Dans nos données",
+      "dataText": "Les mois où l'événement apparaît dans les données (« Pic dans nos données » pour El Niño).",
+      "when": "Quand c’est arrivé",
+      "whenText": "Les dates réelles de l'événement."
+    }
+  },
+  "modes": {
+    "title": "Deux façons d’écouter",
+    "zones": {
+      "title": "Voyage dans le temps",
+      "tagline": "Une zone, au fil des années",
+      "text": "Tout ce qui précède : choisissez une zone, les mois défilent."
+    },
+    "vinyl": {
+      "title": "Vinyle",
+      "tagline": "Le globe devient un disque",
+      "text": "Choisissez le centre du disque (un lieu, des coordonnées ou un clic sur le globe) et un mois.",
+      "travelLabel": "L’aiguille voyage à travers",
+      "space": "une date, l’aiguille tourne en spirale du bord vers le centre, à travers les lieux.",
+      "time": "un lieu, l’aiguille reste au centre pendant que les mois défilent.",
+      "both": "l’aiguille traverse des lieux et la date avance d’un mois ou d’un an à chaque sillon."
+    }
+  },
+  "custom": {
+    "title": "À votre goût",
+    "style": {
+      "title": "Style musical",
+      "text": "Orchestre et Sons réalistes racontent le mieux l’histoire du climat. Swing, funk, house… c’est pour le plaisir."
+    },
+    "view": {
+      "title": "Vue globe ou liste",
+      "text": "La liste permet de choisir une zone facilement au clavier et au lecteur d’écran."
+    },
+    "theme": {
+      "title": "Clair ou sombre",
+      "text": "Le bouton soleil/lune dans l’en-tête. Le globe reste sombre."
+    },
+    "language": {
+      "title": "Langue",
+      "text": "English, Français ou Deutsch, depuis l’en-tête."
+    }
+  },
+  "keys": {
+    "title": "Raccourcis clavier",
+    "left": "Flèche gauche",
+    "right": "Flèche droite",
+    "space": "Lecture ou pause",
+    "arrows": "Reculer ou avancer de 2 % sur la frise (sillon précédent ou suivant en Vinyle)",
+    "homeEnd": "Début ou fin",
+    "m": "Couper ou rétablir le son",
+    "escape": "Retour au choix de la zone, une fois une zone en lecture",
+    "shiftArrows": "Sur la frise : un mois en arrière ou en avant",
+    "pageUpDown": "Sur la frise : une année en arrière ou en avant"
+  },
+  "start": "Commencer l’écoute",
+  "about": "D’où viennent les données ? Lire À propos"
+}

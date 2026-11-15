@@ -69,7 +69,9 @@
     "K": "Kelvin",
     "ppm": "ppm (Teile pro Million)",
     "percent": "Prozent",
-    "mmPerDay": "Millimeter pro Tag"
+    "mmPerDay": "Millimeter pro Tag",
+    "mgPerM3": "Milligramm pro Kubikmeter",
+    "coColumn": "mal zehn hoch 18 Moleküle pro Quadratzentimeter"
   },
   "chooseSounds": "Klänge wählen",
   "datePicker": {

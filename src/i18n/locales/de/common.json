@@ -8,6 +8,7 @@
   },
   "nav": {
     "home": "Startseite",
+    "howTo": "Anleitung",
     "about": "Über uns",
     "accessibility": "Barrierefreiheit"
   },
@@ -337,7 +338,10 @@
     "hide": "Ausblenden",
     "selectedCount_one": "{{count}} Spur ausgewählt",
     "selectedCount_other": "{{count}} Spuren ausgewählt",
-    "sea_ice": "Meereis"
+    "sea_ice": "Meereis",
+    "vegetation": "Vegetation (NDVI)",
+    "chlorophyll": "Chlorophyll im Meer",
+    "carbon_monoxide": "Kohlenmonoxid"
   },
   "moments": {
     "title": "Wichtige Ereignisse",
@@ -456,8 +460,9 @@
     "howZone": "Wählen Sie eine Zone auf dem Globus oder in der Liste: einen Kontinent, ein Land, einen Ozean oder ein Meer.",
     "howTracks": "Wählen Sie Klänge, um das Fenster „Was möchten Sie hören?“ zu öffnen und die Datensätze auszuwählen, die Sie hören möchten. Jeder Datensatz wird von einem eigenen Instrument gespielt.",
     "howPlay": "Starten Sie die Wiedergabe. Jeder Datensatz wird Monat für Monat über Ihre Zone gemittelt, und jeder Monat wird zu einem Takt Musik. Mit der Datumsschaltfläche springen Sie zu einem bestimmten Monat, mit Diagramm sehen Sie die Werte Ihrer Zone als Kurven.",
+    "howMonths": "In der Zeitreise spielt das Menü Monate einen einzigen Monat Jahr für Jahr (zum Beispiel jeden Juli), damit Sie hören, wie sich dieselbe Jahreszeit verändert; mit „Jeder Monat“ geht es zurück.",
     "howPitch": "Höhere Werte klingen höher, gemessen am eigenen Wertebereich Ihrer Zone: Ein Wert ergibt also immer denselben Ton.",
-    "howLoudness": "Regen, Schnee, Blitze, Brände und Nachtlichter spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, mehr Blitze bedeuten mehr Paukenschläge pro Zählzeit, und die Posaunen schwellen mit den Bränden an. Nachtlichter ändern sich einmal im Jahr: Das Synthesizer-Pad setzt jeden Januar deutlich ein und klingt dann im Lauf des Jahres langsam ab.",
+    "howLoudness": "Regen, Schnee, Blitze, Brände, Nachtlichter und Meereis spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, mehr Blitze bedeuten mehr Paukenschläge pro Zählzeit, und die Posaunen schwellen mit den Bränden an. Nachtlichter ändern sich einmal im Jahr: Das Synthesizer-Pad setzt jeden Januar deutlich ein und klingt dann im Lauf des Jahres langsam ab.",
     "howGaps": "Hat ein Datensatz für ein Datum keine Daten (zum Beispiel CO₂ vor September 2002), schweigt sein Instrument.",
     "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone als Flecken: eine Farbe pro Datensatz, und je stärker der Wert, desto größer der Fleck. Wo nichts ist, gibt es keinen Fleck: Die Flecken erscheinen, wachsen und verblassen im Lauf der Monate. Die Temperatur ist ein gefüllter Fleck, wenn es wärmer als normal ist, und ein Ring, wenn es kälter ist. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
     "orchestraTitle": "Das Orchester",
@@ -469,7 +474,8 @@
       "snow": "Schnee: Glockenspiel",
       "lightning": "Blitze: Pauken",
       "fires": "Brände: Posaunen",
-      "nightLights": "Nachtlichter: Synthesizer-Pad"
+      "nightLights": "Nachtlichter: Synthesizer-Pad",
+      "seaIce": "Meereis: Gestrichenes Glas"
     },
     "dataTitle": "Datenquellen",
     "dataText": "Die Kartendateien der Datensätze teilen ein Raster von 0,25°, sodass ein Ort in jedem Datensatz dieselbe Position hat.",
@@ -479,7 +485,11 @@
       "lis": "Anteil jedes Kartenpixels mit Blitzen, monatlich, zwischen 55° S und 55° N, März 2017 bis Juli 2023.",
       "modis": "Tage im Monat mit mindestens einem erkannten Feuer (Terra und Aqua), Juli 2002 bis November 2026.",
       "nightLights": "Nachtlichter, Helligkeit von 0 bis 1, eine Karte pro Jahr von 2012 bis 2023; die Karte eines Jahres gilt für seine 12 Monate.",
+      "nsidc": "Anteil des Meeres mit Eisbedeckung (%), monatlich, Januar 1979 bis Oktober 2026.",
       "co2": "monatliche CO₂-Konzentration (ppm), vom Team extrahiert, September 2002 bis März 2022.",
+      "modisNdvi": "Grüne der Vegetation (NDVI, von −0,2 bis 1), monatlich, März 2000 bis Oktober 2026; das Meer hat keinen Wert.",
+      "mopitt": "Kohlenmonoxid in der gesamten Luftsäule (×10¹⁸ Moleküle/cm²), monatlich, April 2000 bis Oktober 2024; 20 Monate fehlen bei der NASA.",
+      "oceanColor": "Konzentration von Chlorophyll a im Meer (mg/m³), monatliches geometrisches Mittel, Juli 2002 bis Oktober 2026; Land und bewölktes Meer haben keinen Wert.",
       "naturalEarth": "Umrisse von Kontinenten, Ländern, Ozeanen und Meeren (gemeinfrei)."
     },
     "techTitle": "Technik",
@@ -522,7 +532,10 @@
       "snow": "Schnee",
       "nightlights": "Nachtlichter",
       "fires": "Brände",
-      "sea_ice": "Meereis"
+      "sea_ice": "Meereis",
+      "vegetation_ndvi": "Vegetation (NDVI)",
+      "chlorophyll": "Chlorophyll im Meer",
+      "carbon_monoxide": "Kohlenmonoxid"
     },
     "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus.",
     "playedBy": "gespielt von {{instrument}}",
