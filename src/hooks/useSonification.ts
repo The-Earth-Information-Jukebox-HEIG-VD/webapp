@@ -74,6 +74,8 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
   const [position, setPosition] = useState<number | null>(null);
   const [error, setError] = useState<SonificationError | null>(null);
   const [hasEnded, setHasEnded] = useState(false);
+  // Paused by the system (iOS interruption), not by the user: announced to screen readers
+  const [interrupted, setInterrupted] = useState(false);
   // Values (per dataset_id) of the chunk that is audible now
   const [chunk, setChunk] = useState<{
     values: Record<string, number>;
@@ -136,6 +138,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
         detail: err instanceof ApiError ? err.detail : err.message,
       });
     };
+    player.onInterrupted = () => setInterrupted(true);
     player.onComplete = () => {
       setHasEnded(true);
       setPosition(rangeRef.current.fractionalEnd);
@@ -169,6 +172,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
   const play = useCallback(async () => {
     setError(null);
     setHasEnded(false);
+    setInterrupted(false);
     flushSeek();
     await playerRef.current?.play(`${rangeRef.current.start}-01`);
   }, [flushSeek]);
@@ -238,6 +242,7 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     isPlaying: playerState === 'playing' || playerState === 'loading',
     error,
     hasEnded,
+    interrupted,
     canPlay,
     /** Current date as a fractional year (e.g. 1950.25), interpolated within the chunk */
     position: currentPosition,

@@ -5,6 +5,7 @@
 - The zone-data response carries no duration: one bar = one month = 3 s (`SECONDS_PER_MONTH`), so a chunk lasts `months(time_period -> next_time_period) * 3 s`. The last chunk runs up to the month after the enabled tracks' last data, capped at the decoded audio.
 - Chunk N+1 is scheduled at chunkStart + that length (the ~1.7 s reverb tail overlaps on purpose), prefetched at 20%; `next_time_period: null` = end. Requests are aborted on seek / zone / track change.
 - The AudioContext must be created on the first `play()` (browser autoplay policy) — never at module load or mount.
+- iOS mutes Web Audio under the silent/ringer switch ("ambient" session): `play()` must, synchronously in the gesture, request `navigator.audioSession.type = 'playback'` or start the silent `<audio>` fallback (`src/audio/iosAudioUnlock.ts`). An `'interrupted'` context (call, Siri, lock screen) pauses the player.
 - There is no per-track volume: the backend returns one mixed file.
 - API types in `src/services/sonificationApi.ts` mirror `../sonification/backend/FRONTEND_API.md`; update them together.
 

@@ -11,6 +11,7 @@ import {
   type ZoneDataResponse,
 } from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
+import { requestPlaybackSession, SilentKeepAlive } from './iosAudioUnlock';
 
 /**
  * ChunkPlayer - plays the backend's 30 s audio chunks back to back.
@@ -28,6 +29,10 @@ import type { GridPoint } from '../types/zones';
  *   backend's `next_time_period` (null = end of the data).
  * - Seeking or changing zone/tracks aborts in-flight requests and starts over.
  * - Pause suspends the AudioContext, so the scheduled chain stays in sync.
+ * - iOS: Web Audio is muted by the silent switch unless the page asks for the
+ *   "playback" audio session (see iosAudioUnlock.ts); done inside the Play
+ *   gesture. If iOS interrupts the context (call, Siri, lock screen), the player
+ *   pauses so the UI shows Play again instead of a silent, frozen timeline.
  */
 
 export type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
@@ -75,6 +80,8 @@ const VOLUME_SMOOTHING_S = 0.015;
 export const SECONDS_PER_MONTH = 3;
 /** Reverb tail the MP3 carries beyond its musical length */
 const REVERB_TAIL_S = 1.7;
+/** statechange events this soon after our own suspend()/resume() are ours, not an interruption */
+const OWN_STATE_EVENT_WINDOW_MS = 1000;
 
 export class ChunkPlayer {
   onProgress?: (info: ProgressInfo) => void;
@@ -82,12 +89,17 @@ export class ChunkPlayer {
   onChunk?: (response: ZoneDataResponse) => void;
   onError?: (error: Error) => void;
   onComplete?: () => void;
+  /** The system stopped the audio (iOS call, Siri, lock screen); the player is now paused */
+  onInterrupted?: () => void;
 
   private readonly fetchChunk: ChunkFetcher;
   private readonly tickMs: number;
 
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
+  private readonly keepAlive = new SilentKeepAlive();
+  /** performance.now() of our own last suspend()/resume(): their statechange events are not interruptions */
+  private lastOwnStateCall = -Infinity;
   private volume = 0.5;
 
   private state: PlayerState = 'idle';
@@ -153,18 +165,24 @@ export class ChunkPlayer {
     if (!params || params.datasetIds.length === 0 || params.points.length === 0) return;
 
     const ctx = this.ensureContext();
+    // Synchronously, still inside the user gesture (iOS)
+    this.keepAlive.play();
 
     if (this.state === 'paused' && this.chunks.length > 0) {
       this.setState('playing');
       this.startTimer();
-      await ctx.resume();
+      await this.resumeContext(ctx);
       return;
     }
-    if (this.state === 'playing' || this.state === 'loading') return;
+    if (this.state === 'playing' || this.state === 'loading') {
+      // e.g. iOS left the context 'interrupted': a new tap revives it
+      if (ctx.state !== 'running') await this.resumeContext(ctx).catch(() => undefined);
+      return;
+    }
 
     const period = this.position !== null ? this.currentPeriod() : defaultPeriod;
     this.start(period);
-    await ctx.resume().catch(() => undefined);
+    await this.resumeContext(ctx).catch(() => undefined);
   }
 
   pause(): void {
@@ -177,6 +195,8 @@ export class ChunkPlayer {
     if (this.state !== 'playing' && this.state !== 'loading') return;
     this.stopTimer();
     this.setState('paused');
+    this.keepAlive.pause();
+    this.lastOwnStateCall = now();
     void this.ctx?.suspend();
   }
 
@@ -260,10 +280,13 @@ export class ChunkPlayer {
   dispose(): void {
     this.disposed = true;
     this.teardown();
-    this.onProgress = this.onStateChange = this.onChunk = this.onError = this.onComplete = undefined;
+    this.onProgress = this.onStateChange = this.onChunk = this.onError = this.onComplete = this.onInterrupted =
+      undefined;
+    this.keepAlive.dispose();
     const ctx = this.ctx;
     this.ctx = null;
     this.master = null;
+    if (ctx) ctx.onstatechange = null;
     void ctx?.close().catch(() => undefined);
   }
 
@@ -277,12 +300,35 @@ export class ChunkPlayer {
         window.AudioContext ??
         (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!Ctor) throw new Error('Web Audio API is not supported');
-      this.ctx = new Ctor();
-      this.master = this.ctx.createGain();
+      // Before the context exists: iOS mutes Web Audio under the silent switch otherwise
+      requestPlaybackSession();
+      const ctx = new Ctor();
+      this.ctx = ctx;
+      this.master = ctx.createGain();
       this.master.gain.value = this.volume;
-      this.master.connect(this.ctx.destination);
+      this.master.connect(ctx.destination);
+      ctx.onstatechange = () => this.handleContextState(ctx);
     }
     return this.ctx;
+  }
+
+  /**
+   * The context stopped without us asking (iOS 'interrupted' after a call, Siri
+   * or the lock screen, or 'suspended' by the system): pause, so the UI offers
+   * Play again and the next tap resumes it from a user gesture.
+   */
+  private handleContextState(ctx: AudioContext): void {
+    if (ctx !== this.ctx || ctx.state === 'running') return;
+    // A late event from our own pause/resume (e.g. pause then Play in quick succession)
+    if (now() - this.lastOwnStateCall < OWN_STATE_EVENT_WINDOW_MS) return;
+    if (this.state !== 'playing' && this.state !== 'loading') return;
+    this.pause();
+    this.onInterrupted?.();
+  }
+
+  private resumeContext(ctx: AudioContext): Promise<void> {
+    this.lastOwnStateCall = now();
+    return ctx.resume().catch(() => undefined);
   }
 
   private currentPeriod(): string {
@@ -292,6 +338,8 @@ export class ChunkPlayer {
   private setState(state: PlayerState): void {
     if (this.state === state) return;
     this.state = state;
+    // Silent iOS keep-alive only while audio is (about to be) heard; avoids a stray lock-screen player
+    if (state !== 'playing' && state !== 'loading') this.keepAlive.pause();
     this.onStateChange?.(state);
   }
 
@@ -445,7 +493,10 @@ export class ChunkPlayer {
     }
     this.chunks = [];
     // A paused context stays suspended after a restart otherwise
-    if (this.ctx?.state === 'suspended') void this.ctx.resume();
+    // ('interrupted' is WebKit-only; 'closed' cannot be resumed)
+    if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed') {
+      void this.resumeContext(this.ctx);
+    }
   }
 }
 
@@ -531,6 +582,10 @@ function paramsChanged(a: PlayerParams, b: PlayerParams): boolean {
     a.datasetIds.length !== b.datasetIds.length ||
     a.datasetIds.some((id, i) => id !== b.datasetIds[i])
   );
+}
+
+function now(): number {
+  return typeof performance !== 'undefined' ? performance.now() : Date.now();
 }
 
 function clamp(n: number, min: number, max: number): number {

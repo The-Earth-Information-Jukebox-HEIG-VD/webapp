@@ -197,3 +197,73 @@ describe('computeChunkTiming', () => {
     expect(computeChunkTiming(chunk('2025-06', null), 20, null).duration).toBeCloseTo(18.3, 5);
   });
 });
+
+describe('ChunkPlayer on iOS', () => {
+  type Ctx = { state: string; onstatechange: null | (() => void) };
+  const ctxOf = (p: ChunkPlayer) => (p as unknown as { ctx: Ctx }).ctx;
+  const okFetch = () => vi.fn(async (req: ZoneDataRequest) => chunk(req.time_period ?? '', '1950-11'));
+
+  it('asks for the "playback" audio session so the silent switch does not mute it', async () => {
+    const session = { type: 'auto' };
+    Object.defineProperty(navigator, 'audioSession', { value: session, configurable: true });
+    try {
+      const player = new ChunkPlayer({ fetchChunk: okFetch() });
+      player.setParams(params);
+      await player.play('1950-01');
+      expect(session.type).toBe('playback');
+      player.dispose();
+    } finally {
+      delete (navigator as unknown as { audioSession?: unknown }).audioSession;
+    }
+  });
+
+  it('pauses when iOS interrupts the context, and resumes on the next play', async () => {
+    const player = new ChunkPlayer({ fetchChunk: okFetch() });
+    player.setParams(params);
+    await player.play('1950-01');
+    await flush();
+    expect(player.getState()).toBe('playing');
+
+    const ctx = ctxOf(player);
+    const onInterrupted = vi.fn();
+    player.onInterrupted = onInterrupted;
+    // Well after our own resume() (its statechange events are ignored)
+    (player as unknown as { lastOwnStateCall: number }).lastOwnStateCall = -Infinity;
+    ctx.state = 'interrupted';
+    ctx.onstatechange?.();
+    expect(player.getState()).toBe('paused');
+    expect(onInterrupted).toHaveBeenCalledTimes(1);
+
+    await player.play('1950-01');
+    expect(ctx.state).toBe('running');
+    expect(player.getState()).toBe('playing');
+    player.dispose();
+  });
+
+  it('stops the silent keep-alive when playback stops', async () => {
+    const player = new ChunkPlayer({ fetchChunk: okFetch() });
+    const keepAlive = (player as unknown as { keepAlive: { pause: () => void } }).keepAlive;
+    const spy = vi.spyOn(keepAlive, 'pause');
+    player.setParams(params);
+    await player.play('1950-01');
+    await flush();
+    player.stop();
+    expect(spy).toHaveBeenCalled();
+    player.dispose();
+  });
+
+  it('ignores the suspend it caused itself on pause', async () => {
+    const player = new ChunkPlayer({ fetchChunk: okFetch() });
+    player.setParams(params);
+    await player.play('1950-01');
+    await flush();
+    const onInterrupted = vi.fn();
+    player.onInterrupted = onInterrupted;
+    player.pause();
+    const ctx = ctxOf(player);
+    ctx.onstatechange?.();
+    expect(player.getState()).toBe('paused');
+    expect(onInterrupted).not.toHaveBeenCalled();
+    player.dispose();
+  });
+});

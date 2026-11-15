@@ -15,7 +15,8 @@
     "playing": "Wiedergabe läuft",
     "paused": "Pausiert",
     "stopped": "Gestoppt",
-    "loading": "Audio wird geladen…"
+    "loading": "Audio wird geladen…",
+    "interrupted": "Wiedergabe vom System pausiert. Drücken Sie Wiedergabe, um fortzufahren."
   },
   "timeline": {
     "label": "Klimadaten-Zeitachse",
