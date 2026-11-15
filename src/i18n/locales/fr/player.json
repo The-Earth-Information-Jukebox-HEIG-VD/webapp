@@ -98,5 +98,16 @@
     "error": "Le graphique des données n’a pas pu être chargé.",
     "unavailable": "Aucune donnée pour cette sélection.",
     "lineNoData": "{{name}} : pas de données dans cette zone."
+  },
+  "vinyl": {
+    "play": "Lire le disque",
+    "pause": "Mettre le disque en pause",
+    "prevGroove": "Sillon précédent",
+    "nextGroove": "Sillon suivant",
+    "grooveOf": "Sillon {{k}} sur {{n}}",
+    "sliderValue": "Sillon {{k}} sur {{n}}, {{elapsed}} sur {{total}}",
+    "loadingGroove": "Chargement du sillon {{k}}…",
+    "ended": "Fin du disque. Lecture pour recommencer depuis le bord.",
+    "shortcuts": "En mode vinyle, les flèches passent au sillon précédent ou suivant, Début et Fin au premier ou au dernier."
   }
 }

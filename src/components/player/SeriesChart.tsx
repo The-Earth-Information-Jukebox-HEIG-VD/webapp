@@ -6,6 +6,7 @@ import type { ZoneSeriesStatus } from '../../hooks/useZoneSeries';
 import { formatMonthYear, splitFractionalYear } from '../../utils/formatDate';
 import { formatReading, formatUnits } from '../../utils/reading';
 import { buildTicks } from './Timeline';
+import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
 import './SeriesChart.css';
 
 export interface ChartLine {
@@ -505,6 +506,15 @@ export function SeriesChart({
       </table>
     </div>
   );
+}
+
+/** SeriesChart fed by the playback position store: only this subtree re-renders per tick */
+export function LiveSeriesChart({
+  positionStore,
+  ...props
+}: Omit<SeriesChartProps, 'position'> & { positionStore: PositionStore }) {
+  const raw = usePlaybackPosition(positionStore);
+  return <SeriesChart {...props} position={raw ?? props.startYear} />;
 }
 
 export default SeriesChart;

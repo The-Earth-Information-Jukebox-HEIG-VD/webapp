@@ -476,5 +476,77 @@
     "noSelectedDataset": "None of the selected tracks has data to show on the globe.",
     "playedBy": "played by {{instrument}}",
     "instrument": "Instrument"
+  },
+  "experience": {
+    "label": "How do you want to listen?",
+    "zones": "Time travel",
+    "zonesHint": "One zone, through the years",
+    "vinyl": "Vinyl",
+    "vinylHint": "One month, across the globe",
+    "switchedZones": "Time travel mode. Vinyl playback paused.",
+    "switchedVinyl": "Vinyl mode. Zone playback paused."
+  },
+  "vinyl": {
+    "date": "Month to play",
+    "month": "Month",
+    "year": "Year",
+    "dateHint": "Data for all selected sounds: {{start}} – {{end}}.",
+    "dateDisjointHint": "The selected sounds have no month in common ({{start}} – {{end}}): some will stay silent.",
+    "dateClamped": "The month was moved to fit the selected sounds.",
+    "place": "Centre of the record",
+    "preset": "Place",
+    "presetCustom": "Custom position",
+    "lat": "Latitude",
+    "lng": "Longitude",
+    "latHint": "-90 (south) to 90 (north)",
+    "lngHint": "-180 (west) to 180 (east)",
+    "errors": {
+      "required": "Enter a value.",
+      "notNumber": "Enter a number, e.g. 48.8.",
+      "latRange": "Latitude must be between -90 and 90.",
+      "lngRange": "Longitude must be between -180 and 180."
+    },
+    "apply": "Apply",
+    "pickHint": "Or click the globe to place the centre of the record.",
+    "restartHint": "Changing the month or the centre starts the record again from the edge.",
+    "recordLabel": "The globe as a vinyl record, centred on {{centre}}, playing {{month}}. The needle spirals from the edge to the centre.",
+    "grooveOf": "Groove {{k}} of {{n}}",
+    "caption": {
+      "centre": "Centre {{centre}}",
+      "near": "near {{region}}"
+    },
+    "centred": "Record centred on {{place}}, {{month}}.",
+    "nowPlaying": "Groove {{k}} of {{n}}, near {{place}}: {{reading}}",
+    "nowPlayingNoValue": "Groove {{k}} of {{n}}, near {{place}}",
+    "hemi": {
+      "n": "N",
+      "s": "S",
+      "e": "E",
+      "w": "W"
+    },
+    "table": {
+      "caption": "Grooves of the record centred on {{centre}}, {{month}}",
+      "groove": "Groove",
+      "start": "Starts at",
+      "end": "Ends at",
+      "region": "Region crossed",
+      "playing": "playing",
+      "notPlayed": "Not played yet",
+      "noData": "No data",
+      "meanNote": "Values are the mean along the groove."
+    },
+    "presets": {
+      "north-pole": "North Pole",
+      "south-pole": "South Pole",
+      "europe": "Europe",
+      "africa": "Africa",
+      "north-america": "North America",
+      "south-america": "South America",
+      "asia": "Asia",
+      "oceania": "Oceania",
+      "pacific": "Pacific Ocean",
+      "atlantic": "Atlantic Ocean",
+      "indian-ocean": "Indian Ocean"
+    }
   }
 }

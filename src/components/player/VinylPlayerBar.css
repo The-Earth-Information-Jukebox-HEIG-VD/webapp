@@ -1,0 +1,34 @@
+.vinyl-timeline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.vinyl-groove-label {
+  flex: none;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.vinyl-timeline input[type='range'] {
+  flex: 1;
+  min-width: 80px;
+  min-height: 44px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.vinyl-timeline input[type='range']:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.vinyl-clock {
+  flex: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-feature-settings: 'tnum';
+}

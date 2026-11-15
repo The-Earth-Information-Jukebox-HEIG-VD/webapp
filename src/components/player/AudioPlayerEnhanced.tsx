@@ -1,10 +1,11 @@
-import { useCallback, useState, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useState, useEffect, useRef, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Timeline } from './Timeline';
 import { DatePicker } from './DatePicker';
 import { VolumeControl } from './VolumeControl';
 import type { TrackState } from '../../types/tracks';
-import type { SonificationError, SonificationStatus } from '../../hooks/useSonification';
+import { derivePlayback, type SonificationError, type SonificationStatus } from '../../hooks/useSonification';
+import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
 import type { InstrumentsStatus } from '../../hooks/useInstruments';
 import type { ApiErrorKind } from '../../services/sonificationApi';
 import './AudioPlayerEnhanced.css';
@@ -22,10 +23,9 @@ export interface PlayerGraphProps {
 
 interface AudioPlayerEnhancedProps {
   isPlaying: boolean;
-  progress: number;
   currentYear: number;
-  /** Current date as a fractional year */
-  position?: number;
+  /** Fine playback position (fractional year); only the timeline and date picker subscribe */
+  positionStore: PositionStore;
   /** Fractional year just after the last data month */
   timelineEnd?: number;
   yearRange: { start: number; end: number };
@@ -73,9 +73,8 @@ interface AudioPlayerEnhancedProps {
  */
 export function AudioPlayerEnhanced({
   isPlaying,
-  progress,
   currentYear,
-  position: positionProp,
+  positionStore,
   timelineEnd: timelineEndProp,
   yearRange,
   trackStates,
@@ -99,8 +98,8 @@ export function AudioPlayerEnhanced({
   graph,
 }: AudioPlayerEnhancedProps) {
   const { t } = useTranslation('player');
-  const position = positionProp ?? currentYear;
   const timelineEnd = timelineEndProp ?? yearRange.end + 1;
+  const { start: rangeStart, end: rangeEnd } = yearRange;
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -189,6 +188,13 @@ export function AudioPlayerEnhanced({
     }
   }, [isMuted, volume, onVolumeChange]);
 
+  // Live progress (0..1), read at event time so the listeners need no per-tick deps
+  const liveProgress = useCallback(
+    // Keyed on primitives: an inline yearRange literal must not re-bind the key listener
+    () => derivePlayback(positionStore.get(), { start: rangeStart, end: rangeEnd }, timelineEnd).progress,
+    [positionStore, rangeStart, rangeEnd, timelineEnd]
+  );
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -217,11 +223,11 @@ export function AudioPlayerEnhanced({
           break;
         case 'ArrowLeft':
           e.preventDefault();
-          onSeek(Math.max(0, progress - 0.02));
+          onSeek(Math.max(0, liveProgress() - 0.02));
           break;
         case 'ArrowRight':
           e.preventDefault();
-          onSeek(Math.min(1, progress + 0.02));
+          onSeek(Math.min(1, liveProgress() + 0.02));
           break;
         case 'Home':
           e.preventDefault();
@@ -241,7 +247,7 @@ export function AudioPlayerEnhanced({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePlayPause, handleMuteToggle, onSeek, progress]);
+  }, [handlePlayPause, handleMuteToggle, onSeek, liveProgress]);
 
   const enabledTracksCount = trackStates.filter((t) => t.enabled).length;
 
@@ -288,7 +294,7 @@ export function AudioPlayerEnhanced({
           <button
             type="button"
             className="control-button skip-back"
-            onClick={() => onSeek(Math.max(0, progress - 0.1))}
+            onClick={() => onSeek(Math.max(0, liveProgress() - 0.1))}
             aria-label={t('controls.skipBackward')}
           >
             <SkipBackIcon />
@@ -309,27 +315,25 @@ export function AudioPlayerEnhanced({
           <button
             type="button"
             className="control-button skip-forward"
-            onClick={() => onSeek(Math.min(1, progress + 0.1))}
+            onClick={() => onSeek(Math.min(1, liveProgress() + 0.1))}
             aria-label={t('controls.skipForward')}
           >
             <SkipForwardIcon />
           </button>
         </div>
 
-        <DatePicker
-          position={position}
+        <LiveDatePicker
+          positionStore={positionStore}
           yearRange={yearRange}
           timelineEnd={timelineEnd}
           onSeekToYear={onSeekToYear}
         />
 
         <div className="player-timeline">
-          <Timeline
-            progress={progress}
-            currentYear={currentYear}
+          <LiveTimeline
+            positionStore={positionStore}
             startYear={yearRange.start}
             endYear={yearRange.end}
-            position={position}
             timelineEnd={timelineEnd}
             onSeek={onSeek}
             onSeekToYear={onSeekToYear}
@@ -390,6 +394,31 @@ export function AudioPlayerEnhanced({
       </div>
     </div>
   );
+}
+
+type TimelineProps = ComponentProps<typeof Timeline>;
+type DatePickerProps = ComponentProps<typeof DatePicker>;
+
+/** Timeline that follows the position store (the only per-tick render besides the date picker and chart) */
+function LiveTimeline({
+  positionStore,
+  ...props
+}: Omit<TimelineProps, 'progress' | 'currentYear' | 'position'> & { positionStore: PositionStore }) {
+  const raw = usePlaybackPosition(positionStore);
+  const { position, progress, currentYear } = derivePlayback(
+    raw,
+    { start: props.startYear, end: props.endYear },
+    props.timelineEnd ?? props.endYear + 1
+  );
+  return <Timeline {...props} progress={progress} currentYear={currentYear} position={position} />;
+}
+
+function LiveDatePicker({
+  positionStore,
+  ...props
+}: Omit<DatePickerProps, 'position'> & { positionStore: PositionStore }) {
+  const raw = usePlaybackPosition(positionStore);
+  return <DatePicker {...props} position={raw ?? props.yearRange.start} />;
 }
 
 // Icon components
