@@ -209,6 +209,14 @@ function AppContent() {
     }
   }, [setTracksOpen]);
 
+  // "Sounds" button: show/hide the track panel. On the About page the panel is not
+  // rendered, so the button always brings it back (and focuses it) there.
+  const tracksExpanded = route !== 'about' && tracksOpen;
+  const toggleTrackPanel = useCallback(() => {
+    if (tracksExpanded) setTracksOpen(false);
+    else focusTrackPanel();
+  }, [tracksExpanded, setTracksOpen, focusTrackPanel]);
+
   const handleJumpToMoment = useCallback((year: number) => {
     seekToYear(year);
   }, [seekToYear]);
@@ -319,6 +327,8 @@ function AppContent() {
               onSeekToYear={seekToYear}
               onVolumeChange={setVolume}
               onShowTracks={focusTrackPanel}
+              onToggleTracks={toggleTrackPanel}
+              tracksExpanded={tracksExpanded}
               playDisabled={!selectedZone}
               status={status}
               error={error}

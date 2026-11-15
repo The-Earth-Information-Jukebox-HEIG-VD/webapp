@@ -75,6 +75,25 @@ describe('AudioPlayerEnhanced accessibility', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it('Sounds button toggles the track panel and reports aria-expanded', () => {
+    let toggled = 0;
+    let shown = 0;
+    render(
+      <AudioPlayerEnhanced
+        {...base}
+        trackStates={[{ id: 'a', enabled: true }]}
+        onShowTracks={() => (shown += 1)}
+        onToggleTracks={() => (toggled += 1)}
+        tracksExpanded
+      />
+    );
+    const button = screen.getByRole('button', { name: 'Sounds: 1 selected' });
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(button);
+    expect(toggled).toBe(1);
+    expect(shown).toBe(0);
+  });
+
   it('offers a "Choose sounds" button when no track is selected', async () => {
     let shown = 0;
     const { container } = render(

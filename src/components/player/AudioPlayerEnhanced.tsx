@@ -37,6 +37,10 @@ interface AudioPlayerEnhancedProps {
   onVolumeChange: (volume: number) => void;
   /** Bring the track panel into view and focus its first row */
   onShowTracks: () => void;
+  /** "Sounds" button: show/hide the track panel (falls back to onShowTracks) */
+  onToggleTracks?: () => void;
+  /** Whether the track panel is currently shown (aria-expanded on the "Sounds" button) */
+  tracksExpanded?: boolean;
   /** Disable Play (e.g. no zone selected yet). Pause stays available. */
   playDisabled?: boolean;
   /** Backend request status */
@@ -79,6 +83,8 @@ export function AudioPlayerEnhanced({
   onSeekToYear,
   onVolumeChange,
   onShowTracks,
+  onToggleTracks,
+  tracksExpanded,
   playDisabled = false,
   status = 'idle',
   error = null,
@@ -345,7 +351,8 @@ export function AudioPlayerEnhanced({
         <button
           type="button"
           className={`tracks-button${enabledTracksCount === 0 ? ' empty' : ''}`}
-          onClick={onShowTracks}
+          onClick={onToggleTracks ?? onShowTracks}
+          aria-expanded={tracksExpanded}
           aria-label={t('controls.tracks', { count: enabledTracksCount })}
         >
           <TracksIcon />
