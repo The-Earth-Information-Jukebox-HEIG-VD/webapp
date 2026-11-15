@@ -1,10 +1,42 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ExperienceMode } from '../../contexts/ExperienceModeContext';
 import './ExperienceModeSwitch.css';
 
-const OPTIONS: { mode: ExperienceMode; icon: string }[] = [
-  { mode: 'zones', icon: '⏳' },
-  { mode: 'vinyl', icon: '💿' },
+const iconProps = {
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  'aria-hidden': true,
+  focusable: false,
+} as const;
+
+function HourglassIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M6 2h12M6 22h12" />
+      <path d="M7 2v4a5 5 0 0 0 2 4l3 2-3 2a5 5 0 0 0-2 4v4" />
+      <path d="M17 2v4a5 5 0 0 1-2 4l-3 2 3 2a5 5 0 0 1 2 4v4" />
+    </svg>
+  );
+}
+
+function RecordIcon() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="0.5" />
+    </svg>
+  );
+}
+
+const OPTIONS: { mode: ExperienceMode; icon: ReactNode }[] = [
+  { mode: 'zones', icon: <HourglassIcon /> },
+  { mode: 'vinyl', icon: <RecordIcon /> },
 ];
 
 interface ExperienceModeSwitchProps {

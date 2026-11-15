@@ -17,13 +17,16 @@ function LoadingFallback() {
     <div
       style={{
         display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--spacing-md)',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        background: '#0a0e17',
-        color: '#e8eaed',
+        background: 'var(--color-background)',
+        color: 'var(--color-text)',
       }}
     >
+      <img src="/icon-192.png" width={96} height={96} alt="" style={{ borderRadius: '50%' }} />
       Loading...
     </div>
   );

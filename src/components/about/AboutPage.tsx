@@ -50,6 +50,10 @@ export function AboutPage() {
 
   return (
     <article className="about-page" aria-labelledby="about-title">
+      <picture>
+        <source srcSet="/logo-320.webp" type="image/webp" />
+        <img className="about-logo" src="/logo-320.png" width={160} height={160} alt="" />
+      </picture>
       <h1 id="about-title" className="about-title" ref={headingRef} tabIndex={-1}>
         {t('about.title')}
       </h1>

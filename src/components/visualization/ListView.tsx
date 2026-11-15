@@ -9,11 +9,10 @@ import {
   getInlandSeas,
   continentsGeoJSON,
 } from '../../data/zones';
-import { getPointsInFeature } from '../../utils/geometry';
+import { getPointsInFeature, DEFAULT_IMAGE_DIMENSIONS } from '../../utils/geometry';
 import './ListView.css';
 
 // Default image dimensions for NASA SVS data
-const DEFAULT_IMAGE_DIMENSIONS = { width: 3600, height: 1800 };
 
 // Tree-state id for the non-selectable "Inland seas" group
 const INLAND_GROUP_ID = 'inlandSeas';

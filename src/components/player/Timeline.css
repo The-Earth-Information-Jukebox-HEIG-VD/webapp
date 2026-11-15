@@ -37,7 +37,7 @@
   right: 0;
   height: 8px;
   transform: translateY(-50%);
-  background: var(--color-border);
+  background: var(--color-control-border);
   border-radius: var(--radius-full);
 }
 
@@ -47,7 +47,7 @@
   left: 0;
   height: 8px;
   transform: translateY(-50%);
-  background: linear-gradient(90deg, var(--color-cool), var(--color-warm));
+  background: var(--color-primary);
   border-radius: var(--radius-full);
   transition: width 0.1s ease;
 }
@@ -135,7 +135,7 @@
   width: 16px;
   height: 16px;
   background: var(--color-primary);
-  border: 3px solid white;
+  border: 3px solid var(--color-background);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-md);
   transition: transform 0.1s ease;
@@ -150,7 +150,7 @@
   top: -28px;
   padding: 2px 8px;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   font-size: var(--font-size-xs);
   font-weight: 600;
   border-radius: var(--radius-sm);

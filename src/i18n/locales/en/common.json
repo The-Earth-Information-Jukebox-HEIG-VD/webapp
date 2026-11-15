@@ -16,7 +16,8 @@
     "list": "List View",
     "toggle": "Toggle view mode",
     "globeDescription": "Interactive 3D globe showing climate zones",
-    "listDescription": "Accessible table view of climate zones"
+    "listDescription": "Accessible table view of climate zones",
+    "moreInfo": "More information"
   },
   "accessibility": {
     "title": "Accessibility Settings",
@@ -329,6 +330,7 @@
     "fires": "Fires",
     "heading": "What do you want to hear?",
     "hint": "Each dataset plays its own instrument. Pick one or more.",
+    "infoLabel": "About the tracks",
     "onlyWhenPresent": "only when present",
     "sounding": "Sounding now",
     "show": "Show",
@@ -337,47 +339,86 @@
     "selectedCount_other": "{{count}} tracks selected"
   },
   "moments": {
-    "title": "Key Climate Moments",
-    "jumpTo": "Jump to this moment",
-    "industrialRevolution": {
-      "title": "Industrial Era Begins",
-      "description": "Temperature records begin as industrialization accelerates CO2 emissions"
+    "title": "Key events",
+    "jumpTo": "Play {{range}}",
+    "jumpToLabel": "{{title}}: play {{range}}",
+    "jumpToZoneLabel": "{{title}}: select {{zone}} and play {{range}}",
+    "active": "Playing now",
+    "emptyForZone": "No key event recorded for {{zone}}.",
+    "inData": "In our data",
+    "peakInData": "Peak in our data",
+    "happened": "When it happened",
+    "elNino2009": {
+      "title": "El Niño 2009–10",
+      "when": "mid-2009 to spring 2010"
     },
-    "dustBowl": {
-      "title": "Dust Bowl",
-      "description": "Severe droughts and dust storms devastate North American prairies"
+    "indonesiaFires2015": {
+      "title": "Indonesia peat fires",
+      "when": "Jul – Nov 2015",
+      "imageAlt": "Burning peatland at night, glowing embers among fallen trees under thick orange smoke"
     },
-    "keelingCurve": {
-      "title": "Keeling Curve Starts",
-      "description": "First continuous CO2 measurements begin at Mauna Loa Observatory"
+    "elNino2015": {
+      "title": "El Niño 2015–16, “Godzilla” (super El Niño)",
+      "when": "spring 2015 to spring 2016"
     },
-    "earthDay": {
-      "title": "First Earth Day",
-      "description": "20 million Americans demonstrate for environmental protection"
+    "harvey2017": {
+      "title": "Hurricane Harvey, Texas",
+      "when": "25 Aug – 1 Sep 2017",
+      "imageAlt": "Flooded crossroads in Houston, a pickup truck submerged up to its windows under traffic lights"
     },
-    "montrealProtocol": {
-      "title": "Montreal Protocol",
-      "description": "International agreement successfully phases out ozone-depleting substances"
+    "blackSummer2019": {
+      "title": "Black Summer, SE Australia",
+      "when": "Jun 2019 – May 2020",
+      "imageAlt": "A kangaroo hops past a house engulfed in flames"
     },
-    "warmest1998": {
-      "title": "Warmest Year (20th Century)",
-      "description": "1998 sets record as warmest year, amplified by strong El Nino"
+    "california2020": {
+      "title": "California wildfires",
+      "when": "Aug – Nov 2020",
+      "imageAlt": "Suspension bridge under an orange sky, the hillside behind it dotted with fires"
     },
-    "kyotoProtocol": {
-      "title": "Kyoto Protocol",
-      "description": "First legally binding international climate treaty enters force"
+    "filomena2021": {
+      "title": "Storm Filomena, Madrid",
+      "when": "8–9 Jan 2021",
+      "imageAlt": "Parked cars buried under deep snow in a Madrid street, with branches broken by the weight of the snow"
     },
-    "arcticIce2012": {
-      "title": "Arctic Ice Record Low",
-      "description": "Arctic sea ice extent reaches lowest level since satellite records began"
+    "uri2021": {
+      "title": "Winter storm Uri, Texas",
+      "when": "mid-Feb 2021",
+      "imageAlt": "A fountain in Texas frozen into a mass of icicles, a worker in winter clothes beside it"
     },
-    "parisAgreement": {
-      "title": "Paris Agreement",
-      "description": "195 nations commit to limiting warming to 1.5C above pre-industrial levels"
+    "yakutia2021": {
+      "title": "Yakutia wildfires, Siberia",
+      "when": "summer 2021",
+      "imageAlt": "Satellite view of Siberian forest with fire fronts and long plumes of white smoke"
     },
-    "warmest2023": {
-      "title": "Hottest Year on Record",
-      "description": "2023 confirmed as warmest year in human history, 1.48C above baseline"
+    "hungaTonga2022": {
+      "title": "Hunga Tonga eruption",
+      "when": "15 Jan 2022",
+      "imageAlt": "A huge ash plume rising from a volcanic island, struck by lightning"
+    },
+    "pakistan2022": {
+      "title": "Pakistan floods",
+      "when": "monsoon Jun – Oct 2022, worst in Aug",
+      "imageAlt": "Aerial view of a village surrounded by brown floodwater stretching to the horizon"
+    },
+    "quebec2023": {
+      "title": "Quebec wildfires",
+      "when": "June 2023 (season May – Oct)",
+      "imageAlt": "Aerial view at dusk of a fire line burning through forest under a huge smoke cloud"
+    },
+    "daniel2023": {
+      "title": "Storm Daniel, Libya",
+      "when": "10–11 Sep 2023",
+      "imageAlt": "A street in Derna covered in mud and debris, with overturned cars piled up between buildings"
+    },
+    "elNino2023": {
+      "title": "El Niño 2023–24",
+      "when": "mid-2023 to spring 2024"
+    },
+    "uaeOman2024": {
+      "title": "UAE and Oman floods",
+      "when": "16 Apr 2024",
+      "imageAlt": "Cars stuck in floodwater on a Dubai highway under road signs"
     }
   },
   "footer": {
@@ -399,7 +440,8 @@
     "backendUnavailable": "The sound server cannot be reached. Check that it is running, then try again.",
     "noDataForPeriod": "There is no data for this area and period. Try another zone or date.",
     "serverPreparing": "The server is still preparing its data. Please try again in a moment.",
-    "unknown": "Something went wrong while loading the audio. Please try again."
+    "unknown": "Something went wrong while loading the audio. Please try again.",
+    "yearStepUnsupported": "This sound server is too old to play one month through the years (it needs API 2.12). The data graph still shows it."
   },
   "about": {
     "title": "About EarthChestra",
@@ -571,6 +613,7 @@
   "style": {
     "label": "Music style",
     "hint": "How the data is played: {{description}}",
+    "infoLabel": "About the music style",
     "changed": "Music style: {{name}}",
     "loading": "Loading styles…"
   }

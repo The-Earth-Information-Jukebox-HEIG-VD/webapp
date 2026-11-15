@@ -6,6 +6,8 @@ import {
   SeriesChart,
   buildLinePath,
   buildDotsPath,
+  buildMonthPaths,
+  monthValues,
   seriesRange,
   yearToX,
   dashFor,
@@ -232,5 +234,60 @@ describe('SeriesChart sparse and empty data', () => {
     );
     const rows = within(container.querySelector('table.sr-only') as HTMLElement).getAllByRole('row');
     expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(/no data/i);
+  });
+});
+
+describe('SeriesChart month travel', () => {
+  // 3 years of monthly data: July = 1, 2, 3
+  const series: DatasetSeries = {
+    units: 'mm',
+    anomaly: false,
+    start: '1880-01',
+    yearly: false,
+    values: Array.from({ length: 36 }, (_, i) => (i % 12 === 6 ? Math.floor(i / 12) + 1 : 99)),
+  };
+  const july: ChartLine[] = [{ id: 'precipitation', name: 'Rain', color: '#4a6fc7', series }];
+
+  it('monthValues keeps that month of each year (yearly data: the year value)', () => {
+    expect([...monthValues(series, 7)]).toEqual([[1880, 1], [1881, 2], [1882, 3]]);
+    const yearly: DatasetSeries = { ...series, yearly: true, values: [5, ...Array(11).fill(null), 6] };
+    expect([...monthValues(yearly, 7)]).toEqual([[1880, 5], [1881, 6]]);
+  });
+
+  it('joins consecutive years at the month position and dots isolated years', () => {
+    const values = new Map([[1880, 1], [1881, 2], [1883, 3]]);
+    const { d, dots } = buildMonthPaths(values, 7, 1880, 1884);
+    const x = (year: number) => yearToX(year + 0.5, 1880, 1884).toFixed(2);
+    expect(d.startsWith(`M${x(1880)} `)).toBe(true);
+    expect(d).toContain(`L${x(1881)} `);
+    expect(d).toContain(`M${x(1883)} `); // 1882 missing: a gap
+    expect(dots).toContain(`M${x(1883)} `);
+    expect(dots).not.toContain(`M${x(1880)} `);
+  });
+
+  it('table, caption and legend read the chosen month only; no axe violations', async () => {
+    const { container } = render(
+      <SeriesChart
+        {...base}
+        lines={july}
+        startYear={1880}
+        endYear={1882}
+        timelineEnd={1883}
+        position={1881.9} // still the July 1881 bar
+        month={7}
+      />
+    );
+    const table = container.querySelector('table')!;
+    expect(within(table).getByText(/July value of each dataset/)).toBeInTheDocument();
+    const rows = within(table).getAllByRole('row').slice(1);
+    expect(rows.map((r) => within(r).getByRole('rowheader').textContent)).toEqual(['1880', '1881', '1882']);
+    expect(rows.map((r) => within(r).getByRole('cell').textContent)).toEqual([
+      expect.stringMatching(/^1\b/),
+      expect.stringMatching(/^2\b/),
+      expect.stringMatching(/^3\b/),
+    ]);
+    expect(screen.getByText('Jul 1881')).toBeInTheDocument();
+    expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/July of each year/);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

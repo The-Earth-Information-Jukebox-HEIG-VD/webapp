@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Genre } from '../../services/sonificationApi';
+import { InfoTooltip } from './InfoTooltip';
 import './StyleSelector.css';
 
 interface StyleSelectorProps {
@@ -13,7 +14,8 @@ interface StyleSelectorProps {
 
 /**
  * "Music style" select, shared by zone and vinyl mode. The selected style's
- * description is its hint (aria-describedby); a change is announced politely
+ * description is in an (i) tooltip next to the label, and also the select's
+ * description for screen readers (aria-describedby); a change is announced politely
  * ("Music style: Funk"). Global player shortcuts ignore the select
  * (usePlayerShortcuts), so arrows and letters pick options.
  */
@@ -26,9 +28,16 @@ export function StyleSelector({ genres, value, onChange }: StyleSelectorProps) {
 
   return (
     <div className="style-selector">
-      <label htmlFor={`${id}-select`} className="style-selector-label">
-        {t('style.label')}
-      </label>
+      <div className="style-selector-label-row">
+        <label htmlFor={`${id}-select`} className="style-selector-label">
+          {t('style.label')}
+        </label>
+        {selected && (
+          <InfoTooltip label={t('style.infoLabel')}>
+            <p>{t('style.hint', { description: selected.description })}</p>
+          </InfoTooltip>
+        )}
+      </div>
       <select
         id={`${id}-select`}
         className="style-selector-select"
@@ -49,7 +58,7 @@ export function StyleSelector({ genres, value, onChange }: StyleSelectorProps) {
         ))}
       </select>
       {selected && (
-        <p id={`${id}-hint`} className="style-selector-hint">
+        <p id={`${id}-hint`} className="sr-only">
           {t('style.hint', { description: selected.description })}
         </p>
       )}

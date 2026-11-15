@@ -16,7 +16,8 @@
     "list": "Listen-Ansicht",
     "toggle": "Ansichtsmodus wechseln",
     "globeDescription": "Interaktiver 3D-Globus mit Klimazonen",
-    "listDescription": "Barrierefreie Tabellenansicht der Klimazonen"
+    "listDescription": "Barrierefreie Tabellenansicht der Klimazonen",
+    "moreInfo": "Weitere Informationen"
   },
   "accessibility": {
     "title": "Barrierefreiheit-Einstellungen",
@@ -329,6 +330,7 @@
     "fires": "Brände",
     "heading": "Was möchten Sie hören?",
     "hint": "Jeder Datensatz spielt sein eigenes Instrument. Wählen Sie einen oder mehrere.",
+    "infoLabel": "Über die Spuren",
     "onlyWhenPresent": "nur wenn vorhanden",
     "sounding": "Klingt gerade",
     "show": "Anzeigen",
@@ -337,47 +339,86 @@
     "selectedCount_other": "{{count}} Spuren ausgewählt"
   },
   "moments": {
-    "title": "Wichtige Klimamomente",
-    "jumpTo": "Zu diesem Moment springen",
-    "industrialRevolution": {
-      "title": "Beginn des Industriezeitalters",
-      "description": "Temperaturaufzeichnungen beginnen, während die Industrialisierung CO₂-Emissionen beschleunigt"
+    "title": "Wichtige Ereignisse",
+    "jumpTo": "{{range}} anhören",
+    "jumpToLabel": "{{title}}: {{range}} anhören",
+    "jumpToZoneLabel": "{{title}}: {{zone}} auswählen und {{range}} anhören",
+    "active": "Wird gerade abgespielt",
+    "emptyForZone": "Kein wichtiges Ereignis für {{zone}}.",
+    "inData": "In unseren Daten",
+    "peakInData": "Höhepunkt in unseren Daten",
+    "happened": "Wann es geschah",
+    "elNino2009": {
+      "title": "El Niño 2009–10",
+      "when": "Mitte 2009 bis Frühjahr 2010"
     },
-    "dustBowl": {
-      "title": "Dust Bowl",
-      "description": "Schwere Dürren und Staubstürme verwüsten die nordamerikanischen Prärien"
+    "indonesiaFires2015": {
+      "title": "Torfbrände in Indonesien",
+      "when": "Juli – Nov. 2015",
+      "imageAlt": "Brennendes Torfmoor bei Nacht, glühende Glut zwischen umgestürzten Bäumen unter dichtem orangem Rauch"
     },
-    "keelingCurve": {
-      "title": "Beginn der Keeling-Kurve",
-      "description": "Erste kontinuierliche CO₂-Messungen am Mauna Loa Observatorium beginnen"
+    "elNino2015": {
+      "title": "El Niño 2015–16, „Godzilla“ (Super-El-Niño)",
+      "when": "Frühjahr 2015 bis Frühjahr 2016"
     },
-    "earthDay": {
-      "title": "Erster Tag der Erde",
-      "description": "20 Millionen Amerikaner demonstrieren für Umweltschutz"
+    "harvey2017": {
+      "title": "Hurrikan Harvey, Texas",
+      "when": "25. Aug. – 1. Sept. 2017",
+      "imageAlt": "Überflutete Kreuzung in Houston, ein Pick-up bis zu den Fenstern unter Wasser unter Ampeln"
     },
-    "montrealProtocol": {
-      "title": "Montrealer Protokoll",
-      "description": "Internationales Abkommen eliminiert erfolgreich ozonabbauende Substanzen"
+    "blackSummer2019": {
+      "title": "Black Summer, Südostaustralien",
+      "when": "Juni 2019 – Mai 2020",
+      "imageAlt": "Ein Känguru springt an einem brennenden Haus vorbei"
     },
-    "warmest1998": {
-      "title": "Wärmstes Jahr (20. Jahrhundert)",
-      "description": "1998 setzt Rekord als wärmstes Jahr, verstärkt durch starken El Niño"
+    "california2020": {
+      "title": "Waldbrände in Kalifornien",
+      "when": "Aug. – Nov. 2020",
+      "imageAlt": "Hängebrücke unter orangem Himmel, der Hang dahinter übersät mit Brandherden"
     },
-    "kyotoProtocol": {
-      "title": "Kyoto-Protokoll",
-      "description": "Erster rechtsverbindlicher internationaler Klimavertrag tritt in Kraft"
+    "filomena2021": {
+      "title": "Sturm Filomena, Madrid",
+      "when": "8.–9. Jan. 2021",
+      "imageAlt": "Geparkte Autos unter tiefem Schnee in einer Madrider Straße, Äste unter der Schneelast abgebrochen"
     },
-    "arcticIce2012": {
-      "title": "Arktisches Eis-Rekordtief",
-      "description": "Arktische Meereisausdehnung erreicht niedrigsten Stand seit Beginn der Satellitenaufzeichnungen"
+    "uri2021": {
+      "title": "Wintersturm Uri, Texas",
+      "when": "Mitte Feb. 2021",
+      "imageAlt": "Ein Brunnen in Texas, zu einer Masse aus Eiszapfen gefroren, daneben ein Arbeiter in Winterkleidung"
     },
-    "parisAgreement": {
-      "title": "Pariser Abkommen",
-      "description": "195 Nationen verpflichten sich, Erwärmung auf 1,5°C über vorindustriellem Niveau zu begrenzen"
+    "yakutia2021": {
+      "title": "Waldbrände in Jakutien, Sibirien",
+      "when": "Sommer 2021",
+      "imageAlt": "Satellitenbild des sibirischen Waldes mit Feuerfronten und langen weißen Rauchfahnen"
     },
-    "warmest2023": {
-      "title": "Heißestes Jahr der Geschichte",
-      "description": "2023 als wärmstes Jahr der Menschheitsgeschichte bestätigt, 1,48°C über Referenzwert"
+    "hungaTonga2022": {
+      "title": "Ausbruch des Hunga Tonga",
+      "when": "15. Jan. 2022",
+      "imageAlt": "Eine riesige Aschesäule über einer Vulkaninsel, von einem Blitz durchzogen"
+    },
+    "pakistan2022": {
+      "title": "Überschwemmungen in Pakistan",
+      "when": "Monsun Juni – Okt. 2022, am schlimmsten im Aug.",
+      "imageAlt": "Luftbild eines Dorfes, umgeben von braunem Hochwasser bis zum Horizont"
+    },
+    "quebec2023": {
+      "title": "Waldbrände in Québec",
+      "when": "Juni 2023 (Saison Mai – Okt.)",
+      "imageAlt": "Luftbild in der Dämmerung einer Feuerfront im Wald unter einer riesigen Rauchwolke"
+    },
+    "daniel2023": {
+      "title": "Sturm Daniel, Libyen",
+      "when": "10.–11. Sept. 2023",
+      "imageAlt": "Eine Straße in Derna voller Schlamm und Trümmer, umgestürzte Autos zwischen den Gebäuden aufgetürmt"
+    },
+    "elNino2023": {
+      "title": "El Niño 2023–24",
+      "when": "Mitte 2023 bis Frühjahr 2024"
+    },
+    "uaeOman2024": {
+      "title": "Überschwemmungen in den VAE und Oman",
+      "when": "16. Apr. 2024",
+      "imageAlt": "Autos stecken im Hochwasser auf einer Autobahn in Dubai unter Verkehrsschildern"
     }
   },
   "footer": {
@@ -399,7 +440,8 @@
     "backendUnavailable": "Der Audio-Server ist nicht erreichbar. Prüfen Sie, ob er läuft, und versuchen Sie es erneut.",
     "noDataForPeriod": "Für dieses Gebiet und diesen Zeitraum gibt es keine Daten. Wählen Sie eine andere Zone oder ein anderes Datum.",
     "serverPreparing": "Der Server bereitet seine Daten noch vor. Bitte versuchen Sie es gleich erneut.",
-    "unknown": "Beim Laden des Audios ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    "unknown": "Beim Laden des Audios ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "yearStepUnsupported": "Dieser Audio-Server ist zu alt, um einen Monat durch die Jahre zu spielen (API 2.12 nötig). Das Datendiagramm zeigt ihn trotzdem."
   },
   "about": {
     "title": "Über EarthChestra",
@@ -571,6 +613,7 @@
   "style": {
     "label": "Musikstil",
     "hint": "Wie die Daten gespielt werden: {{description}}",
+    "infoLabel": "Über den Musikstil",
     "changed": "Musikstil: {{name}}",
     "loading": "Stile werden geladen…"
   }

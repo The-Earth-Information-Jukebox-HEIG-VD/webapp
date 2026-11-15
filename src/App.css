@@ -30,7 +30,6 @@
   padding: var(--spacing-xs);
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
 }
 
 .zone-toggle-button {
@@ -68,7 +67,7 @@
 
 .zone-toggle-button.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .visualization-section {
@@ -86,7 +85,6 @@
   view-transition-name: tracks-panel;
   padding: var(--spacing-md);
   background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
@@ -180,8 +178,7 @@ html {
   min-height: 68px;
   display: flex;
   align-items: center;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border-light);
+  background: var(--color-surface-elevated);
 }
 
 .player-section > * {

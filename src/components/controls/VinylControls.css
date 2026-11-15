@@ -5,7 +5,6 @@
   flex-basis: 100%;
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
@@ -54,8 +53,7 @@
   padding: 0 var(--spacing-sm);
   background: var(--color-background);
   color: var(--color-text);
-  /* 1.4.11: border-light is 2.7:1 on the surface; text-muted is 4.5:1 */
-  border: 1px solid var(--color-text-muted);
+  border: 1px solid var(--color-control-border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-md);
 }
@@ -83,7 +81,7 @@
   padding: 0 var(--spacing-md);
   background: var(--color-surface-active);
   color: var(--color-text);
-  border: 1px solid var(--color-border-light);
+  border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
 }
@@ -100,8 +98,7 @@
 
 .vinyl-error {
   font-size: var(--font-size-xs);
-  /* #ff8a80 on the dark surface: > 7:1 (the base error red is too dark for text here) */
-  color: #ff8a80;
+  color: var(--color-error);
   font-weight: 600;
 }
 

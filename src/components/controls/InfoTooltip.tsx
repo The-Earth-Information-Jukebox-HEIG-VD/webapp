@@ -1,22 +1,29 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useId, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import './InfoTooltip.css';
 
 interface InfoTooltipProps {
   children: ReactNode;
+  /** Accessible name of the (i) button; defaults to "More information" */
+  label?: string;
+  /** Where the bubble opens: centred under the icon, or aligned to its right edge (near the screen edge) */
+  align?: 'center' | 'end';
 }
 
 /**
- * Info tooltip component with a question mark icon
+ * (i) button that shows extra text on hover, focus or click.
  *
- * Shows additional context on hover/focus for sighted users
- * and provides the same content for screen readers.
+ * WCAG 1.4.13: the bubble stays open while the pointer is over it (hoverable),
+ * Escape closes it (dismissible), and it stays until the pointer or focus leaves.
+ * Screen readers get the text as the button's description (aria-describedby).
  */
-export function InfoTooltip({ children }: InfoTooltipProps) {
+export function InfoTooltip({ children, label, align = 'center' }: InfoTooltipProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const tooltipId = useRef(`tooltip-${Math.random().toString(36).slice(2, 9)}`);
+  const tooltipId = useId();
 
-  // Close tooltip when clicking outside
+  // Close on a click outside, or on Escape anywhere
   useEffect(() => {
     if (!isOpen) return;
 
@@ -25,32 +32,45 @@ export function InfoTooltip({ children }: InfoTooltipProps) {
         setIsOpen(false);
       }
     };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        // Only this bubble closes: the globe's Escape (back to zone selection) must not fire too
+        e.stopPropagation();
+        setIsOpen(false);
+      }
+    };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKey, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKey, true);
+    };
   }, [isOpen]);
 
   return (
-    <div ref={containerRef} className="info-tooltip-container">
+    <div
+      ref={containerRef}
+      className="info-tooltip-container"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <button
         type="button"
         className="info-tooltip-trigger"
         onClick={() => setIsOpen(!isOpen)}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setIsOpen(false)}
-        aria-describedby={tooltipId.current}
-        aria-label="More information"
+        aria-describedby={tooltipId}
+        aria-label={label ?? t('viewMode.moreInfo')}
       >
         <InfoIcon />
       </button>
 
       <div
-        id={tooltipId.current}
-        className={`info-tooltip-content ${isOpen ? 'visible' : ''}`}
+        id={tooltipId}
+        className={`info-tooltip-content${align === 'end' ? ' align-end' : ''}${isOpen ? ' visible' : ''}`}
         role="tooltip"
-        aria-hidden={!isOpen}
       >
         <div className="info-tooltip-body">{children}</div>
       </div>

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMonthYear } from '../../utils/formatDate';
+import { snapToMonth } from '../../services/sonificationApi';
 import './Timeline.css';
 
 interface TimelineProps {
@@ -18,6 +19,8 @@ interface TimelineProps {
   onHoverChange?: (fraction: number | null) => void;
   /** Hide the date bubble (e.g. when the data graph shows the hovered date) */
   hideHoverTooltip?: boolean;
+  /** Month travel (1..12): dates read as that month of each year ("July 1950") */
+  month?: number | null;
 }
 
 export interface Tick {
@@ -59,6 +62,7 @@ export function Timeline({
   onSeekToYear,
   onHoverChange,
   hideHoverTooltip = false,
+  month = null,
 }: TimelineProps) {
   const { t, i18n } = useTranslation('player');
   const trackRef = useRef<HTMLDivElement>(null);
@@ -69,7 +73,9 @@ export function Timeline({
   const span = Math.max(1e-6, edge - startYear);
   const current = position ?? currentYear;
   const locale = i18n.language;
-  const currentText = formatMonthYear(current, locale, 'long');
+  // Month travel: the playhead crosses a whole year per bar, the date is that year's month
+  const currentDate = snapToMonth(current, month);
+  const currentText = formatMonthYear(currentDate, locale, 'long');
 
   const ticks = useMemo(() => buildTicks(startYear, endYear, edge), [startYear, endYear, edge]);
   const showMinor = span <= 150;
@@ -123,24 +129,27 @@ export function Timeline({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const step = 0.02;
+      // Month travel: the finest step is one year (each bar is a year), from the date heard
+      const from = month ? currentDate : current;
+      const fine = month ? 1 : 1 / 12;
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
-          if (e.shiftKey) onSeekToYear(current - 1 / 12);
+          if (e.shiftKey) onSeekToYear(from - fine);
           else onSeek(Math.max(0, progress - step));
           break;
         case 'ArrowRight':
           e.preventDefault();
-          if (e.shiftKey) onSeekToYear(current + 1 / 12);
+          if (e.shiftKey) onSeekToYear(from + fine);
           else onSeek(Math.min(1, progress + step));
           break;
         case 'PageUp':
           e.preventDefault();
-          onSeekToYear(current + 1);
+          onSeekToYear(from + 1);
           break;
         case 'PageDown':
           e.preventDefault();
-          onSeekToYear(current - 1);
+          onSeekToYear(from - 1);
           break;
         case 'Home':
           e.preventDefault();
@@ -152,7 +161,7 @@ export function Timeline({
           break;
       }
     },
-    [onSeek, onSeekToYear, progress, current]
+    [onSeek, onSeekToYear, progress, current, currentDate, month]
   );
 
   const progressPercent = progress * 100;
@@ -213,7 +222,7 @@ export function Timeline({
             style={{ left: `${hover.fraction * 100}%` }}
             aria-hidden="true"
           >
-            {formatMonthYear(startYear + hover.fraction * span, locale, 'short')}
+            {formatMonthYear(snapToMonth(startYear + hover.fraction * span, month), locale, 'short')}
           </div>
         )}
 
@@ -224,7 +233,7 @@ export function Timeline({
           aria-hidden="true"
         >
           <span className="thumb-indicator" />
-          <span className="thumb-year">{formatMonthYear(current, locale, 'short')}</span>
+          <span className="thumb-year">{formatMonthYear(currentDate, locale, 'short')}</span>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { ZoneFeature, ZoneViewType, GridPoint } from '../../types/zones';
 import { getZoneFeatures, findZoneFeature } from '../../data/zones';
-import { getPointsInFeature, getFeatureView } from '../../utils/geometry';
+import { getPointsInFeature, getFeatureView, DEFAULT_IMAGE_DIMENSIONS } from '../../utils/geometry';
 import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
 import { useSpotLayer } from './useSpotLayer';
 import type { Track } from '../../types/tracks';
@@ -11,7 +11,6 @@ import { prefersReducedMotion } from '../../utils/motion';
 import './GlobeView.css';
 
 // Default image dimensions for NASA SVS data (typical equirectangular projection)
-const DEFAULT_IMAGE_DIMENSIONS = { width: 3600, height: 1800 };
 
 /** Whole-Earth view shown while no zone is selected. */
 const DEFAULT_VIEW = { lat: 20, lng: 0, altitude: 2.5 };
@@ -85,8 +84,8 @@ const VIEWING_KEYS: Record<ZoneViewType, string> = {
   water: 'zones.viewingWater',
 };
 
-const ZONE_CAP_COLOR = hexToRgba('#4a90d9', 0.4);
-const SELECTED_CAP_COLOR = hexToRgba('#1a73e8', 0.8);
+const ZONE_CAP_COLOR = hexToRgba('#4a6fc7', 0.4);
+const SELECTED_CAP_COLOR = hexToRgba('#f5d078', 0.8);
 // Oceans and seas: a teal cap, distinct from land zones and from the selected-state blue.
 const WATER_CAP_COLOR = hexToRgba('#2ec4b6', 0.35);
 
@@ -101,6 +100,16 @@ interface DatasetStats {
   max: number;
   mean: number;
   count: number;
+}
+
+function NoteIcon() {
+  return (
+    <svg className="globe-note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  );
 }
 
 function statsOf(values: Float32Array | null | undefined): DatasetStats | null {
@@ -342,7 +351,7 @@ export function GlobeView({
           onPolygonHover={handlePolygonHover}
           // Playback data: drawn by useSpotLayer on its own skin over the globe
           onGlobeReady={handleGlobeReady}
-          atmosphereColor="#3a228a"
+          atmosphereColor="#4a6fc7"
           atmosphereAltitude={0.25}
           enablePointerInteraction={true}
         />
@@ -384,7 +393,7 @@ export function GlobeView({
                   <span className="globe-legend-name">{t(ds.info.labelKey)}</span>
                   {instruments.map((ins) => (
                     <span key={ins.id} className="globe-legend-instrument" data-sounding={ins.sounding || undefined}>
-                      <span aria-hidden="true">♪ {ins.instrument}</span>
+                      <span aria-hidden="true"><NoteIcon /> {ins.instrument}</span>
                       <span className="sr-only">
                         {t('globeData.playedBy', { instrument: ins.instrument })}
                         {ins.sounding && ` (${t('tracks.sounding')})`}

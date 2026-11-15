@@ -1,7 +1,7 @@
 .track-panel { display: flex; flex-direction: column; gap: var(--spacing-sm); }
 .track-panel:focus { outline: none; }
 
-.track-panel-heading { margin: 0; font-size: var(--font-size-lg); color: var(--color-text); }
+.track-panel-heading { margin: 0; font-size: var(--font-size-md); color: var(--color-text); }
 .track-panel-body { display: flex; flex-direction: column; gap: var(--spacing-sm); }
 .track-panel-body[hidden] { display: none; }
 /* Fallback when View Transitions are unavailable: contents fade in on expand */
@@ -39,35 +39,37 @@
 .track-panel-toggle[aria-expanded='false'] .track-panel-chevron { transform: rotate(-90deg); }
 .track-panel-summary { margin: 0; padding: 0 var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 
-.track-panel-hint { margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5; }
+/* Heading (disclosure button) + (i) tooltip with the panel's explanation */
+.track-panel-header { display: flex; align-items: center; gap: var(--spacing-xs); }
+.track-panel-header .track-panel-heading { flex: 1; min-width: 0; }
 
 .track-panel-status {
   margin: 0;
   padding: var(--spacing-md);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
   background: var(--color-surface-hover);
   color: var(--color-text);
   font-size: var(--font-size-sm);
   line-height: 1.5;
 }
-.track-panel-status.error { border-color: var(--color-error); }
+.track-panel-status.error { color: var(--color-error); font-weight: 600; }
 .track-panel-status p { margin: 0; }
 
 .track-panel-retry {
   margin-top: var(--spacing-sm);
   min-height: 44px;
   padding: 0 var(--spacing-md);
-  border: 2px solid var(--color-primary-light);
+  border: none;
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
+.track-panel-retry:hover { background: var(--color-primary-light); }
 
-.track-panel-list { display: grid; grid-template-columns: 1fr; gap: var(--spacing-sm); }
+.track-panel-list { display: grid; grid-template-columns: 1fr; gap: 2px; }
 
 .track-row {
   display: flex;
@@ -80,21 +82,22 @@
   font: inherit;
   color: var(--color-text);
   background: var(--color-surface);
-  border: 2px solid var(--color-text-muted); /* >= 3:1 (1.4.11); --color-border is 1.6:1 */
-  border-radius: var(--radius-lg);
+  border: none;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 .track-row:hover { background: var(--color-surface-hover); }
-.track-row.on { background: var(--color-surface-active); border-color: var(--color-primary-light); }
+/* Neutral selected fill (never yellow: the lightning track is yellow); the check icon is the non-colour cue */
+.track-row.on { background: var(--color-surface-active); }
 /* Unavailable: keep text at full contrast ("Unavailable on the server" is real
-   information); signal the state with a dashed border and a dimmed dot instead. */
-.track-row[aria-disabled='true'] { cursor: not-allowed; border-style: dashed; }
+   information); signal the state with the not-allowed cursor and a dimmed dot. */
+.track-row[aria-disabled='true'] { cursor: not-allowed; }
 .track-row[aria-disabled='true'] .track-row-dot { opacity: 0.4; }
 .track-row:focus-visible,
 .track-panel-retry:focus-visible,
 .player-link:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -124,7 +127,7 @@
 
 .track-row-skeleton {
   min-height: 64px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface-hover);
   animation: track-skeleton 1.4s ease-in-out infinite;
 }
@@ -140,3 +143,6 @@
 @media (min-width: 480px) and (max-width: 1023px) {
   .track-panel-list { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Title wraps into two even lines next to the toggle and the (i) button */
+.track-panel-toggle-title { text-wrap: balance; }

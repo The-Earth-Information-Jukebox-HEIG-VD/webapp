@@ -1,17 +1,28 @@
 /**
  * CSS Custom Properties for EarthChestra
  *
- * Color palette is designed to be color-blind friendly,
- * using blue/orange for warm/cool instead of red/green.
+ * Brand palette comes from the logo (public/logo-*.png): label yellow,
+ * ocean blue and land green on the navy night background.
+ * Rules:
+ *  - Anything filled with --color-primary uses --color-on-primary for text/icons.
+ *  - --color-secondary (ocean blue) is for graphics only; use
+ *    --color-secondary-text when blue is text.
+ *  - Data colours live in src/data/trackColors.ts and never use these tokens.
+ *  - Containers are separated by surface tone and spacing, not borders.
  */
 
 :root {
-  /* Primary brand colors */
-  --color-primary: #1a73e8;
-  --color-primary-dark: #1557b0;
-  --color-primary-light: #4a94f0;
-  --color-secondary: #34a853;
-  --color-secondary-dark: #2d8a47;
+  /* Brand colors (from the logo) */
+  --color-primary: #f5d078;          /* record label yellow: 11.1:1 on surface */
+  --color-primary-dark: #e8b94f;
+  --color-primary-light: #fbe3a6;
+  --color-on-primary: #071327;       /* 12.5:1 on primary */
+  --color-primary-tint: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --color-secondary: #4a6fc7;        /* ocean blue: graphics only (3.4:1) */
+  --color-secondary-dark: #2e5598;
+  --color-secondary-text: #8ea8e6;   /* ocean blue as text: 6.9:1 on surface */
+  --color-land: #5a8c7c;             /* land green: graphics only */
+  --color-land-text: #8fc3ae;
 
   /* Temperature indicators - Color-blind safe (blue/orange) */
   --color-warm: #e67e22;
@@ -20,31 +31,33 @@
   --color-cool-light: #5dade2;
 
   /* Surface colors */
-  --color-background: #0a0e17;
-  --color-surface: #1a1f2e;
-  --color-surface-hover: #252b3d;
-  --color-surface-active: #2d3548;
-  --color-surface-elevated: #1e2433;
+  /* Deep ocean blue from the logo (hue 218deg, like its #2e5598 shading), darkest to lightest */
+  --color-background: #071327;
+  --color-surface: #0f203e;
+  --color-surface-hover: #162d55;
+  --color-surface-active: #1c3663;
+  --color-surface-elevated: #112445;
 
   /* Text colors */
   --color-text: #e8eaed;
   --color-text-secondary: #b0b6bc;
-  --color-text-muted: #80868b;
-  --color-text-inverse: #0a0e17;
+  --color-text-muted: #9aa0a6;
+  --color-text-inverse: #071327;
 
   /* State colors */
-  --color-error: #ea4335;
+  --color-error: #f28b82;
   --color-warning: #fbbc04;
   --color-success: #34a853;
   --color-info: #4285f4;
 
-  /* Border colors */
-  --color-border: #3c4043;
+  /* Border colors: borders are the exception, not the rule */
+  --color-border: #1b2f55;           /* decorative dividers only */
   --color-border-light: #5f6368;
+  --color-control-border: #80868b;   /* form-control boundary, >= 3:1 (WCAG 1.4.11) */
 
   /* Globe visualization colors */
-  --color-globe-land: #2d3548;
-  --color-globe-ocean: #1a2634;
+  --color-globe-land: #1c3663;
+  --color-globe-ocean: #0f203e;
   --color-globe-marker: #e67e22;
   --color-globe-marker-hover: #f39c12;
 
@@ -74,9 +87,9 @@
 
   /* Border radius */
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 10px;
   --radius-full: 9999px;
 
   /* Shadows */
@@ -113,14 +126,4 @@
   /* Real height of the fixed player bar; kept in sync by usePlayerBarHeight */
   --player-bar-height: 68px;
   --max-content-width: 1400px;
-}
-
-/* High contrast mode overrides */
-.high-contrast {
-  --color-background: #000000;
-  --color-surface: #1a1a1a;
-  --color-text: #ffffff;
-  --color-text-secondary: #e0e0e0;
-  --color-border: #ffffff;
-  --color-border-light: #cccccc;
 }

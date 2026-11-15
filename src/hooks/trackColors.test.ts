@@ -14,8 +14,8 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-// surface, chart plot background, high-contrast surface and background
-const BACKGROUNDS = ['#1a1f2e', '#1e2433', '#1a1a1a', '#000000'];
+// surface, chart plot background (elevated), page background, high-contrast surface and background
+const BACKGROUNDS = ['#0f203e', '#112445', '#071327', '#1a1a1a', '#000000'];
 
 describe('TRACK_COLORS accessibility contrast', () => {
   it('has a colour for fires', () => {

@@ -34,7 +34,7 @@
 .progress-bar {
   flex: 1;
   height: 4px;
-  background: var(--color-border);
+  background: var(--color-control-border);
   border-radius: var(--radius-full);
   overflow: hidden;
 }

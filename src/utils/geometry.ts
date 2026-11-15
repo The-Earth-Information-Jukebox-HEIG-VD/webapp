@@ -102,6 +102,9 @@ function getPolygonBox(polygon: number[][][]): [number, number, number, number] 
   return box;
 }
 
+/** Pixel grid used to sample a zone's points (0.1°, the size the zone mask expects) */
+export const DEFAULT_IMAGE_DIMENSIONS = { width: 3600, height: 1800 };
+
 /**
  * Get all grid points inside a polygon feature.
  *

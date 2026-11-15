@@ -5,8 +5,9 @@
  *
  * Palette found by a maximin search over in-gamut OKLCH candidates inside a
  * semantic hue window per dataset (warm temperature, blue rain, icy snow...),
- * contrast >= 3:1 on every dark background (#1a1f2e panel, #1e2433 chart,
- * #1a1a1a high-contrast, #000), then checked with the dataviz
+ * contrast >= 3:1 on every dark background (originally #1a1f2e panel, #1e2433
+ * chart, #1a1a1a high-contrast, #000; re-checked on the ocean-blue surfaces
+ * #071327 / #0f203e / #112445, see hooks/trackColors.test.ts), then checked with the dataviz
  * skill validator:
  *
  *   node <dataviz>/scripts/validate_palette.js \

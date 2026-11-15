@@ -97,7 +97,9 @@
     "zoneFallback": "la zone sélectionnée",
     "error": "Le graphique des données n’a pas pu être chargé.",
     "unavailable": "Aucune donnée pour cette sélection.",
-    "lineNoData": "{{name}} : pas de données dans cette zone."
+    "lineNoData": "{{name}} : pas de données dans cette zone.",
+    "summaryMonth": "Graphique des données pour {{zone}}, {{month}} de chaque année de {{start}} à {{end}} : {{datasets}}. Chaque courbe a sa propre échelle. {{lines}}",
+    "tableCaptionMonth": "Valeur de {{month}} de chaque jeu de données dans la zone sélectionnée, année par année"
   },
   "vinyl": {
     "play": "Lire le disque",
@@ -110,5 +112,14 @@
     "ended": "Fin du disque. Lecture pour recommencer depuis le bord.",
     "shortcuts": "En mode vinyle, les flèches passent au sillon précédent ou suivant, Début et Fin au premier ou au dernier.",
     "currentDate": "Date : {{date}}"
+  },
+  "monthTravel": {
+    "label": "Mois",
+    "every": "Tous les mois",
+    "only": "Seulement {{month}}",
+    "hint": "Choisissez un mois pour l’écouter chaque année, par exemple chaque juillet.",
+    "hintActive": "Chaque {{month}}, {{start}}–{{end}}",
+    "announceMonth": "Voyage par mois : seulement {{month}}, année après année.",
+    "announceEvery": "Lecture de tous les mois."
   }
 }

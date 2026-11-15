@@ -147,9 +147,9 @@ describe('GlobeView legend instruments', () => {
       />
     );
     const legend = screen.getByRole('region', { name: 'Datasets' });
-    expect(legend).toHaveTextContent('♪ Piano (chords)');
+    expect(legend).toHaveTextContent('Piano (chords)');
     expect(legend).toHaveTextContent('played by Piano (chords) (Sounding now)');
-    expect(legend).toHaveTextContent('♪ Cello');
+    expect(legend).toHaveTextContent('Cello');
     expect(legend).not.toHaveTextContent('played by Cello (Sounding now)');
     expect(screen.getAllByTestId('legend-sounding')).toHaveLength(1);
     expect(screen.getByRole('table')).toHaveTextContent('Piano (chords)');
@@ -169,7 +169,7 @@ describe('GlobeView legend instruments', () => {
     );
     const legend = screen.getByRole('region', { name: 'Datasets' });
     expect(legend).not.toHaveTextContent('Piano');
-    expect(legend).toHaveTextContent('♪ Cello');
+    expect(legend).toHaveTextContent('Cello');
   });
 });
 

@@ -54,8 +54,14 @@
   --color-surface-hover: #333333;
   --color-text: #ffffff;
   --color-text-secondary: #e0e0e0;
+  --color-surface-active: #333333;
+  --color-surface-elevated: #1a1a1a;
   --color-border: #ffffff;
-  --color-primary: #66b3ff;
+  --color-border-light: #cccccc;
+  --color-control-border: #ffffff;
+  --color-primary: #ffe38a;
+  --color-primary-light: #fff0c2;
+  --color-on-primary: #000000;
   --color-warm: #ffaa00;
   --color-cool: #00aaff;
 }
@@ -65,11 +71,6 @@
 .high-contrast input,
 .high-contrast select {
   border: 2px solid var(--color-border) !important;
-}
-
-.high-contrast .zone-toggle-button.active {
-  /* white on #66b3ff is only ~2:1; black gives > 9:1 */
-  color: #000000;
 }
 
 .high-contrast :focus-visible {
@@ -89,7 +90,7 @@
   top: -100px;
   left: 16px;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   z-index: var(--z-tooltip);
