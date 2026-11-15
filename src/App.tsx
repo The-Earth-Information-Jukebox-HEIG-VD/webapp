@@ -22,7 +22,7 @@ import { getZoneDisplayName } from './utils/zoneName';
 
 // Player components
 import { AudioPlayerEnhanced } from './components/player';
-import { SeriesChart, type ChartLine } from './components/player/SeriesChart';
+import { LiveSeriesChart, type ChartLine } from './components/player/SeriesChart';
 
 // Moments components
 import { KeyMomentsSection } from './components/moments';
@@ -34,7 +34,6 @@ import { useZoneDataFrames } from './hooks/useZoneDataFrames';
 import { useZoneSeries } from './hooks/useZoneSeries';
 import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean';
 import { usePlayerBarHeight } from './hooks/usePlayerBarHeight';
-import { monthKey } from './services/volumeData';
 import { formatReading } from './utils/reading';
 import { withViewTransition, prefersReducedMotion } from './utils/motion';
 
@@ -90,7 +89,8 @@ function AppContent() {
     hasEnded,
     interrupted,
     canPlay,
-    position,
+    positionStore,
+    playbackMonthKey,
     mainTrackId,
     currentValue,
     units,
@@ -98,7 +98,6 @@ function AppContent() {
     chunkValues,
     chunkYear,
     currentYear,
-    progress,
     timelineEnd,
     yearRange,
     trackStates,
@@ -134,8 +133,6 @@ function AppContent() {
   }, [pause]);
 
   // Volume data of the selected zone, month by month in step with the music
-  const playbackYear = Math.floor(position);
-  const playbackMonth = Math.min(12, Math.floor((position % 1) * 12) + 1);
   const selectedFeature = useMemo(
     () => (selectedZone ? findZoneFeature(selectedZone) ?? null : null),
     [selectedZone]
@@ -147,7 +144,7 @@ function AppContent() {
   );
   const zoneData = useZoneDataFrames({
     feature: selectedFeature,
-    month: monthKey(playbackYear, playbackMonth),
+    month: playbackMonthKey,
     active: globeMode === 'playback' && viewMode === 'globe',
     enabledTrackIds,
   });
@@ -316,9 +313,8 @@ function AppContent() {
           <section className="player-section" ref={playerRef} aria-label={t('app.audioControls')}>
             <AudioPlayerEnhanced
               isPlaying={isPlaying}
-              progress={progress}
               currentYear={currentYear}
-              position={position}
+              positionStore={positionStore}
               timelineEnd={timelineEnd}
               yearRange={yearRange}
               trackStates={trackStates}
@@ -343,7 +339,7 @@ function AppContent() {
                 on: graphOn,
                 onToggle: () => setGraphOn(!graphOn),
                 content: ({ hoverFraction, onHoverChange }) => (
-                  <SeriesChart
+                  <LiveSeriesChart
                     lines={chartLines}
                     status={
                       !selectedZone || enabledIdList.length === 0 ? 'idle' : zoneSeries.status
@@ -354,7 +350,7 @@ function AppContent() {
                     startYear={yearRange.start}
                     endYear={yearRange.end}
                     timelineEnd={timelineEnd}
-                    position={position}
+                    positionStore={positionStore}
                     hoverFraction={hoverFraction}
                     onHoverChange={onHoverChange}
                     onSeek={seek}
