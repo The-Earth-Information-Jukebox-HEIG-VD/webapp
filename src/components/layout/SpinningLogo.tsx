@@ -12,13 +12,14 @@ interface SpinningLogoProps {
 }
 
 /**
- * The vinyl Earth logo, played once on mount: a tonearm swings onto the
- * record, the record turns once, then the arm lifts away and disappears.
+ * The vinyl Earth logo with its tonearm resting beside the record. Played once
+ * on mount: the arm swings onto the record, the record turns once, then the
+ * arm swings back to rest.
  *
  * Pure CSS animation (SpinningLogo.css), so it runs when the component mounts:
  * once per page load in the header, each time the About page opens.
  * Decorative only (alt="" and aria-hidden arm): the surrounding link or
- * heading names it. Skipped entirely with reduced motion.
+ * heading names it. With reduced motion it stays still, arm at rest.
  */
 export function SpinningLogo({ src, size, imgClassName, className }: SpinningLogoProps) {
   return (

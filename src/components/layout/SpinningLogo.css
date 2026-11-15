@@ -1,7 +1,10 @@
 /*
- * Vinyl logo intro (SpinningLogo.tsx): arm swings in (0-30%), the record turns
- * once while the arm rests on it, the arm lifts back out (78-90%) and fades.
+ * Vinyl logo intro (SpinningLogo.tsx): the tonearm is always shown, at rest
+ * beside the record (-25deg). On mount it swings onto the record (12-30%),
+ * the record turns once, then the arm swings back to rest (78-92%) and stays.
  * Total 3.2 s; the disc spin is delayed/sized to fit inside the arm's "playing" window.
+ * At rest the arm sticks out ~10% of the logo width on the right: callers
+ * leave that room (e.g. Header.css .logo-link .spinning-logo).
  */
 .spinning-logo {
   position: relative;
@@ -21,12 +24,12 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
-  animation: spinning-logo-arm-fade 3.2s linear 1 forwards;
 }
 
 .spinning-logo__arm-swing {
   transform-box: view-box;
   transform-origin: 94px 6px;
+  transform: rotate(-25deg); /* rest position, also the static logo with reduced motion */
   animation: spinning-logo-arm-swing 3.2s ease-in-out 1 both;
 }
 
@@ -81,35 +84,15 @@
   }
 }
 
-@keyframes spinning-logo-arm-fade {
-  0% {
-    opacity: 0;
-  }
-  12%,
-  88% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-/* Reduced motion (OS setting or the app's toggle): static logo, no arm */
+/* Reduced motion (OS setting or the app's toggle): static logo, arm at rest */
 @media (prefers-reduced-motion: reduce) {
-  .spinning-logo__disc {
+  .spinning-logo__disc,
+  .spinning-logo__arm-swing {
     animation: none;
   }
-
-  .spinning-logo__arm {
-    display: none;
-  }
 }
 
-.reduced-motion .spinning-logo__disc {
+.reduced-motion .spinning-logo__disc,
+.reduced-motion .spinning-logo__arm-swing {
   animation: none;
-}
-
-.reduced-motion .spinning-logo__arm {
-  display: none;
 }

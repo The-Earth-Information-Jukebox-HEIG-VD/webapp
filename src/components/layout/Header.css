@@ -36,6 +36,11 @@
   text-decoration: none;
 }
 
+/* Room for the tonearm resting beside the record (SpinningLogo) */
+.logo-link .spinning-logo {
+  margin-right: 4px;
+}
+
 .logo-icon {
   width: 40px;
   height: 40px;
