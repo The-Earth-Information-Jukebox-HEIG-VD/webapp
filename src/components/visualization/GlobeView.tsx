@@ -7,6 +7,7 @@ import { getZoneFeatures, findZoneFeature } from '../../data/zones';
 import { getPointsInFeature, getFeatureView, DEFAULT_IMAGE_DIMENSIONS } from '../../utils/geometry';
 import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
 import { useSpotLayer } from './useSpotLayer';
+import { GLOBE_IMAGE_URL, GLOBE_BUMP_URL } from './globeTextures';
 import type { Track } from '../../types/tracks';
 import { prefersReducedMotion } from '../../utils/motion';
 import './GlobeView.css';
@@ -339,8 +340,8 @@ export function GlobeView({
           width={dimensions.width}
           height={dimensions.height}
           backgroundColor="rgba(0,0,0,0)"
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-          bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+          globeImageUrl={GLOBE_IMAGE_URL}
+          bumpImageUrl={GLOBE_BUMP_URL}
           // Polygon layer for zone selection (removed during playback)
           polygonsData={isPlayback ? NO_POLYGONS : polygonData}
           polygonCapColor={polygonCapColor}

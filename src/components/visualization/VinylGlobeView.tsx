@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } fr
 import { useTranslation } from 'react-i18next';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import { Raycaster, Sphere, Vector2, Vector3 } from 'three';
+import { GLOBE_IMAGE_URL, GLOBE_BUMP_URL } from './globeTextures';
 import type { Track } from '../../types/tracks';
 import { periodAt, type VinylChunkMeta, type VinylTravel } from '../../services/vinylApi';
 import { periodToYear } from '../../services/sonificationApi';
@@ -339,8 +340,8 @@ export function VinylGlobeView({
             width={size}
             height={size}
             backgroundColor="rgba(0,0,0,0)"
-            globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-            bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+            globeImageUrl={GLOBE_IMAGE_URL}
+            bumpImageUrl={GLOBE_BUMP_URL}
             pathsData={paths}
             pathPoints="points"
             pathPointLat="lat"
