@@ -38,6 +38,7 @@
     "select": "Sélectionner",
     "selectZone": "Sélectionner {{zone}}",
     "selected": "Sélectionné: {{zone}}",
+    "selectionCleared": "Sélection de zone effacée",
     "pointsSelected": "{{zone}} sélectionné avec {{count}} points de données",
     "continents": "Continents",
     "countries": "Pays",
@@ -557,6 +558,7 @@
   "globeData": {
     "legendTitle": "Jeux de données",
     "changeZone": "Changer de zone",
+    "clearZone": "Effacer la zone sélectionnée",
     "changeZoneHint": "retour à la sélection de zone, raccourci Échap",
     "loading": "Chargement des données pour {{zone}}…",
     "loadingShort": "Chargement des données…",

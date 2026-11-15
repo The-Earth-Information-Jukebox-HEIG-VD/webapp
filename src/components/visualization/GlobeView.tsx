@@ -48,6 +48,8 @@ interface GlobeViewProps {
   /** Volume data of the selected zone (playback mode). */
   zoneData?: ZoneDataFrames;
   onBackToSelection?: () => void;
+  /** Clears the selected zone (select mode). */
+  onClearZone?: () => void;
   /** Audio tracks (GET /api/instruments): name the instrument playing each dataset. */
   tracks?: Track[];
   /** Tracks switched on in the track panel. */
@@ -154,6 +156,7 @@ export function GlobeView({
   mode = 'select',
   zoneData,
   onBackToSelection,
+  onClearZone,
   tracks = NO_TRACKS,
   enabledTrackIds = NO_IDS,
   soundingIds = NO_IDS,
@@ -163,6 +166,13 @@ export function GlobeView({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
   const [isLoaded, setIsLoaded] = useState(false);
+  // Announces "selection cleared" once, until the next zone is picked
+  const [zoneCleared, setZoneCleared] = useState(false);
+  const [prevZone, setPrevZone] = useState(selectedZone);
+  if (prevZone !== selectedZone) {
+    setPrevZone(selectedZone);
+    if (selectedZone) setZoneCleared(false);
+  }
   const isPlayback = mode === 'playback';
   // Note: Hover state is handled internally by react-globe.gl to avoid flickering
 
@@ -433,9 +443,26 @@ export function GlobeView({
           </section>
         </div>
       ) : (
-        /* Zone type indicator */
-        <div className="globe-zone-type" aria-hidden="true">
-          <span className="zone-type-label">{t(VIEWING_KEYS[zoneViewType])}</span>
+        <div className="globe-select-panel">
+          {/* Zone type indicator */}
+          <div className="globe-zone-type" aria-hidden="true">
+            <span className="zone-type-label">{t(VIEWING_KEYS[zoneViewType])}</span>
+          </div>
+          {onClearZone && (
+            // aria-disabled (not disabled) keeps focus on the button once the zone is cleared
+            <button
+              type="button"
+              className="globe-back-button globe-clear-button"
+              aria-disabled={!selectedZone}
+              onClick={() => {
+                if (!selectedZone) return;
+                onClearZone();
+                setZoneCleared(true);
+              }}
+            >
+              {t('globeData.clearZone')}
+            </button>
+          )}
         </div>
       )}
 
@@ -476,7 +503,11 @@ export function GlobeView({
 
       {/* Screen reader announcements: selected zone, then data loading state */}
       <div className="sr-only" role="status" aria-live="polite">
-        {isPlayback ? dataStatusText : selectedZoneName && t('zones.selected', { zone: selectedZoneName })}
+        {isPlayback
+          ? dataStatusText
+          : selectedZoneName
+            ? t('zones.selected', { zone: selectedZoneName })
+            : zoneCleared && t('zones.selectionCleared')}
       </div>
     </div>
   );

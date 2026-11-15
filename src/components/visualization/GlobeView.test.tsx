@@ -100,6 +100,28 @@ describe('GlobeView playback mode', () => {
   });
 });
 
+describe('GlobeView clear selected zone', () => {
+  it('clears the zone, keeps focus on the button and announces it', () => {
+    const onClear = vi.fn();
+    const { rerender } = render(<GlobeView {...baseProps} selectedZone="france" mode="select" onClearZone={onClear} />);
+    const button = screen.getByRole('button', { name: 'Clear selected zone' });
+    expect(button).toHaveAttribute('aria-disabled', 'false');
+    fireEvent.click(button);
+    expect(onClear).toHaveBeenCalledTimes(1);
+    rerender(<GlobeView {...baseProps} selectedZone={null} mode="select" onClearZone={onClear} />);
+    const after = screen.getByRole('button', { name: 'Clear selected zone' });
+    expect(after).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent('Zone selection cleared');
+    fireEvent.click(after);
+    expect(onClear).toHaveBeenCalledTimes(1);
+  });
+
+  it('is not shown during playback', () => {
+    render(<GlobeView {...baseProps} mode="playback" zoneData={zoneData} onBackToSelection={vi.fn()} onClearZone={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Clear selected zone' })).toBeNull();
+  });
+});
+
 describe('GlobeView camera', () => {
   beforeEach(() => {
     pointOfView.mockClear();

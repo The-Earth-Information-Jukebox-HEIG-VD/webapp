@@ -168,6 +168,12 @@ function AppContent() {
     play();
   }, [selectedZone, play]);
 
+  const handleClearZone = useCallback(() => {
+    pause();
+    setSelectedZone(null);
+    setSelectedPoints([]);
+  }, [pause]);
+
   const handleBackToSelection = useCallback(() => {
     pause();
     setGlobeMode('select');
@@ -475,6 +481,7 @@ function AppContent() {
                 mode={globeMode}
                 zoneData={zoneData}
                 onBackToSelection={handleBackToSelection}
+                onClearZone={handleClearZone}
                 tracks={tracks}
                 enabledTrackIds={enabledTrackIds}
                 soundingIds={soundingIds}

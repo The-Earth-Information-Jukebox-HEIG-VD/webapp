@@ -110,10 +110,28 @@
   text-transform: capitalize;
 }
 
-.globe-zone-type {
+/* Select mode: zone type indicator + "Clear selected zone" */
+.globe-select-panel {
   position: absolute;
   top: var(--spacing-md);
   right: var(--spacing-md);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.globe-clear-button[aria-disabled='true'] {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.globe-clear-button[aria-disabled='true']:hover {
+  background: rgba(7, 19, 39, 0.88);
+}
+
+.globe-zone-type {
   padding: var(--spacing-xs) var(--spacing-sm);
   background: rgba(7, 19, 39, 0.88);
   border-radius: var(--radius-md);
@@ -311,7 +329,7 @@
 
 /* Overlays (year, zone type, playback legend) slide in when they appear */
 .globe-year-display,
-.globe-zone-type,
+.globe-select-panel,
 .globe-data-panel,
 .globe-legend-instrument {
   animation: overlayIn var(--duration-base) var(--ease-out) both;

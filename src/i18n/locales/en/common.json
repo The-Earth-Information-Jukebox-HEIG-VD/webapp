@@ -38,6 +38,7 @@
     "select": "Select",
     "selectZone": "Select {{zone}}",
     "selected": "Selected: {{zone}}",
+    "selectionCleared": "Zone selection cleared",
     "pointsSelected": "{{zone}} selected with {{count}} data points",
     "continents": "Continents",
     "countries": "Countries",
@@ -557,6 +558,7 @@
   "globeData": {
     "legendTitle": "Datasets",
     "changeZone": "Change zone",
+    "clearZone": "Clear selected zone",
     "changeZoneHint": "back to zone selection, shortcut Escape",
     "loading": "Loading data for {{zone}}…",
     "loadingShort": "Loading data…",
