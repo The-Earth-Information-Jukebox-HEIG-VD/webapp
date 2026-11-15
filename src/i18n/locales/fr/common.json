@@ -356,7 +356,20 @@
     "happened": "Quand c’est arrivé",
     "datasets": "Données qui le montrent",
     "imageCredit": "Photo :",
+    "chartCredit": "Graphique :",
     "opensNewTab": "(s’ouvre dans un nouvel onglet)",
+    "cleanerAirUsa": {
+      "title": "Un air plus propre dans l’est des États-Unis",
+      "when": "normes Tier 2 (2004–2009) et Tier 3 (dès 2017) des véhicules",
+      "inData": "7 % de CO en moins en 2020–2024 qu’en 2001–2005",
+      "imageAlt": "Graphique en courbe du monoxyde de carbone dans l’est des États-Unis, de 2001 à 2024, en pourcentage du niveau de 2001–2005. Il baisse d’environ 100 % à environ 90 % en 2018, pendant l’introduction des normes Tier 2 (2004–2009) et avant celle des normes Tier 3 (2017–2025), puis remonte un peu avec la fumée des incendies en 2021 et des incendies canadiens en 2023. Résultat : 7 % de monoxyde de carbone en moins en 2020–2024 qu’en 2001–2005."
+    },
+    "cleanerAirEurope": {
+      "title": "Un air plus propre en Europe",
+      "when": "normes Euro 4, 5 et 6 des véhicules, 2005–2014",
+      "inData": "9 % de CO en moins en 2020–2024 qu’en 2001–2005",
+      "imageAlt": "Graphique en courbe du monoxyde de carbone en Europe, de 2001 à 2024, en pourcentage du niveau de 2001–2005. Il baisse d’environ 100 % à environ 89 % en 2019 avec l’arrivée des normes Euro 4 (2005), Euro 5 (2009) et Euro 6 (2014) des véhicules, puis remonte un peu avec la fumée des incendies en 2021 et des incendies canadiens en 2023. Résultat : 9 % de monoxyde de carbone en moins en 2020–2024 qu’en 2001–2005."
+    },
     "russia2010": {
       "title": "Canicule et sécheresse en Russie",
       "when": "juil. – août 2010",

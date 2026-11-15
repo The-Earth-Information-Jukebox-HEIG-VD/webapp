@@ -33,7 +33,23 @@ describe('keyMoments', () => {
     for (const m of keyMoments) {
       expect(m.image, m.id).toBeTruthy();
       expect(m.credit?.author, m.id).toBeTruthy();
-      expect(m.credit?.url, m.id).toMatch(/^https:\/\/commons\.wikimedia\.org\/\?curid=\d+$/);
+      // Photos come from Wikimedia Commons; the team's own charts have no source page
+      if (m.imageKind === 'chart') expect(m.credit?.url, m.id).toBeUndefined();
+      else expect(m.credit?.url, m.id).toMatch(/^https:\/\/commons\.wikimedia\.org\/\?curid=\d+$/);
+    }
+  });
+
+  it('has the two cleaner-air trends as uncropped carbon monoxide charts', () => {
+    for (const [id, zone, start, end] of [
+      ['cleaner-air-usa', 'usa', '2003-12', '2025-01'],
+      ['cleaner-air-europe', 'europe', '2004-12', '2025-01'],
+    ]) {
+      const m = keyMoments.find((k) => k.id === id)!;
+      expect(m.zoneIds).toEqual([zone]);
+      expect(m.datasets).toEqual(['carbon_monoxide']);
+      expect([m.start, m.end]).toEqual([start, end]);
+      expect(m.imageKind).toBe('chart');
+      expect(m.credit?.author).toBe('EarthChestra team');
     }
   });
 
@@ -58,7 +74,7 @@ describe('keyMoments', () => {
     expect(getMomentsForZone('pakistan', 1880, 2025).map((m) => m.id)).toEqual([
       'pakistan-floods-2022',
     ]);
-    expect(getMomentsForZone('usa', 1880, 2025)).toHaveLength(4);
+    expect(getMomentsForZone('usa', 1880, 2025)).toHaveLength(5);
     expect(getMomentsForZone('oman', 1880, 2025).map((m) => m.id)).toEqual([
       'uae-oman-floods-2024',
     ]);
@@ -75,6 +91,7 @@ describe('keyMoments', () => {
       'uae-oman-floods-2024', // two Asian countries: listed once
     ]);
     expect(ids('northAmerica')).toEqual([
+      'cleaner-air-usa',
       'us-drought-2012',
       'hurricane-harvey-2017',
       'california-wildfires-2020',
@@ -83,6 +100,7 @@ describe('keyMoments', () => {
       'nwt-alberta-wildfires-2023',
     ]);
     expect(ids('europe')).toEqual([
+      'cleaner-air-europe', // tied to the continent itself
       'beast-from-the-east-2018',
       'storm-filomena-2021',
       'europe-drought-2022', // tied to the continent itself
@@ -107,13 +125,14 @@ describe('keyMoments', () => {
   });
 
   it('encodes each moment status relative to the position', () => {
-    // US drought 2012, Harvey 2017, California 2020, Uri 2021
+    // Cleaner air 2004–2024 (a trend: active alongside the others), US drought 2012,
+    // Harvey 2017, California 2020, Uri 2021
     const moments = getMomentsForZone('usa', 1880, 2025);
     const s = encodeMomentStatuses(moments, periodToYear('2020-09') + 0.01, 'usa');
-    expect([0, 1, 2, 3].map((i) => decodeMomentStatus(s, i))).toEqual(['past', 'past', 'active', 'upcoming']);
-    expect(encodeMomentStatuses(moments, null, 'usa')).toBe('uuuu');
+    expect([0, 1, 2, 3, 4].map((i) => decodeMomentStatus(s, i))).toEqual(['active', 'past', 'past', 'active', 'upcoming']);
+    expect(encodeMomentStatuses(moments, null, 'usa')).toBe('uuuuu');
     // The window includes its whole last month
-    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08, 'usa'), 1)).toBe('active');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08, 'usa'), 2)).toBe('active');
   });
 
   it('is active from one month before to one month after the event', () => {

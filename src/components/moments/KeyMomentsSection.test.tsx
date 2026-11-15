@@ -83,6 +83,18 @@ describe('KeyMomentsSection', () => {
     expect(credit).toHaveAttribute('href', 'https://commons.wikimedia.org/?curid=179332082');
   });
 
+  it('shows the cleaner-air chart whole, with its data in the alt text and an unlinked team credit', async () => {
+    await i18n.changeLanguage('en');
+    setup('europe');
+    const card = cards().find((c) => within(c).queryByRole('heading', { name: 'Cleaner air over Europe' }))!;
+    const img = within(card).getByRole('img');
+    expect(img).toHaveClass('moment-image--chart');
+    expect(img).toHaveAccessibleName(/9% less carbon monoxide in 2020–2024 than in 2001–2005/);
+    expect(within(card).getByText('9% less CO in 2020–2024 than in 2001–2005')).toBeInTheDocument();
+    expect(within(card).getByText(/Chart:/)).toHaveTextContent('Chart: EarthChestra team · NASA carbon monoxide data');
+    expect(within(card).queryByRole('link')).not.toBeInTheDocument();
+  });
+
   it('shows a message when the zone has no event', () => {
     setup('switzerland');
     expect(screen.queryByRole('list')).not.toBeInTheDocument();

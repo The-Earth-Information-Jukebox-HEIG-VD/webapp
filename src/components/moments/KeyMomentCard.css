@@ -28,6 +28,13 @@
   background: var(--color-surface);
 }
 
+/* Data chart: shown whole (its title and labels must not be cropped), on the
+   chart's own white background so the letterbox blends in both themes */
+.moment-image--chart {
+  object-fit: contain;
+  background: var(--color-chart-paper);
+}
+
 .moment-body {
   position: relative;
   display: flex;

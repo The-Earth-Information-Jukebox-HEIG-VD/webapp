@@ -24,6 +24,9 @@ import danielImg from '../assets/events/storm-daniel-2023.jpg';
 import uaeOmanImg from '../assets/events/uae-oman-floods-2024.jpg';
 import amazonImg from '../assets/events/amazon-fires-2024.jpg';
 import arcticWinterIceImg from '../assets/events/arctic-winter-ice-2025.jpg';
+// Charts made by the team from the NASA carbon monoxide data
+import cleanerAirUsaImg from '../assets/events/cleaner-air-usa.png';
+import cleanerAirEuropeImg from '../assets/events/cleaner-air-europe.png';
 
 /** Months of margin played before and after the event */
 export const MOMENT_MARGIN_MONTHS = 1;
@@ -37,6 +40,7 @@ interface MomentDef {
   peak: string | [string, string];
   zoneIds: string[];
   image?: string;
+  imageKind?: KeyMoment['imageKind'];
   credit?: MomentImageCredit;
 }
 
@@ -55,10 +59,19 @@ function defineMoment({ peak, ...def }: MomentDef): KeyMoment {
 }
 
 /**
- * Key events you can jump to: extreme events and the 2015–16 El Niño, each tied
- * to the zone where it happened (the dates are the months where it shows in our data).
+ * Key events you can jump to: extreme events, the 2015–16 El Niño and long-term
+ * trends (cleaner air), each tied to the zone where it happened (the dates are the
+ * months where it shows in our data).
  */
+const TEAM_CHART_CREDIT: MomentImageCredit = { author: 'EarthChestra team', licence: 'NASA carbon monoxide data' };
+
 const MOMENT_DEFS: MomentDef[] = [
+  // Long-term trends: carbon monoxide fell as the vehicle emission rules came in
+  // (charts: each year vs the same months of 2001–2005)
+  { id: 'cleaner-air-usa', i18nKey: 'cleanerAirUsa', category: 'event', datasets: ['carbon_monoxide'], peak: ['2004-01', '2024-12'], zoneIds: ['usa'],
+    image: cleanerAirUsaImg, imageKind: 'chart', credit: TEAM_CHART_CREDIT },
+  { id: 'cleaner-air-europe', i18nKey: 'cleanerAirEurope', category: 'event', datasets: ['carbon_monoxide'], peak: ['2005-01', '2024-12'], zoneIds: ['europe'],
+    image: cleanerAirEuropeImg, imageKind: 'chart', credit: TEAM_CHART_CREDIT },
   { id: 'russian-heatwave-2010', i18nKey: 'russia2010', category: 'event', datasets: ['vegetation', 'carbon_monoxide'], peak: ['2010-07', '2010-08'], zoneIds: ['russia'],
     image: russiaImg, credit: { author: 'Alexander Annenkov', licence: 'CC BY 2.0', url: commons(133623470) } },
   { id: 'us-drought-2012', i18nKey: 'usDrought2012', category: 'event', datasets: ['vegetation'], peak: '2012-07', zoneIds: ['usa'],

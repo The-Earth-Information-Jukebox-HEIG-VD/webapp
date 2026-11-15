@@ -61,12 +61,13 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
   const peak = formatPeriodRange(moment.peakStart, moment.peakEnd, i18n.language);
   const listenRange = formatPeriodRange(moment.start, moment.end, i18n.language);
   const isActive = status === 'active';
+  const isChart = moment.imageKind === 'chart';
 
   return (
     <li className={`key-moment-card ${status}`} aria-current={isActive ? 'true' : undefined}>
       {moment.image && (
         <img
-          className="moment-image"
+          className={isChart ? 'moment-image moment-image--chart' : 'moment-image'}
           src={moment.image}
           alt={t(`${key}.imageAlt`)}
           loading="lazy"
@@ -134,7 +135,7 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
 
         {moment.image && moment.credit && (
           <p className="moment-credit">
-            {t('moments.imageCredit')}{' '}
+            {t(isChart ? 'moments.chartCredit' : 'moments.imageCredit')}{' '}
             {moment.credit.url ? (
               <a href={moment.credit.url} target="_blank" rel="noopener noreferrer">
                 {moment.credit.author} · {moment.credit.licence}

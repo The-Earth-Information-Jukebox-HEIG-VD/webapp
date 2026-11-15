@@ -150,6 +150,9 @@
 }
 
 :root {
+  /* Paper of the bundled data charts (key event charts): same in every theme */
+  --color-chart-paper: #ffffff;
+
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-family-dyslexic: 'Lexend', 'OpenDyslexic', var(--font-family);

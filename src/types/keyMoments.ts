@@ -18,7 +18,8 @@ export interface MomentImageCredit {
 }
 
 /**
- * Key event: an extreme event or El Niño episode tied to one place and a few months.
+ * Key event: an extreme event or El Niño episode tied to one place and a few months,
+ * or a long-term trend (e.g. cleaner air after vehicle emission rules) over years.
  *
  * Periods are 'YYYY-MM'. `start`/`end` frame the event with one month of margin
  * on each side, so you hear the data before and after it.
@@ -38,8 +39,10 @@ export interface KeyMoment {
   end: string;
   /** Zone feature ids (src/data/zones). The first one is selected on click. */
   zoneIds: string[];
-  /** Bundled photo URL (Vite import), if any */
+  /** Bundled image URL (Vite import), if any */
   image?: string;
+  /** 'chart': a data chart, shown whole (not cropped) and credited as a chart. Default 'photo'. */
+  imageKind?: 'photo' | 'chart';
   /** Source of `image` */
   credit?: MomentImageCredit;
 }

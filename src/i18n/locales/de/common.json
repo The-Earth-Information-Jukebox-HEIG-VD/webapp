@@ -356,7 +356,20 @@
     "happened": "Wann es geschah",
     "datasets": "Daten, die es zeigen",
     "imageCredit": "Foto:",
+    "chartCredit": "Grafik:",
     "opensNewTab": "(öffnet in einem neuen Tab)",
+    "cleanerAirUsa": {
+      "title": "Sauberere Luft im Osten der USA",
+      "when": "Fahrzeugnormen Tier 2 (2004–2009) und Tier 3 (ab 2017)",
+      "inData": "7 % weniger CO in 2020–2024 als in 2001–2005",
+      "imageAlt": "Liniendiagramm des Kohlenmonoxids im Osten der USA, 2001 bis 2024, in Prozent des Niveaus von 2001–2005. Es sinkt von etwa 100 % auf etwa 90 % im Jahr 2018, während der Einführung von Tier 2 (2004–2009) und vor der Einführung von Tier 3 (2017–2025), und steigt dann mit dem Rauch von Waldbränden 2021 und kanadischen Waldbränden 2023 leicht an. Ergebnis: 7 % weniger Kohlenmonoxid in 2020–2024 als in 2001–2005."
+    },
+    "cleanerAirEurope": {
+      "title": "Sauberere Luft über Europa",
+      "when": "Fahrzeugnormen Euro 4, 5 und 6, 2005–2014",
+      "inData": "9 % weniger CO in 2020–2024 als in 2001–2005",
+      "imageAlt": "Liniendiagramm des Kohlenmonoxids über Europa, 2001 bis 2024, in Prozent des Niveaus von 2001–2005. Es sinkt von etwa 100 % auf etwa 89 % im Jahr 2019, während die Fahrzeugnormen Euro 4 (2005), Euro 5 (2009) und Euro 6 (2014) eingeführt werden, und steigt dann mit dem Rauch von Waldbränden 2021 und kanadischen Waldbränden 2023 leicht an. Ergebnis: 9 % weniger Kohlenmonoxid in 2020–2024 als in 2001–2005."
+    },
     "russia2010": {
       "title": "Hitzewelle und Dürre in Russland",
       "when": "Juli – Aug. 2010",

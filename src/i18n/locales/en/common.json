@@ -356,7 +356,20 @@
     "happened": "When it happened",
     "datasets": "Datasets that show it",
     "imageCredit": "Photo:",
+    "chartCredit": "Chart:",
     "opensNewTab": "(opens in a new tab)",
+    "cleanerAirUsa": {
+      "title": "Cleaner air over the eastern USA",
+      "when": "Tier 2 (2004–2009) and Tier 3 (from 2017) vehicle rules",
+      "inData": "7% less CO in 2020–2024 than in 2001–2005",
+      "imageAlt": "Line chart of carbon monoxide over the eastern USA, 2001 to 2024, as a percentage of the 2001–2005 level. It falls from about 100% to about 90% by 2018, during the Tier 2 phase-in (2004–2009) and before the Tier 3 phase-in (2017–2025), then rises a little with wildfire smoke in 2021 and Canadian wildfire smoke in 2023. Result: 7% less carbon monoxide in 2020–2024 than in 2001–2005."
+    },
+    "cleanerAirEurope": {
+      "title": "Cleaner air over Europe",
+      "when": "Euro 4, 5 and 6 vehicle rules, 2005–2014",
+      "inData": "9% less CO in 2020–2024 than in 2001–2005",
+      "imageAlt": "Line chart of carbon monoxide over Europe, 2001 to 2024, as a percentage of the 2001–2005 level. It falls from about 100% to about 89% by 2019 as the Euro 4 (2005), Euro 5 (2009) and Euro 6 (2014) vehicle standards come in, then rises a little with wildfire smoke in 2021 and Canadian wildfire smoke in 2023. Result: 9% less carbon monoxide in 2020–2024 than in 2001–2005."
+    },
     "russia2010": {
       "title": "Russian heatwave and drought",
       "when": "Jul – Aug 2010",

@@ -31,3 +31,12 @@ Checked on each Wikimedia Commons file page (licence tag, review status, no warn
 | 20_UAE and Oman floods_art3_Dubai after heavy rain.jpg | CC0 | Zizup, CC0, via Wikimedia Commons | Photographer uploaded it themselves as CC0 | https://commons.wikimedia.org/wiki/File:Dubai_after_heavy_rain.jpg |
 | 21_Amazon fires_satellite.jpg | Public domain | NASA (MODIS), Public domain, via Wikimedia Commons | US government work | https://commons.wikimedia.org/wiki/File:Smoke_and_Fire_Continues_in_South_America_(MODIS_2024-08-29).jpg |
 | 22_Arctic winter ice record low_photo NASA ARCSIX.jpg | Public domain | Gary Banziger (NASA Langley) / NASA, Public domain, via Wikimedia Commons | US government work (NASA ARCSIX campaign) | https://commons.wikimedia.org/?curid=179332082 |
+
+## Charts made by the team
+
+These two charts are not from Wikimedia Commons: a team member made them for this project from the NASA satellite carbon monoxide data, so there is no third-party licence to check. The cards credit them as *Chart: EarthChestra team · NASA carbon monoxide data*, without a link.
+
+| File | Licence | Credit line | Why it is safe | Source |
+|---|---|---|---|---|
+| Cleaner_air_over_Europe.png | Team work | EarthChestra team · NASA carbon monoxide data | Made by the team for this project; NASA data is public domain | `datasets/data/carbon_monoxide_2000_2024/` |
+| Cleaner_air_over_the_USA.png | Team work | EarthChestra team · NASA carbon monoxide data | Made by the team for this project; NASA data is public domain | `datasets/data/carbon_monoxide_2000_2024/` |
