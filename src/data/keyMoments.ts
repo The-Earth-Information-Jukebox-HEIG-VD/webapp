@@ -1,9 +1,14 @@
-import type { KeyMoment, MomentDataset } from '../types/keyMoments';
+import type { KeyMoment, MomentDataset, MomentImageCredit } from '../types/keyMoments';
 import { addMonths, periodToYear } from '../services/sonificationApi';
 import { findZoneFeature } from './zones';
 
+import russiaImg from '../assets/events/russian-heatwave-2010.jpg';
+import usDroughtImg from '../assets/events/us-drought-2012.jpg';
+import arcticIce2012Img from '../assets/events/arctic-sea-ice-2012.jpg';
 import indonesiaImg from '../assets/events/indonesia-peat-fires-2015.jpg';
+import elNinoImg from '../assets/events/el-nino-2015.jpg';
 import harveyImg from '../assets/events/hurricane-harvey-2017.jpg';
+import beastImg from '../assets/events/beast-from-the-east-2018.jpg';
 import blackSummerImg from '../assets/events/black-summer-2019.jpg';
 import californiaImg from '../assets/events/california-wildfires-2020.jpg';
 import filomenaImg from '../assets/events/storm-filomena-2021.jpg';
@@ -11,9 +16,14 @@ import uriImg from '../assets/events/winter-storm-uri-2021.jpg';
 import yakutiaImg from '../assets/events/yakutia-wildfires-2021.jpg';
 import tongaImg from '../assets/events/hunga-tonga-2022.jpg';
 import pakistanImg from '../assets/events/pakistan-floods-2022.jpg';
+import europeDroughtImg from '../assets/events/europe-drought-2022.jpg';
+import antarcticIceImg from '../assets/events/antarctic-sea-ice-2023.jpg';
 import quebecImg from '../assets/events/quebec-wildfires-2023.jpg';
+import nwtAlbertaImg from '../assets/events/nwt-alberta-wildfires-2023.jpg';
 import danielImg from '../assets/events/storm-daniel-2023.jpg';
 import uaeOmanImg from '../assets/events/uae-oman-floods-2024.jpg';
+import amazonImg from '../assets/events/amazon-fires-2024.jpg';
+import arcticWinterIceImg from '../assets/events/arctic-winter-ice-2025.jpg';
 
 /** Months of margin played before and after the event */
 export const MOMENT_MARGIN_MONTHS = 1;
@@ -22,12 +32,16 @@ interface MomentDef {
   id: string;
   i18nKey: string;
   category: KeyMoment['category'];
-  dataset: MomentDataset;
+  datasets: MomentDataset[];
   /** 'YYYY-MM', or ['YYYY-MM', 'YYYY-MM'] for a peak lasting several months */
   peak: string | [string, string];
   zoneIds: string[];
   image?: string;
+  credit?: MomentImageCredit;
 }
+
+/** Wikimedia Commons page of a file, by its page id */
+const commons = (curid: number) => `https://commons.wikimedia.org/?curid=${curid}`;
 
 function defineMoment({ peak, ...def }: MomentDef): KeyMoment {
   const [peakStart, peakEnd] = typeof peak === 'string' ? [peak, peak] : peak;
@@ -41,27 +55,57 @@ function defineMoment({ peak, ...def }: MomentDef): KeyMoment {
 }
 
 /**
- * Key events you can jump to: extreme events and El Niño episodes, each tied
+ * Key events you can jump to: extreme events and the 2015–16 El Niño, each tied
  * to the zone where it happened (the dates are the months where it shows in our data).
  */
 const MOMENT_DEFS: MomentDef[] = [
-  // El Niño (equatorial Pacific, temperature anomaly)
-  { id: 'el-nino-2009', i18nKey: 'elNino2009', category: 'elNino', dataset: 'temperature', peak: ['2009-11', '2010-01'], zoneIds: ['pacificOcean'] },
-  { id: 'indonesia-peat-fires-2015', i18nKey: 'indonesiaFires2015', category: 'event', dataset: 'fires', peak: '2015-09', zoneIds: ['indonesia'], image: indonesiaImg },
-  { id: 'el-nino-2015', i18nKey: 'elNino2015', category: 'elNino', dataset: 'temperature', peak: ['2015-11', '2016-01'], zoneIds: ['pacificOcean'] },
-  { id: 'hurricane-harvey-2017', i18nKey: 'harvey2017', category: 'event', dataset: 'precipitation', peak: '2017-08', zoneIds: ['usa'], image: harveyImg },
-  { id: 'black-summer-2019', i18nKey: 'blackSummer2019', category: 'event', dataset: 'fires', peak: '2019-12', zoneIds: ['australia'], image: blackSummerImg },
-  { id: 'california-wildfires-2020', i18nKey: 'california2020', category: 'event', dataset: 'fires', peak: '2020-09', zoneIds: ['usa'], image: californiaImg },
-  { id: 'storm-filomena-2021', i18nKey: 'filomena2021', category: 'event', dataset: 'snow', peak: '2021-01', zoneIds: ['spain'], image: filomenaImg },
-  { id: 'winter-storm-uri-2021', i18nKey: 'uri2021', category: 'event', dataset: 'snow', peak: '2021-02', zoneIds: ['usa'], image: uriImg },
-  { id: 'yakutia-wildfires-2021', i18nKey: 'yakutia2021', category: 'event', dataset: 'fires', peak: '2021-07', zoneIds: ['russia'], image: yakutiaImg },
+  { id: 'russian-heatwave-2010', i18nKey: 'russia2010', category: 'event', datasets: ['vegetation', 'carbon_monoxide'], peak: ['2010-07', '2010-08'], zoneIds: ['russia'],
+    image: russiaImg, credit: { author: 'Alexander Annenkov', licence: 'CC BY 2.0', url: commons(133623470) } },
+  { id: 'us-drought-2012', i18nKey: 'usDrought2012', category: 'event', datasets: ['vegetation'], peak: '2012-07', zoneIds: ['usa'],
+    image: usDroughtImg, credit: { author: 'Lance Cheung / USDA', licence: 'public domain', url: commons(133641515) } },
+  { id: 'arctic-sea-ice-2012', i18nKey: 'arcticIce2012', category: 'event', datasets: ['sea_ice'], peak: '2012-09', zoneIds: ['arcticOcean'],
+    image: arcticIce2012Img, credit: { author: 'Mario Hoppmann / NASA Goddard', licence: 'CC BY 2.0', url: commons(51567523) } },
+  { id: 'indonesia-peat-fires-2015', i18nKey: 'indonesiaFires2015', category: 'event', datasets: ['fires', 'carbon_monoxide', 'precipitation'], peak: ['2015-09', '2015-10'], zoneIds: ['indonesia'],
+    image: indonesiaImg, credit: { author: 'NASA (MODIS)', licence: 'public domain', url: commons(145365930) } },
+  // El Niño (equatorial Pacific): heard in the rain, chlorophyll, vegetation and fires it shifts
+  { id: 'el-nino-2015', i18nKey: 'elNino2015', category: 'elNino', datasets: ['precipitation', 'chlorophyll', 'vegetation', 'fires', 'carbon_monoxide'], peak: ['2015-11', '2016-01'], zoneIds: ['pacificOcean'],
+    image: elNinoImg, credit: { author: 'Vardhan Patankar', licence: 'CC BY-SA 4.0', url: commons(62822698) } },
+  { id: 'hurricane-harvey-2017', i18nKey: 'harvey2017', category: 'event', datasets: ['precipitation'], peak: '2017-08', zoneIds: ['usa'],
+    image: harveyImg, credit: { author: 'U.S. CBP', licence: 'public domain', url: commons(66504466) } },
+  { id: 'beast-from-the-east-2018', i18nKey: 'beastFromTheEast2018', category: 'event', datasets: ['snow'], peak: '2018-03', zoneIds: ['uk'],
+    image: beastImg, credit: { author: 'Irid Escent', licence: 'CC BY-SA 2.0', url: commons(74041521) } },
+  { id: 'black-summer-2019', i18nKey: 'blackSummer2019', category: 'event', datasets: ['fires', 'carbon_monoxide', 'vegetation'], peak: ['2019-12', '2020-01'], zoneIds: ['australia'],
+    image: blackSummerImg, credit: { author: 'Cazz', licence: 'public domain', url: commons(94183729) } },
+  { id: 'california-wildfires-2020', i18nKey: 'california2020', category: 'event', datasets: ['fires'], peak: '2020-09', zoneIds: ['usa'],
+    image: californiaImg, credit: { author: 'Christopher Michel', licence: 'CC BY 2.0', url: commons(93996320) } },
+  { id: 'storm-filomena-2021', i18nKey: 'filomena2021', category: 'event', datasets: ['snow'], peak: '2021-01', zoneIds: ['spain'],
+    image: filomenaImg, credit: { author: 'Benjamín Núñez González', licence: 'CC BY-SA 4.0', url: commons(98690648) } },
+  { id: 'winter-storm-uri-2021', i18nKey: 'uri2021', category: 'event', datasets: ['snow'], peak: '2021-02', zoneIds: ['usa'],
+    image: uriImg, credit: { author: 'NOAA (GOES-16)', licence: 'public domain', url: commons(99906253) } },
+  { id: 'yakutia-wildfires-2021', i18nKey: 'yakutia2021', category: 'event', datasets: ['fires'], peak: '2021-07', zoneIds: ['russia'],
+    image: yakutiaImg, credit: { author: 'NOAA', licence: 'public domain', url: commons(149079773) } },
   // Tonga has no country polygon: the eruption is heard in the Pacific Ocean zone
-  { id: 'hunga-tonga-2022', i18nKey: 'hungaTonga2022', category: 'event', dataset: 'lightning', peak: '2022-01', zoneIds: ['pacificOcean'], image: tongaImg },
-  { id: 'pakistan-floods-2022', i18nKey: 'pakistan2022', category: 'event', dataset: 'precipitation', peak: '2022-08', zoneIds: ['pakistan'], image: pakistanImg },
-  { id: 'quebec-wildfires-2023', i18nKey: 'quebec2023', category: 'event', dataset: 'fires', peak: '2023-06', zoneIds: ['canada'], image: quebecImg },
-  { id: 'storm-daniel-2023', i18nKey: 'daniel2023', category: 'event', dataset: 'precipitation', peak: '2023-09', zoneIds: ['libya'], image: danielImg },
-  { id: 'el-nino-2023', i18nKey: 'elNino2023', category: 'elNino', dataset: 'temperature', peak: ['2023-11', '2024-01'], zoneIds: ['pacificOcean'] },
-  { id: 'uae-oman-floods-2024', i18nKey: 'uaeOman2024', category: 'event', dataset: 'precipitation', peak: '2024-04', zoneIds: ['unitedArabEmirates', 'oman'], image: uaeOmanImg },
+  { id: 'hunga-tonga-2022', i18nKey: 'hungaTonga2022', category: 'event', datasets: ['lightning'], peak: '2022-01', zoneIds: ['pacificOcean'],
+    image: tongaImg, credit: { author: 'CSU/CIRA & JMA', licence: 'public domain', url: commons(164581269) } },
+  { id: 'pakistan-floods-2022', i18nKey: 'pakistan2022', category: 'event', datasets: ['precipitation'], peak: '2022-08', zoneIds: ['pakistan'],
+    image: pakistanImg, credit: { author: 'Julien Harneis', licence: 'CC BY-SA 2.0', url: commons(134976704) } },
+  { id: 'europe-drought-2022', i18nKey: 'europeDrought2022', category: 'event', datasets: ['vegetation'], peak: '2022-08', zoneIds: ['europe'],
+    image: europeDroughtImg, credit: { author: 'Florian Pépellin', licence: 'CC BY-SA 4.0', url: commons(121223773) } },
+  // Two record lows (Feb and Sep): the jump plays the whole Jan – Oct span between them
+  { id: 'antarctic-sea-ice-2023', i18nKey: 'antarcticIce2023', category: 'event', datasets: ['sea_ice'], peak: ['2023-02', '2023-09'], zoneIds: ['southernOcean'],
+    image: antarcticIceImg, credit: { author: 'Brocken Inaglory', licence: 'CC BY-SA 4.0', url: commons(3490530) } },
+  { id: 'quebec-wildfires-2023', i18nKey: 'quebec2023', category: 'event', datasets: ['fires', 'carbon_monoxide'], peak: '2023-06', zoneIds: ['canada'],
+    image: quebecImg, credit: { author: 'P. Markuse / Copernicus', licence: 'CC BY 2.0', url: commons(133607904) } },
+  { id: 'nwt-alberta-wildfires-2023', i18nKey: 'nwtAlberta2023', category: 'event', datasets: ['fires', 'carbon_monoxide'], peak: '2023-08', zoneIds: ['canada'],
+    image: nwtAlbertaImg, credit: { author: 'P. Markuse / Copernicus', licence: 'CC BY 2.0', url: commons(132479970) } },
+  { id: 'storm-daniel-2023', i18nKey: 'daniel2023', category: 'event', datasets: ['precipitation'], peak: '2023-09', zoneIds: ['libya'],
+    image: danielImg, credit: { author: 'NASA (VIIRS)', licence: 'public domain', url: commons(137274236) } },
+  { id: 'uae-oman-floods-2024', i18nKey: 'uaeOman2024', category: 'event', datasets: ['precipitation'], peak: '2024-04', zoneIds: ['unitedArabEmirates', 'oman'],
+    image: uaeOmanImg, credit: { author: 'Zizup', licence: 'CC0', url: commons(148969642) } },
+  { id: 'amazon-fires-2024', i18nKey: 'amazon2024', category: 'event', datasets: ['carbon_monoxide'], peak: '2024-09', zoneIds: ['brazil'],
+    image: amazonImg, credit: { author: 'NASA (MODIS)', licence: 'public domain', url: commons(151936981) } },
+  { id: 'arctic-winter-ice-2025', i18nKey: 'arcticWinterIce2025', category: 'event', datasets: ['sea_ice'], peak: '2025-03', zoneIds: ['arcticOcean'],
+    image: arcticWinterIceImg, credit: { author: 'Gary Banziger / NASA Langley', licence: 'public domain', url: commons(179332082) } },
 ];
 
 export const keyMoments: KeyMoment[] = MOMENT_DEFS.map(defineMoment);

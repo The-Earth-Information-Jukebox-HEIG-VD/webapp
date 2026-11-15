@@ -353,77 +353,119 @@
     "inData": "Dans nos données",
     "peakInData": "Pic dans nos données",
     "happened": "Quand c’est arrivé",
-    "elNino2009": {
-      "title": "El Niño 2009–2010",
-      "when": "mi-2009 au printemps 2010"
+    "datasets": "Données qui le montrent",
+    "imageCredit": "Photo :",
+    "opensNewTab": "(s’ouvre dans un nouvel onglet)",
+    "russia2010": {
+      "title": "Canicule et sécheresse en Russie",
+      "when": "juil. – août 2010",
+      "imageAlt": "La cathédrale du Christ-Sauveur à Moscou, ses coupoles dorées voilées par un épais smog gris au-dessus du fleuve"
+    },
+    "usDrought2012": {
+      "title": "Sécheresse aux États-Unis",
+      "when": "été 2012",
+      "imageAlt": "Vue aérienne de terres agricoles sèches et brunes et de champs irrigués circulaires jusqu’à l’horizon"
+    },
+    "arcticIce2012": {
+      "title": "Record minimum de banquise arctique",
+      "when": "été 2012",
+      "imageAlt": "Un ours polaire sur une fine banquise, penché au-dessus d’une mare de fonte"
     },
     "indonesiaFires2015": {
       "title": "Feux de tourbe en Indonésie",
       "when": "juil. – nov. 2015",
-      "imageAlt": "Tourbière en feu la nuit, braises rougeoyantes entre des arbres tombés sous une épaisse fumée orange"
+      "imageAlt": "Vue satellite du sud de Bornéo sous un voile gris de fumée des incendies"
     },
     "elNino2015": {
-      "title": "El Niño 2015–2016, « Godzilla » (super El Niño)",
-      "when": "printemps 2015 au printemps 2016"
+      "title": "El Niño « Godzilla »",
+      "when": "printemps 2015 au printemps 2016",
+      "imageAlt": "Corail branchu blanchi sur un récif, de petits poissons nageant au-dessus dans l’eau bleue"
     },
     "harvey2017": {
       "title": "Ouragan Harvey, Texas",
       "when": "25 août – 1er sept. 2017",
-      "imageAlt": "Carrefour inondé à Houston, un pick-up immergé jusqu’aux vitres sous les feux de circulation"
+      "imageAlt": "Vue aérienne d’une plaine noyée par la crue, seuls les routes et les bords des champs émergent"
+    },
+    "beastFromTheEast2018": {
+      "title": "« Beast from the East », Royaume-Uni",
+      "when": "27 févr. – début mars 2018",
+      "imageAlt": "Un parc de Londres sous la neige, des saules au bord d’une pelouse toute blanche"
     },
     "blackSummer2019": {
       "title": "Black Summer, sud-est de l’Australie",
       "when": "juin 2019 – mai 2020",
-      "imageAlt": "Un kangourou passe en bondissant devant une maison en flammes"
+      "imageAlt": "Un panneau routier « koala » devant une forêt brûlée et sans feuilles sous un ciel enfumé"
     },
     "california2020": {
       "title": "Incendies en Californie",
       "when": "août – nov. 2020",
-      "imageAlt": "Pont suspendu sous un ciel orange, la colline derrière parsemée de foyers d’incendie"
+      "imageAlt": "Le Bay Bridge et les gratte-ciel de San Francisco sous un ciel orange chargé de fumée"
     },
     "filomena2021": {
       "title": "Tempête Filomena, Madrid",
       "when": "8–9 janv. 2021",
-      "imageAlt": "Voitures garées ensevelies sous une épaisse neige dans une rue de Madrid, branches cassées par le poids de la neige"
+      "imageAlt": "La fontaine de Cibeles à Madrid, sa statue et ses lions couverts d’une épaisse neige"
     },
     "uri2021": {
       "title": "Tempête hivernale Uri, Texas",
       "when": "mi-févr. 2021",
-      "imageAlt": "Une fontaine au Texas figée en une masse de stalactites, un employé en tenue d’hiver à côté"
+      "imageAlt": "Vue satellite du Texas presque entièrement blanc de neige"
     },
     "yakutia2021": {
       "title": "Incendies de Iakoutie, Sibérie",
       "when": "été 2021",
-      "imageAlt": "Vue satellite de la forêt sibérienne avec des fronts de feu et de longs panaches de fumée blanche"
+      "imageAlt": "Vue satellite oblique de la Sibérie, fumée et nuages au-dessus d’une forêt sombre"
     },
     "hungaTonga2022": {
       "title": "Éruption du Hunga Tonga",
       "when": "15 janv. 2022",
-      "imageAlt": "Un immense panache de cendres s’élevant d’une île volcanique, traversé par un éclair"
+      "imageAlt": "Vue satellite d’un nuage de cendres circulaire s’étendant en anneaux depuis le volcan au-dessus de l’océan"
     },
     "pakistan2022": {
       "title": "Inondations au Pakistan",
-      "when": "mousson juin – oct. 2022, pire en août",
-      "imageAlt": "Vue aérienne d’un village entouré d’eaux de crue brunes jusqu’à l’horizon"
+      "when": "mousson juin – oct. 2022",
+      "imageAlt": "Des bâtiments de village dans une eau de crue calme qui s’étend jusqu’à l’horizon"
+    },
+    "europeDrought2022": {
+      "title": "Sécheresse en Europe",
+      "when": "été 2022",
+      "imageAlt": "Le lit asséché de la Leysse, galets et herbes entre arbres et immeubles à Chambéry"
+    },
+    "antarcticIce2023": {
+      "title": "Record minimum de banquise antarctique",
+      "when": "toute l’année 2023",
+      "inData": "févr. et sept. 2023",
+      "imageAlt": "Un manchot empereur et son poussin sur la banquise plate, un iceberg au loin"
     },
     "quebec2023": {
-      "title": "Incendies au Québec",
+      "title": "Incendies au Québec, est du Canada",
       "when": "juin 2023 (saison mai – oct.)",
-      "imageAlt": "Vue aérienne au crépuscule d’un front de feu traversant la forêt sous un immense nuage de fumée"
+      "imageAlt": "Vue satellite de forêt brûlée brune au Québec, traversée de panaches de fumée blanche"
+    },
+    "nwtAlberta2023": {
+      "title": "Incendies aux T.N.-O. et en Alberta, ouest du Canada",
+      "when": "été 2023",
+      "imageAlt": "Vue satellite de fronts de feu orange le long de vallées de montagne, avec de longs panaches de fumée"
     },
     "daniel2023": {
       "title": "Tempête Daniel, Libye",
       "when": "10–11 sept. 2023",
-      "imageAlt": "Une rue de Derna couverte de boue et de débris, des voitures retournées entassées entre les immeubles"
-    },
-    "elNino2023": {
-      "title": "El Niño 2023–2024",
-      "when": "mi-2023 au printemps 2024"
+      "imageAlt": "Vue satellite de la tempête Daniel, un tourbillon de nuages blancs sur la Méditerranée au large de la Libye"
     },
     "uaeOman2024": {
       "title": "Inondations aux Émirats arabes unis et à Oman",
       "when": "16 avr. 2024",
-      "imageAlt": "Voitures bloquées dans l’eau sur une autoroute de Dubaï sous des panneaux routiers"
+      "imageAlt": "Des bâtiments près de Dubaï au milieu de l’eau de crue sur un sol sableux après de fortes pluies"
+    },
+    "amazon2024": {
+      "title": "Incendies en Amazonie",
+      "when": "août – sept. 2024",
+      "imageAlt": "Vue satellite de l’Amérique du Sud, une épaisse fumée grise à l’est des Andes enneigées"
+    },
+    "arcticWinterIce2025": {
+      "title": "Record minimum de glace arctique en hiver",
+      "when": "hiver 2024–2025",
+      "imageAlt": "Une plaque de banquise plate qui s’arrête net sur une eau sombre, sous des nuages gris et des montagnes enneigées"
     }
   },
   "footer": {
@@ -464,6 +506,7 @@
     "howPitch": "Les valeurs élevées jouent des notes aiguës, par rapport à l'étendue propre à votre zone : une valeur donne donc toujours la même note.",
     "howLoudness": "La pluie, la neige, la foudre, les feux, les lumières nocturnes et la glace de mer ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, plus il y a d'éclairs, plus les timbales frappent de coups par temps, et les trombones enflent avec les feux. Les lumières nocturnes changent une fois par an : la nappe de synthétiseur commence nettement chaque janvier, puis s'estompe lentement au fil de l'année.",
     "howGaps": "Lorsqu'un jeu de données n'a pas de données pour une date (par exemple le CO₂ avant septembre 2002), son instrument se tait.",
+    "howPeriod": "La frise chronologique commence en 1920. Un seul jeu de données, l’anomalie de température, remonte plus loin (jusqu’en 1880) : commencer en 1920 rend l’application plus simple à utiliser. Nous avons choisi environ 100 ans pour que les dates couvrent la vie de presque toutes les personnes en vie aujourd’hui.",
     "howGlobe": "Pendant la musique, le globe affiche les données de votre zone sous forme de taches : une couleur par jeu de données, et plus la valeur est forte, plus la tache est grande. Là où il n'y a rien, il n'y a pas de tache : les taches apparaissent, grandissent et s'effacent au fil des mois. La température est une tache pleine quand il fait plus chaud que la normale et un anneau quand il fait plus froid. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
     "orchestraTitle": "L'orchestre",
     "orchestraText": "Dans le style Orchestre, chaque jeu de données a son propre instrument (les autres styles ont les leurs) :",
@@ -480,7 +523,7 @@
     "dataTitle": "Sources des données",
     "dataText": "Les fichiers de cartes des jeux de données partagent une même grille de 0,25° : un lieu a la même position dans chaque jeu de données.",
     "sources": {
-      "gistemp": "anomalie mensuelle de la température de surface (°C), de janvier 1880 à décembre 2025.",
+      "gistemp": "anomalie mensuelle de la température de surface (°C), de janvier 1880 à décembre 2025 (affichée à partir de janvier 1920 dans l’application).",
       "imerg": "pluie et neige (la neige en eau de fonte), moyennes mensuelles du taux de précipitation journalier, de juin 2000 à novembre 2026.",
       "lis": "part de chaque pixel de la carte touchée par la foudre, mensuelle, entre 55° S et 55° N, de mars 2017 à juillet 2023.",
       "modis": "nombre de jours du mois avec au moins un feu détecté (Terra et Aqua), de juillet 2002 à novembre 2026.",

@@ -353,77 +353,119 @@
     "inData": "In our data",
     "peakInData": "Peak in our data",
     "happened": "When it happened",
-    "elNino2009": {
-      "title": "El Niño 2009–10",
-      "when": "mid-2009 to spring 2010"
+    "datasets": "Datasets that show it",
+    "imageCredit": "Photo:",
+    "opensNewTab": "(opens in a new tab)",
+    "russia2010": {
+      "title": "Russian heatwave and drought",
+      "when": "Jul – Aug 2010",
+      "imageAlt": "The Cathedral of Christ the Saviour in Moscow, its golden domes faded by a thick grey haze of smog over the river"
+    },
+    "usDrought2012": {
+      "title": "US drought",
+      "when": "summer 2012",
+      "imageAlt": "Aerial view of dry brown farmland and round irrigated fields stretching to the horizon"
+    },
+    "arcticIce2012": {
+      "title": "Arctic sea ice record low",
+      "when": "summer 2012",
+      "imageAlt": "A polar bear on thin sea ice leaning over a pool of meltwater"
     },
     "indonesiaFires2015": {
       "title": "Indonesia peat fires",
       "when": "Jul – Nov 2015",
-      "imageAlt": "Burning peatland at night, glowing embers among fallen trees under thick orange smoke"
+      "imageAlt": "Satellite view of southern Borneo under a grey veil of smoke from the fires"
     },
     "elNino2015": {
-      "title": "El Niño 2015–16, “Godzilla” (super El Niño)",
-      "when": "spring 2015 to spring 2016"
+      "title": "Godzilla El Niño",
+      "when": "spring 2015 to spring 2016",
+      "imageAlt": "White, bleached branching coral on a reef, small fish swimming above it in blue water"
     },
     "harvey2017": {
       "title": "Hurricane Harvey, Texas",
       "when": "25 Aug – 1 Sep 2017",
-      "imageAlt": "Flooded crossroads in Houston, a pickup truck submerged up to its windows under traffic lights"
+      "imageAlt": "Aerial view of flat land drowned by floodwater, only roads and field edges still showing"
+    },
+    "beastFromTheEast2018": {
+      "title": "Beast from the East, UK",
+      "when": "27 Feb – early Mar 2018",
+      "imageAlt": "A London park under falling snow, willow trees beside a white, snow-covered field"
     },
     "blackSummer2019": {
       "title": "Black Summer, SE Australia",
       "when": "Jun 2019 – May 2020",
-      "imageAlt": "A kangaroo hops past a house engulfed in flames"
+      "imageAlt": "A koala road sign in front of a burnt, leafless forest under a smoky sky"
     },
     "california2020": {
       "title": "California wildfires",
       "when": "Aug – Nov 2020",
-      "imageAlt": "Suspension bridge under an orange sky, the hillside behind it dotted with fires"
+      "imageAlt": "The Bay Bridge and the San Francisco skyline under an orange, smoke-filled sky"
     },
     "filomena2021": {
       "title": "Storm Filomena, Madrid",
       "when": "8–9 Jan 2021",
-      "imageAlt": "Parked cars buried under deep snow in a Madrid street, with branches broken by the weight of the snow"
+      "imageAlt": "The Cibeles fountain in Madrid, its statue and lions covered in thick snow"
     },
     "uri2021": {
       "title": "Winter storm Uri, Texas",
       "when": "mid-Feb 2021",
-      "imageAlt": "A fountain in Texas frozen into a mass of icicles, a worker in winter clothes beside it"
+      "imageAlt": "Satellite view of Texas almost entirely white with snow"
     },
     "yakutia2021": {
       "title": "Yakutia wildfires, Siberia",
       "when": "summer 2021",
-      "imageAlt": "Satellite view of Siberian forest with fire fronts and long plumes of white smoke"
+      "imageAlt": "Satellite view of Siberia seen at an angle, smoke and clouds drifting over dark forest"
     },
     "hungaTonga2022": {
       "title": "Hunga Tonga eruption",
       "when": "15 Jan 2022",
-      "imageAlt": "A huge ash plume rising from a volcanic island, struck by lightning"
+      "imageAlt": "Satellite view of a round ash cloud spreading in rings from the volcano over the ocean"
     },
     "pakistan2022": {
       "title": "Pakistan floods",
-      "when": "monsoon Jun – Oct 2022, worst in Aug",
-      "imageAlt": "Aerial view of a village surrounded by brown floodwater stretching to the horizon"
+      "when": "monsoon Jun – Oct 2022",
+      "imageAlt": "Village buildings standing in calm floodwater that stretches to the horizon"
+    },
+    "europeDrought2022": {
+      "title": "Europe drought",
+      "when": "summer 2022",
+      "imageAlt": "A dried-up river bed of pebbles and weeds running between trees and buildings in Chambéry, France"
+    },
+    "antarcticIce2023": {
+      "title": "Antarctic sea ice record low",
+      "when": "all of 2023",
+      "inData": "Feb and Sep 2023",
+      "imageAlt": "An emperor penguin and its chick standing on flat sea ice, an iceberg in the distance"
     },
     "quebec2023": {
-      "title": "Quebec wildfires",
+      "title": "Quebec wildfires, eastern Canada",
       "when": "June 2023 (season May – Oct)",
-      "imageAlt": "Aerial view at dusk of a fire line burning through forest under a huge smoke cloud"
+      "imageAlt": "Satellite view of brown burnt forest in Quebec, white smoke plumes drifting over it"
+    },
+    "nwtAlberta2023": {
+      "title": "NWT and Alberta wildfires, western Canada",
+      "when": "summer 2023",
+      "imageAlt": "Satellite view of fire fronts glowing orange along mountain valleys, with long smoke plumes"
     },
     "daniel2023": {
       "title": "Storm Daniel, Libya",
       "when": "10–11 Sep 2023",
-      "imageAlt": "A street in Derna covered in mud and debris, with overturned cars piled up between buildings"
-    },
-    "elNino2023": {
-      "title": "El Niño 2023–24",
-      "when": "mid-2023 to spring 2024"
+      "imageAlt": "Satellite view of Storm Daniel, a swirl of white cloud over the Mediterranean off the Libyan coast"
     },
     "uaeOman2024": {
       "title": "UAE and Oman floods",
       "when": "16 Apr 2024",
-      "imageAlt": "Cars stuck in floodwater on a Dubai highway under road signs"
+      "imageAlt": "Buildings near Dubai standing in floodwater across sandy ground after heavy rain"
+    },
+    "amazon2024": {
+      "title": "Amazon fires",
+      "when": "Aug – Sep 2024",
+      "imageAlt": "Satellite view of South America, thick grey smoke spreading east of the snowy Andes"
+    },
+    "arcticWinterIce2025": {
+      "title": "Arctic winter ice record low",
+      "when": "winter 2024–25",
+      "imageAlt": "A flat sheet of sea ice ending in open dark water, under grey clouds and snowy mountains"
     }
   },
   "footer": {
@@ -464,6 +506,7 @@
     "howPitch": "Higher values play higher notes, measured against your zone's own range, so a value always gives the same note.",
     "howLoudness": "Rain, snow, lightning, fires, night lights and sea ice only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
+    "howPeriod": "The timeline starts in 1920. Only one dataset, the temperature anomaly, goes further back (to 1880), so we start there to keep the app easier to use. We chose about 100 years so that the dates cover the lifetime of almost everyone alive today.",
     "howGlobe": "While the music plays, the globe shows the data of your zone as spots: one colour per dataset, and the stronger the value, the bigger the spot. Where there is nothing, there is no spot, so spots appear, grow and fade as the months go by. Temperature is a filled spot when warmer than normal and a ring when colder. Select Change zone or press Escape to pick another zone.",
     "orchestraTitle": "The orchestra",
     "orchestraText": "In the Orchestra style, each dataset has its own instrument (other styles use their own instruments):",
@@ -480,7 +523,7 @@
     "dataTitle": "Data sources",
     "dataText": "The datasets' map files share one grid of 0.25°, so a place has the same position in every dataset.",
     "sources": {
-      "gistemp": "monthly surface temperature anomaly (°C), January 1880 to December 2025.",
+      "gistemp": "monthly surface temperature anomaly (°C), January 1880 to December 2025 (shown from January 1920 in the app).",
       "imerg": "rain and snow (snow as melted water), monthly means of the daily precipitation rate, June 2000 to November 2026.",
       "lis": "share of each map pixel with lightning, monthly, between 55°S and 55°N, March 2017 to July 2023.",
       "modis": "days of the month with at least one fire detected (Terra and Aqua), July 2002 to November 2026.",

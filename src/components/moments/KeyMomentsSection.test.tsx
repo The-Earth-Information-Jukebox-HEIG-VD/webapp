@@ -8,6 +8,11 @@ import { createPositionStore } from '../../hooks/usePlaybackPosition';
 import { periodToYear } from '../../services/sonificationApi';
 import { keyMoments } from '../../data/keyMoments';
 
+/** The event cards: direct items of the events list (each card also lists its datasets) */
+function cards(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('.moments-grid > li'));
+}
+
 function setup(selectedZone: string | null, position: number | null = null, monthFilter: number | null = null) {
   const onJump = vi.fn();
   const utils = render(
@@ -27,7 +32,7 @@ describe('KeyMomentsSection', () => {
   it('lists every event when no zone is selected, with the zone in the button label', async () => {
     await i18n.changeLanguage('en');
     setup(null);
-    expect(screen.getAllByRole('listitem')).toHaveLength(keyMoments.length);
+    expect(cards()).toHaveLength(keyMoments.length);
     expect(
       screen.getByRole('button', { name: /Pakistan floods: select Pakistan and play Jul\s–\sSep 2022/ })
     ).toBeInTheDocument();
@@ -35,7 +40,7 @@ describe('KeyMomentsSection', () => {
 
   it('lists only the events of the selected zone', () => {
     setup('spain');
-    const items = screen.getAllByRole('listitem');
+    const items = cards();
     expect(items).toHaveLength(1);
     expect(within(items[0]).getByRole('heading', { name: 'Storm Filomena, Madrid' })).toBeInTheDocument();
     expect(within(items[0]).getByRole('img')).toHaveAttribute(
@@ -47,11 +52,35 @@ describe('KeyMomentsSection', () => {
   it('lists the events of the countries of a selected continent, naming their country', async () => {
     await i18n.changeLanguage('en');
     const { onJump } = setup('asia');
-    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(cards()).toHaveLength(5);
     const button = screen.getByRole('button', { name: /Pakistan floods: select Pakistan and play Jul\s–\sSep 2022/ });
     expect(screen.getByText('United Arab Emirates, Oman')).toBeInTheDocument();
     fireEvent.click(button);
     expect(onJump).toHaveBeenCalledWith(expect.objectContaining({ id: 'pakistan-floods-2022' }));
+  });
+
+  it('lists every dataset of the event and credits its photo with a link', async () => {
+    await i18n.changeLanguage('en');
+    setup('australia');
+    const [card] = cards();
+    const datasets = within(card).getByRole('list', { name: 'Datasets that show it' });
+    expect(within(datasets).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Fires',
+      'Carbon monoxide',
+      'Vegetation (NDVI)',
+    ]);
+    const credit = within(card).getByRole('link', { name: /Cazz · public domain/ });
+    expect(credit).toHaveAttribute('href', 'https://commons.wikimedia.org/?curid=94183729');
+    expect(credit).toHaveAttribute('target', '_blank');
+    expect(credit).toHaveAccessibleName(/opens in a new tab/);
+  });
+
+  it('shows the NASA ARCSIX photo for the 2025 Arctic winter ice', () => {
+    setup('arcticOcean');
+    const card = cards().find((c) => within(c).queryByRole('heading', { name: 'Arctic winter ice record low' }))!;
+    expect(within(card).getByRole('img')).toHaveAccessibleName(/sea ice ending in open dark water/);
+    const credit = within(card).getByRole('link', { name: /Gary Banziger \/ NASA Langley · public domain/ });
+    expect(credit).toHaveAttribute('href', 'https://commons.wikimedia.org/?curid=179332082');
   });
 
   it('shows a message when the zone has no event', () => {
@@ -69,8 +98,9 @@ describe('KeyMomentsSection', () => {
   it('marks the event being played', () => {
     setup('pakistan', periodToYear('2022-08'));
     expect(screen.getByText('Playing now')).toBeInTheDocument();
-    expect(screen.getByRole('listitem')).toHaveClass('active');
-    expect(screen.getByRole('listitem')).toHaveAttribute('aria-current', 'true');
+    const [card] = cards();
+    expect(card).toHaveClass('active');
+    expect(card).toHaveAttribute('aria-current', 'true');
   });
 
   it('uses the month shown in month travel, not the raw playhead', () => {

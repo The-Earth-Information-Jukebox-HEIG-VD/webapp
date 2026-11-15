@@ -8,6 +8,7 @@ import {
   withMonth,
   monthOccurrence,
   snapToMonth,
+  APP_FIRST_YEAR,
   type ApiErrorKind,
 } from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
@@ -40,7 +41,7 @@ export function frameMonthKey(position: number, month: number | null): string {
   return monthKey(year, m);
 }
 
-export const DEFAULT_YEAR_RANGE = { start: 1880, end: 2025 };
+export const DEFAULT_YEAR_RANGE = { start: APP_FIRST_YEAR, end: 2025 };
 
 export type SonificationStatus = 'idle' | 'loading' | 'playing' | 'error';
 

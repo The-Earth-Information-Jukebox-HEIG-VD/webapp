@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   fetchZoneSeries,
   isAbortError,
+  trimSeriesBefore,
   ApiError,
   type ApiErrorKind,
   type DatasetSeries,
@@ -87,7 +88,11 @@ export function useZoneSeries({
       controller.signal
     )
       .then((res) => {
-        for (const id of missingIds) cache.set(cacheKey(area, id), res.series[id] ?? null);
+        for (const id of missingIds) {
+          // The app starts in 1920 (APP_FIRST_PERIOD)
+          const s = res.series[id];
+          cache.set(cacheKey(area, id), s ? trimSeriesBefore(s) : null);
+        }
         setFailure(null);
         setVersion((v) => v + 1);
       })

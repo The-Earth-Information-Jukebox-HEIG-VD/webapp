@@ -80,6 +80,7 @@ export function AboutPage() {
           <li>{t('about.howPitch')}</li>
           <li>{t('about.howLoudness')}</li>
           <li>{t('about.howGaps')}</li>
+          <li>{t('about.howPeriod')}</li>
           <li>{t('about.howGlobe')}</li>
           <li>{t('about.howStyle')}</li>
           <li>{t('about.howVinyl')}</li>

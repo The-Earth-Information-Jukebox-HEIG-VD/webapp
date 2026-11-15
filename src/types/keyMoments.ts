@@ -1,5 +1,21 @@
 /** Dataset (track id) in which a key event is visible */
-export type MomentDataset = 'fires' | 'precipitation' | 'snow' | 'lightning' | 'temperature';
+export type MomentDataset =
+  | 'fires'
+  | 'precipitation'
+  | 'snow'
+  | 'lightning'
+  | 'temperature'
+  | 'sea_ice'
+  | 'vegetation'
+  | 'carbon_monoxide'
+  | 'chlorophyll';
+
+/** Source of an event photo (shown under the card, linked when `url` is set) */
+export interface MomentImageCredit {
+  author: string;
+  licence: string;
+  url?: string;
+}
 
 /**
  * Key event: an extreme event or El Niño episode tied to one place and a few months.
@@ -9,10 +25,11 @@ export type MomentDataset = 'fires' | 'precipitation' | 'snow' | 'lightning' | '
  */
 export interface KeyMoment {
   id: string;
-  /** i18n key prefix: moments.<key>.title / .when / .imageAlt */
+  /** i18n key prefix: moments.<key>.title / .when / .imageAlt (optional .inData) */
   i18nKey: string;
   category: 'event' | 'elNino';
-  dataset: MomentDataset;
+  /** Datasets that show the event: all of them are enabled by the jump */
+  datasets: MomentDataset[];
   /** First and last month where the event shows in our data */
   peakStart: string;
   peakEnd: string;
@@ -23,4 +40,6 @@ export interface KeyMoment {
   zoneIds: string[];
   /** Bundled photo URL (Vite import), if any */
   image?: string;
+  /** Source of `image` */
+  credit?: MomentImageCredit;
 }

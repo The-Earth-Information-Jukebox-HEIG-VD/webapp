@@ -386,6 +386,30 @@ export function monthsBetween(a: string, b: string): number {
   return (Number(mb[1]) - Number(ma[1])) * 12 + (Number(mb[2]) - Number(ma[2]));
 }
 
+/**
+ * First month the app shows. Only the temperature anomaly goes further back (to 1880):
+ * starting about 100 years ago keeps the timeline usable and covers the lifetime of
+ * almost everyone alive today. The backend still serves the earlier data.
+ */
+export const APP_FIRST_PERIOD = '1920-01';
+export const APP_FIRST_YEAR = 1920;
+
+/**
+ * Period range clipped to start at APP_FIRST_PERIOD at the earliest
+ * (null when it ends before). Compares "YYYY-MM" prefixes.
+ */
+export function clipPeriodRange(start: string, end: string): { start: string; end: string } | null {
+  if (end.slice(0, 7) < APP_FIRST_PERIOD) return null;
+  return { start: start.slice(0, 7) < APP_FIRST_PERIOD ? APP_FIRST_PERIOD : start, end };
+}
+
+/** The series without its months before `period` ("YYYY-MM"); unchanged if it starts later. */
+export function trimSeriesBefore(series: DatasetSeries, period: string = APP_FIRST_PERIOD): DatasetSeries {
+  const drop = monthsBetween(series.start, period);
+  if (!(drop > 0)) return series;
+  return { ...series, start: period, values: series.values.slice(drop) };
+}
+
 /** Period `n` months after `period` ("YYYY-MM"). */
 export function addMonths(period: string, n: number): string {
   const m = /^(\d{4})-(\d{1,2})/.exec(period);

@@ -3,6 +3,7 @@ import type { Track } from '../types/tracks';
 import { DEFAULT_VINYL_CENTER } from '../data/vinylPresets';
 import { clampCenter, type LatLng } from '../utils/vinylGeometry';
 import type { VinylStep, VinylTravel } from '../services/vinylApi';
+import { APP_FIRST_PERIOD } from '../services/sonificationApi';
 
 const STORAGE_KEY = 'earth-jukebox-vinyl';
 
@@ -20,7 +21,7 @@ export interface VinylPeriodRange {
   disjoint: boolean;
 }
 
-const FALLBACK_RANGE: VinylPeriodRange = { start: '1880-01', end: '2025-12', disjoint: false };
+const FALLBACK_RANGE: VinylPeriodRange = { start: APP_FIRST_PERIOD, end: '2025-12', disjoint: false };
 
 /** Months for which all enabled tracks have data (or their union if they do not overlap). */
 export function commonPeriod(tracks: Track[], enabledIds: ReadonlySet<string>): VinylPeriodRange {

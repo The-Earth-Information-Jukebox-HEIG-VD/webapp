@@ -19,7 +19,13 @@ describe('instrumentToTrack', () => {
       id: 'temperature', nameKey: 'tracks.temperature', label: 'Temperature',
       instrument: 'Piano (chords)', units: 'degC anomaly', available: true, defaultEnabled: true,
     });
-    expect(t.period).toEqual({ start: '1880-01', end: '2025-12' });
+    // the app starts in 1920: earlier months are clipped
+    expect(t.period).toEqual({ start: '1920-01', end: '2025-12' });
+  });
+
+  it('keeps periods that start after 1920 and drops those that end before', () => {
+    expect(instrumentToTrack({ ...base, first_time_period: '2002-09' }).period).toEqual({ start: '2002-09', end: '2025-12' });
+    expect(instrumentToTrack({ ...base, last_time_period: '1919-12' }).period).toBeNull();
   });
 
   it('gives other datasets a colour or the neutral fallback and leaves them off', () => {
@@ -37,8 +43,8 @@ describe('timeline range', () => {
   });
 
   it('spans the enabled tracks only, in whole years', () => {
-    expect(computeYearRange([temp, rain], new Set(['temperature']))).toEqual({ start: 1880, end: 2025 });
-    expect(computeYearRange([temp, rain], new Set(['temperature', 'precipitation']))).toEqual({ start: 1880, end: 2026 });
+    expect(computeYearRange([temp, rain], new Set(['temperature']))).toEqual({ start: 1920, end: 2025 });
+    expect(computeYearRange([temp, rain], new Set(['temperature', 'precipitation']))).toEqual({ start: 1920, end: 2026 });
     expect(computeYearRange([temp, rain], new Set(['precipitation']))).toEqual({ start: 2000, end: 2026 });
   });
 

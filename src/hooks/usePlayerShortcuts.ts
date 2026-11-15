@@ -13,7 +13,7 @@ export interface PlayerShortcutHandlers {
  * Global player keys: Space (play/pause), arrows (previous/next), Home/End
  * (first/last), M (mute). Same guards as the zone player bar: form fields,
  * sliders, popover dialogs, focused buttons (Space) and open modals keep their
- * own keys, and Cmd/Ctrl/Alt combinations are left to the browser.
+ * own keys, a focused [data-scroll-region] keeps Home/End, and Cmd/Ctrl/Alt combinations are left to the browser.
  */
 export function usePlayerShortcuts(handlers: PlayerShortcutHandlers) {
   const ref = useRef(handlers);
@@ -26,6 +26,8 @@ export function usePlayerShortcuts(handlers: PlayerShortcutHandlers) {
       if (target?.closest('input, textarea, select, [contenteditable="true"], [role="slider"]')) return;
       if (target?.closest('[role="dialog"]')) return;
       if (e.key === ' ' && target?.closest('button, a, [role="button"]')) return;
+      // A focused scrollable list (e.g. the globe legend) keeps Home/End to scroll
+      if ((e.key === 'Home' || e.key === 'End') && target?.closest('[data-scroll-region]')) return;
       if (document.querySelector('[aria-modal="true"]')) return;
 
       const h = ref.current;

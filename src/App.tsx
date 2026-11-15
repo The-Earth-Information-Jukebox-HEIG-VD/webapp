@@ -350,8 +350,8 @@ function AppContent() {
 
   // Key event: when no zone, or only the continent (ocean) around it, is selected,
   // select the event's own zone first (and show its layer on the globe), so the
-  // event is not averaged away over a whole continent; select the event's dataset
-  // as the only track, then move the timeline to the event's first month
+  // event is not averaged away over a whole continent; select the event's datasets
+  // as the only tracks, then move the timeline to the event's first month
   const handleJumpToMoment = useCallback((moment: KeyMoment) => {
     if (selectedZone === null || !moment.zoneIds.includes(selectedZone)) {
       const feature = findZoneFeature(moment.zoneIds[0]);
@@ -364,7 +364,7 @@ function AppContent() {
         );
       }
     }
-    jumpTo([moment.dataset], periodToYear(moment.start));
+    jumpTo(moment.datasets, periodToYear(moment.start));
   }, [selectedZone, handleZoneSelect, jumpTo]);
 
   // Backend value of the current chunk, e.g. "+1.2 °C vs normal" (screen reader announcement)

@@ -353,77 +353,119 @@
     "inData": "In unseren Daten",
     "peakInData": "Höhepunkt in unseren Daten",
     "happened": "Wann es geschah",
-    "elNino2009": {
-      "title": "El Niño 2009–10",
-      "when": "Mitte 2009 bis Frühjahr 2010"
+    "datasets": "Daten, die es zeigen",
+    "imageCredit": "Foto:",
+    "opensNewTab": "(öffnet in einem neuen Tab)",
+    "russia2010": {
+      "title": "Hitzewelle und Dürre in Russland",
+      "when": "Juli – Aug. 2010",
+      "imageAlt": "Die Christ-Erlöser-Kathedrale in Moskau, ihre goldenen Kuppeln von dichtem grauem Smog über dem Fluss verschleiert"
+    },
+    "usDrought2012": {
+      "title": "Dürre in den USA",
+      "when": "Sommer 2012",
+      "imageAlt": "Luftbild von trockenem braunem Ackerland und runden bewässerten Feldern bis zum Horizont"
+    },
+    "arcticIce2012": {
+      "title": "Rekordtief des arktischen Meereises",
+      "when": "Sommer 2012",
+      "imageAlt": "Ein Eisbär auf dünnem Meereis beugt sich über einen Schmelzwassertümpel"
     },
     "indonesiaFires2015": {
       "title": "Torfbrände in Indonesien",
       "when": "Juli – Nov. 2015",
-      "imageAlt": "Brennendes Torfmoor bei Nacht, glühende Glut zwischen umgestürzten Bäumen unter dichtem orangem Rauch"
+      "imageAlt": "Satellitenbild des südlichen Borneo unter einem grauen Rauchschleier der Brände"
     },
     "elNino2015": {
-      "title": "El Niño 2015–16, „Godzilla“ (Super-El-Niño)",
-      "when": "Frühjahr 2015 bis Frühjahr 2016"
+      "title": "El Niño „Godzilla“",
+      "when": "Frühjahr 2015 bis Frühjahr 2016",
+      "imageAlt": "Weiß ausgebleichte Geweihkoralle auf einem Riff, darüber kleine Fische im blauen Wasser"
     },
     "harvey2017": {
       "title": "Hurrikan Harvey, Texas",
       "when": "25. Aug. – 1. Sept. 2017",
-      "imageAlt": "Überflutete Kreuzung in Houston, ein Pick-up bis zu den Fenstern unter Wasser unter Ampeln"
+      "imageAlt": "Luftbild einer überfluteten Ebene, nur Straßen und Feldränder ragen noch heraus"
+    },
+    "beastFromTheEast2018": {
+      "title": "„Beast from the East“, Vereinigtes Königreich",
+      "when": "27. Feb. – Anfang März 2018",
+      "imageAlt": "Ein Londoner Park im Schneefall, Trauerweiden neben einer weißen, verschneiten Wiese"
     },
     "blackSummer2019": {
       "title": "Black Summer, Südostaustralien",
       "when": "Juni 2019 – Mai 2020",
-      "imageAlt": "Ein Känguru springt an einem brennenden Haus vorbei"
+      "imageAlt": "Ein Koala-Verkehrsschild vor einem verbrannten, kahlen Wald unter rauchigem Himmel"
     },
     "california2020": {
       "title": "Waldbrände in Kalifornien",
       "when": "Aug. – Nov. 2020",
-      "imageAlt": "Hängebrücke unter orangem Himmel, der Hang dahinter übersät mit Brandherden"
+      "imageAlt": "Die Bay Bridge und die Skyline von San Francisco unter einem orangen, verrauchten Himmel"
     },
     "filomena2021": {
       "title": "Sturm Filomena, Madrid",
       "when": "8.–9. Jan. 2021",
-      "imageAlt": "Geparkte Autos unter tiefem Schnee in einer Madrider Straße, Äste unter der Schneelast abgebrochen"
+      "imageAlt": "Der Cibeles-Brunnen in Madrid, Statue und Löwen unter dickem Schnee"
     },
     "uri2021": {
       "title": "Wintersturm Uri, Texas",
       "when": "Mitte Feb. 2021",
-      "imageAlt": "Ein Brunnen in Texas, zu einer Masse aus Eiszapfen gefroren, daneben ein Arbeiter in Winterkleidung"
+      "imageAlt": "Satellitenbild von Texas, fast vollständig weiß verschneit"
     },
     "yakutia2021": {
       "title": "Waldbrände in Jakutien, Sibirien",
       "when": "Sommer 2021",
-      "imageAlt": "Satellitenbild des sibirischen Waldes mit Feuerfronten und langen weißen Rauchfahnen"
+      "imageAlt": "Schräges Satellitenbild Sibiriens, Rauch und Wolken über dunklem Wald"
     },
     "hungaTonga2022": {
       "title": "Ausbruch des Hunga Tonga",
       "when": "15. Jan. 2022",
-      "imageAlt": "Eine riesige Aschesäule über einer Vulkaninsel, von einem Blitz durchzogen"
+      "imageAlt": "Satellitenbild einer runden Aschewolke, die sich in Ringen vom Vulkan über den Ozean ausbreitet"
     },
     "pakistan2022": {
       "title": "Überschwemmungen in Pakistan",
-      "when": "Monsun Juni – Okt. 2022, am schlimmsten im Aug.",
-      "imageAlt": "Luftbild eines Dorfes, umgeben von braunem Hochwasser bis zum Horizont"
+      "when": "Monsun Juni – Okt. 2022",
+      "imageAlt": "Dorfgebäude in ruhigem Hochwasser, das bis zum Horizont reicht"
+    },
+    "europeDrought2022": {
+      "title": "Dürre in Europa",
+      "when": "Sommer 2022",
+      "imageAlt": "Ein ausgetrocknetes Flussbett aus Kies und Unkraut zwischen Bäumen und Gebäuden in Chambéry, Frankreich"
+    },
+    "antarcticIce2023": {
+      "title": "Rekordtief des antarktischen Meereises",
+      "when": "das ganze Jahr 2023",
+      "inData": "Feb. und Sept. 2023",
+      "imageAlt": "Ein Kaiserpinguin mit Küken auf flachem Meereis, in der Ferne ein Eisberg"
     },
     "quebec2023": {
-      "title": "Waldbrände in Québec",
+      "title": "Waldbrände in Québec, Ostkanada",
       "when": "Juni 2023 (Saison Mai – Okt.)",
-      "imageAlt": "Luftbild in der Dämmerung einer Feuerfront im Wald unter einer riesigen Rauchwolke"
+      "imageAlt": "Satellitenbild von braunem verbranntem Wald in Québec, darüber weiße Rauchfahnen"
+    },
+    "nwtAlberta2023": {
+      "title": "Waldbrände in den NWT und Alberta, Westkanada",
+      "when": "Sommer 2023",
+      "imageAlt": "Satellitenbild orange leuchtender Feuerfronten entlang von Bergtälern, mit langen Rauchfahnen"
     },
     "daniel2023": {
       "title": "Sturm Daniel, Libyen",
       "when": "10.–11. Sept. 2023",
-      "imageAlt": "Eine Straße in Derna voller Schlamm und Trümmer, umgestürzte Autos zwischen den Gebäuden aufgetürmt"
-    },
-    "elNino2023": {
-      "title": "El Niño 2023–24",
-      "when": "Mitte 2023 bis Frühjahr 2024"
+      "imageAlt": "Satellitenbild von Sturm Daniel, ein weißer Wolkenwirbel über dem Mittelmeer vor der libyschen Küste"
     },
     "uaeOman2024": {
       "title": "Überschwemmungen in den VAE und Oman",
       "when": "16. Apr. 2024",
-      "imageAlt": "Autos stecken im Hochwasser auf einer Autobahn in Dubai unter Verkehrsschildern"
+      "imageAlt": "Gebäude bei Dubai im Hochwasser auf sandigem Boden nach starkem Regen"
+    },
+    "amazon2024": {
+      "title": "Brände im Amazonas",
+      "when": "Aug. – Sept. 2024",
+      "imageAlt": "Satellitenbild Südamerikas, dichter grauer Rauch östlich der verschneiten Anden"
+    },
+    "arcticWinterIce2025": {
+      "title": "Rekordtief des arktischen Wintereises",
+      "when": "Winter 2024/25",
+      "imageAlt": "Eine flache Meereisscholle, die abrupt an dunklem offenem Wasser endet, unter grauen Wolken und verschneiten Bergen"
     }
   },
   "footer": {
@@ -464,6 +506,7 @@
     "howPitch": "Höhere Werte klingen höher, gemessen am eigenen Wertebereich Ihrer Zone: Ein Wert ergibt also immer denselben Ton.",
     "howLoudness": "Regen, Schnee, Blitze, Brände, Nachtlichter und Meereis spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, mehr Blitze bedeuten mehr Paukenschläge pro Zählzeit, und die Posaunen schwellen mit den Bränden an. Nachtlichter ändern sich einmal im Jahr: Das Synthesizer-Pad setzt jeden Januar deutlich ein und klingt dann im Lauf des Jahres langsam ab.",
     "howGaps": "Hat ein Datensatz für ein Datum keine Daten (zum Beispiel CO₂ vor September 2002), schweigt sein Instrument.",
+    "howPeriod": "Die Zeitleiste beginnt 1920. Nur ein Datensatz, die Temperaturanomalie, reicht weiter zurück (bis 1880). Deshalb beginnen wir 1920: So bleibt die App einfacher zu bedienen. Wir haben etwa 100 Jahre gewählt, damit die Daten die Lebenszeit fast aller heute lebenden Menschen abdecken.",
     "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone als Flecken: eine Farbe pro Datensatz, und je stärker der Wert, desto größer der Fleck. Wo nichts ist, gibt es keinen Fleck: Die Flecken erscheinen, wachsen und verblassen im Lauf der Monate. Die Temperatur ist ein gefüllter Fleck, wenn es wärmer als normal ist, und ein Ring, wenn es kälter ist. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
     "orchestraTitle": "Das Orchester",
     "orchestraText": "Im Stil Orchester hat jeder Datensatz sein eigenes Instrument (andere Stile haben eigene):",
@@ -480,7 +523,7 @@
     "dataTitle": "Datenquellen",
     "dataText": "Die Kartendateien der Datensätze teilen ein Raster von 0,25°, sodass ein Ort in jedem Datensatz dieselbe Position hat.",
     "sources": {
-      "gistemp": "monatliche Anomalie der Oberflächentemperatur (°C), Januar 1880 bis Dezember 2025.",
+      "gistemp": "monatliche Anomalie der Oberflächentemperatur (°C), Januar 1880 bis Dezember 2025 (in der App ab Januar 1920 angezeigt).",
       "imerg": "Regen und Schnee (Schnee als Schmelzwasser), Monatsmittel der täglichen Niederschlagsrate, Juni 2000 bis November 2026.",
       "lis": "Anteil jedes Kartenpixels mit Blitzen, monatlich, zwischen 55° S und 55° N, März 2017 bis Juli 2023.",
       "modis": "Tage im Monat mit mindestens einem erkannten Feuer (Terra und Aqua), Juli 2002 bis November 2026.",

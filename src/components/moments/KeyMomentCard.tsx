@@ -39,11 +39,16 @@ const DATASET_ICONS: Record<MomentDataset, () => ReactNode> = {
   snow: SnowflakeIcon,
   lightning: BoltIcon,
   temperature: ThermometerIcon,
+  sea_ice: IceIcon,
+  vegetation: LeafIcon,
+  carbon_monoxide: SmokeIcon,
+  chlorophyll: WaveIcon,
 };
 
 /**
- * Card for one key event: photo, place, dates and a button that jumps the
- * timeline (and, with no zone selected, the globe) to it.
+ * Card for one key event: photo, the datasets that show it, place, dates, a
+ * button that jumps the timeline (and, with no zone selected, the globe) to it,
+ * and the photo's source at the bottom.
  */
 export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCardProps) {
   const { t, i18n } = useTranslation();
@@ -55,7 +60,6 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
   const zoneNames = moment.zoneIds.map((id) => getZoneDisplayName(id, t)).join(', ');
   const peak = formatPeriodRange(moment.peakStart, moment.peakEnd, i18n.language);
   const listenRange = formatPeriodRange(moment.start, moment.end, i18n.language);
-  const Icon = DATASET_ICONS[moment.dataset];
   const isActive = status === 'active';
 
   return (
@@ -72,16 +76,23 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
 
       <div className="moment-body">
         <div className="moment-header">
-          <span className="moment-dataset">
-            <span
-              className="moment-dataset-icon"
-              style={{ color: moment.dataset in TRACK_COLORS_DARK ? trackColor(moment.dataset, resolvedTheme) : undefined }}
-              aria-hidden="true"
-            >
-              <Icon />
-            </span>
-            {t(`tracks.${moment.dataset}`)}
-          </span>
+          <ul className="moment-datasets" aria-label={t('moments.datasets')}>
+            {moment.datasets.map((dataset) => {
+              const Icon = DATASET_ICONS[dataset];
+              return (
+                <li key={dataset} className="moment-dataset">
+                  <span
+                    className="moment-dataset-icon"
+                    style={{ color: dataset in TRACK_COLORS_DARK ? trackColor(dataset, resolvedTheme) : undefined }}
+                    aria-hidden="true"
+                  >
+                    <Icon />
+                  </span>
+                  {t(`tracks.${dataset}`)}
+                </li>
+              );
+            })}
+          </ul>
           {showZone && <span className="moment-zone">{zoneNames}</span>}
         </div>
 
@@ -90,7 +101,7 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
         <dl className="moment-dates">
           <div>
             <dt>{t(moment.category === 'elNino' ? 'moments.peakInData' : 'moments.inData')}</dt>
-            <dd>{peak}</dd>
+            <dd>{t(`${key}.inData`, { defaultValue: peak })}</dd>
           </div>
           <div>
             <dt>{t('moments.happened')}</dt>
@@ -119,6 +130,22 @@ export function KeyMomentCard({ moment, status, showZone, onJump }: KeyMomentCar
             <span className="playing-dot" aria-hidden="true" />
             <span className="sr-only">{t('moments.active')}</span>
           </div>
+        )}
+
+        {moment.image && moment.credit && (
+          <p className="moment-credit">
+            {t('moments.imageCredit')}{' '}
+            {moment.credit.url ? (
+              <a href={moment.credit.url} target="_blank" rel="noopener noreferrer">
+                {moment.credit.author} · {moment.credit.licence}
+                <span className="sr-only"> {t('moments.opensNewTab')}</span>
+              </a>
+            ) : (
+              <span>
+                {moment.credit.author} · {moment.credit.licence}
+              </span>
+            )}
+          </p>
         )}
       </div>
     </li>
@@ -183,6 +210,43 @@ function ThermometerIcon() {
   return (
     <SvgIcon>
       <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+    </SvgIcon>
+  );
+}
+
+function IceIcon() {
+  return (
+    <SvgIcon>
+      <path d="m12 2 8 5v10l-8 5-8-5V7z" />
+      <path d="M4 7l8 5 8-5" />
+      <line x1="12" y1="12" x2="12" y2="22" />
+    </SvgIcon>
+  );
+}
+
+function LeafIcon() {
+  return (
+    <SvgIcon>
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" />
+      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+    </SvgIcon>
+  );
+}
+
+function SmokeIcon() {
+  return (
+    <SvgIcon>
+      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" />
+    </SvgIcon>
+  );
+}
+
+function WaveIcon() {
+  return (
+    <SvgIcon>
+      <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+      <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+      <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
     </SvgIcon>
   );
 }

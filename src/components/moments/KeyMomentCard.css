@@ -47,6 +47,15 @@
   padding-right: var(--spacing-lg);
 }
 
+.moment-datasets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .moment-dataset {
   display: inline-flex;
   align-items: center;
@@ -190,4 +199,28 @@
   .playing-dot {
     animation: none;
   }
+}
+
+/* Photo source, at the bottom of the card */
+.moment-credit {
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.moment-credit a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.moment-credit a:hover {
+  color: var(--color-link-hover);
+}
+
+.moment-credit a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
 }

@@ -32,7 +32,7 @@ describe('TrackPanel accessibility', () => {
     expect(screen.getByText('Piano (chords)')).toBeVisible();
     expect(screen.getByText('Flute')).toBeVisible();
     expect(screen.getByText('Drums')).toBeVisible();
-    expect(screen.getAllByText(/from 1880 to 2025/i).length).toBe(2);
+    expect(screen.getAllByText(/from 1920 to 2025/i).length).toBe(2);
     expect(screen.getByText(/only when present/i)).toBeVisible();
     expect(screen.getByRole('button', { name: /temperature/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: /lightning/i })).toHaveAttribute('aria-pressed', 'false');

@@ -3,6 +3,7 @@ import {
   fetchHealth,
   fetchInstruments,
   isAbortError,
+  clipPeriodRange,
   ApiError,
   type ApiErrorKind,
   type InstrumentInfo,
@@ -34,9 +35,10 @@ export function instrumentToTrack(info: InstrumentInfo, surface: TrackSurface = 
     available: true,
     alwaysPlaying: info.always_playing,
     units: info.units,
+    // The app starts in 1920 (APP_FIRST_PERIOD): every timeline reads this period
     period:
       info.first_time_period && info.last_time_period
-        ? { start: info.first_time_period, end: info.last_time_period }
+        ? clipPeriodRange(info.first_time_period, info.last_time_period)
         : null,
     color: trackColor(info.dataset_id, surface),
     defaultEnabled: DEFAULT_ENABLED.has(info.dataset_id),

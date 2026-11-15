@@ -24,15 +24,30 @@ describe('keyMoments', () => {
     const harvey = keyMoments.find((m) => m.id === 'hurricane-harvey-2017')!;
     expect([harvey.start, harvey.end]).toEqual(['2017-07', '2017-09']);
     const blackSummer = keyMoments.find((m) => m.id === 'black-summer-2019')!;
-    expect([blackSummer.start, blackSummer.end]).toEqual(['2019-11', '2020-01']);
+    expect([blackSummer.start, blackSummer.end]).toEqual(['2019-11', '2020-02']);
     const godzilla = keyMoments.find((m) => m.id === 'el-nino-2015')!;
     expect([godzilla.start, godzilla.end]).toEqual(['2015-10', '2016-02']);
   });
 
-  it('has an image for every extreme event', () => {
-    for (const m of keyMoments.filter((m) => m.category === 'event')) {
+  it('has a credited image for every event', () => {
+    for (const m of keyMoments) {
       expect(m.image, m.id).toBeTruthy();
+      expect(m.credit?.author, m.id).toBeTruthy();
+      expect(m.credit?.url, m.id).toMatch(/^https:\/\/commons\.wikimedia\.org\/\?curid=\d+$/);
     }
+  });
+
+  it('links every moment to the datasets that show it', () => {
+    for (const m of keyMoments) expect(m.datasets.length, m.id).toBeGreaterThan(0);
+    const datasets = (id: string) => keyMoments.find((m) => m.id === id)!.datasets;
+    expect(datasets('el-nino-2015')).toEqual([
+      'precipitation',
+      'chlorophyll',
+      'vegetation',
+      'fires',
+      'carbon_monoxide',
+    ]);
+    expect(datasets('black-summer-2019')).toEqual(['fires', 'carbon_monoxide', 'vegetation']);
   });
 
   it('shows every moment when no zone is selected', () => {
@@ -43,7 +58,7 @@ describe('keyMoments', () => {
     expect(getMomentsForZone('pakistan', 1880, 2025).map((m) => m.id)).toEqual([
       'pakistan-floods-2022',
     ]);
-    expect(getMomentsForZone('usa', 1880, 2025)).toHaveLength(3);
+    expect(getMomentsForZone('usa', 1880, 2025)).toHaveLength(4);
     expect(getMomentsForZone('oman', 1880, 2025).map((m) => m.id)).toEqual([
       'uae-oman-floods-2024',
     ]);
@@ -53,21 +68,28 @@ describe('keyMoments', () => {
   it('also lists the moments of a country under its continent', () => {
     const ids = (zone: string) => getMomentsForZone(zone, 1880, 2025).map((m) => m.id);
     expect(ids('asia')).toEqual([
+      'russian-heatwave-2010', // Russia belongs to Asia in the zone data
       'indonesia-peat-fires-2015',
-      'yakutia-wildfires-2021', // Russia belongs to Asia in the zone data
+      'yakutia-wildfires-2021',
       'pakistan-floods-2022',
       'uae-oman-floods-2024', // two Asian countries: listed once
     ]);
     expect(ids('northAmerica')).toEqual([
+      'us-drought-2012',
       'hurricane-harvey-2017',
       'california-wildfires-2020',
       'winter-storm-uri-2021',
       'quebec-wildfires-2023',
+      'nwt-alberta-wildfires-2023',
     ]);
-    expect(ids('europe')).toEqual(['storm-filomena-2021']);
+    expect(ids('europe')).toEqual([
+      'beast-from-the-east-2018',
+      'storm-filomena-2021',
+      'europe-drought-2022', // tied to the continent itself
+    ]);
     expect(ids('africa')).toEqual(['storm-daniel-2023']);
     expect(ids('oceania')).toEqual(['black-summer-2019']);
-    expect(ids('southAmerica')).toEqual([]);
+    expect(ids('southAmerica')).toEqual(['amazon-fires-2024']);
     // Not the other way round: a continent's moment is not listed under its countries
     expect(ids('india')).toEqual([]);
   });
@@ -85,12 +107,13 @@ describe('keyMoments', () => {
   });
 
   it('encodes each moment status relative to the position', () => {
-    const moments = getMomentsForZone('usa', 1880, 2025); // Harvey 2017, California 2020, Uri 2021
+    // US drought 2012, Harvey 2017, California 2020, Uri 2021
+    const moments = getMomentsForZone('usa', 1880, 2025);
     const s = encodeMomentStatuses(moments, periodToYear('2020-09') + 0.01, 'usa');
-    expect([0, 1, 2].map((i) => decodeMomentStatus(s, i))).toEqual(['past', 'active', 'upcoming']);
-    expect(encodeMomentStatuses(moments, null, 'usa')).toBe('uuu');
+    expect([0, 1, 2, 3].map((i) => decodeMomentStatus(s, i))).toEqual(['past', 'past', 'active', 'upcoming']);
+    expect(encodeMomentStatuses(moments, null, 'usa')).toBe('uuuu');
     // The window includes its whole last month
-    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08, 'usa'), 0)).toBe('active');
+    expect(decodeMomentStatus(encodeMomentStatuses(moments, periodToYear('2017-09') + 0.08, 'usa'), 1)).toBe('active');
   });
 
   it('is active from one month before to one month after the event', () => {

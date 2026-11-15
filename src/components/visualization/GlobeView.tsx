@@ -387,7 +387,10 @@ export function GlobeView({
             {stats.length === 0 && status === 'ready' && (
               <p className="globe-data-status">{t('globeData.noSelectedDataset')}</p>
             )}
-            <ul>
+            {/* Scrolls when many datasets are on; focusable so keyboard users can scroll it
+                (WCAG 2.1.1, axe scrollable-region-focusable) */}
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+            <ul tabIndex={0} data-scroll-region aria-label={t('globeData.legendTitle')}>
               {stats.map(({ ds, stats: s, pending, instruments }) => (
                 <li key={ds.info.id} className={s ? undefined : 'no-data'}>
                   <span className="globe-legend-swatch" style={{ backgroundColor: ds.info.color }} aria-hidden="true" />

@@ -10,6 +10,8 @@ import {
   parseErrorDetail,
   periodToYear,
   yearToPeriod,
+  trimSeriesBefore,
+  type DatasetSeries,
   type ZoneDataRequest,
   type ZoneDataResponse,
 } from './sonificationApi';
@@ -165,6 +167,13 @@ describe('period helpers', () => {
     expect(monthsBetween('2015-11', '2016-02')).toBe(3);
     expect(addMonths('2015-11', 3)).toBe('2016-02');
     expect(addMonths('2025-12', 1)).toBe('2026-01');
+  });
+
+  it('trims series months before 1920 and leaves later series alone', () => {
+    const s: DatasetSeries = { units: null, anomaly: true, start: '1919-11', yearly: false, values: [1, 2, 3, 4] };
+    expect(trimSeriesBefore(s)).toEqual({ ...s, start: '1920-01', values: [3, 4] });
+    const later = { ...s, start: '2002-09' };
+    expect(trimSeriesBefore(later)).toBe(later);
   });
 });
 
