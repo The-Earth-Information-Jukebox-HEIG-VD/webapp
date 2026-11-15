@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Genre } from '../../services/sonificationApi';
 import './StyleSelector.css';
@@ -22,12 +22,6 @@ export function StyleSelector({ genres, value, onChange }: StyleSelectorProps) {
   const id = useId();
   const [announcement, setAnnouncement] = useState('');
   const selected = genres.find((g) => g.id === value);
-  // Announce only changes made by the user, not the first value
-  const changed = useRef(false);
-  useEffect(() => {
-    if (changed.current && selected) setAnnouncement(t('style.changed', { name: selected.name }));
-  }, [selected, t]);
-
   if (genres.length === 0) return null;
 
   return (
@@ -41,7 +35,10 @@ export function StyleSelector({ genres, value, onChange }: StyleSelectorProps) {
         value={selected?.id ?? ''}
         aria-describedby={selected ? `${id}-hint` : undefined}
         onChange={(e) => {
-          changed.current = true;
+          // Announced here (a user choice), not in an effect: a reloaded list or a
+          // restored saved style must not be announced again
+          const picked = genres.find((g) => g.id === e.target.value);
+          if (picked) setAnnouncement(t('style.changed', { name: picked.name }));
           onChange(e.target.value);
         }}
       >

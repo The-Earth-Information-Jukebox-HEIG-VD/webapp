@@ -512,6 +512,7 @@
     "pickHint": "Ou cliquez sur le globe pour placer le centre du disque.",
     "restartHint": "Changer le mois, le centre, le mode de voyage de l'aiguille ou le style musical relance le disque depuis le bord.",
     "recordLabel": "Le globe en disque vinyle, centré sur {{centre}}, jouant {{month}}. Le saphir trace une spirale du bord vers le centre.",
+    "recordLabelTime": "Le globe comme un disque vinyle, centré sur {{centre}}, à partir de {{month}}. L'aiguille reste au centre pendant que les mois défilent ; une tache au centre montre les données.",
     "grooveOf": "Sillon {{k}} sur {{n}}",
     "caption": {
       "centre": "Centre {{centre}}",

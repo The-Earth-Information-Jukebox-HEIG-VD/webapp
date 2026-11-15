@@ -54,7 +54,8 @@
   padding: 0 var(--spacing-sm);
   background: var(--color-background);
   color: var(--color-text);
-  border: 1px solid var(--color-border-light);
+  /* 1.4.11: border-light is 2.7:1 on the surface; text-muted is 4.5:1 */
+  border: 1px solid var(--color-text-muted);
   border-radius: var(--radius-md);
   font-size: var(--font-size-md);
 }
@@ -130,6 +131,7 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-xs);
+  min-height: 44px;
 }
 
 .vinyl-radio input {
@@ -147,11 +149,17 @@
 
 .vinyl-radio label {
   display: flex;
-  flex-direction: column;
-  min-height: 44px;
-  justify-content: center;
+  align-items: center;
+  min-height: 24px;
+  margin-top: 10px;
   cursor: pointer;
   color: var(--color-text);
+}
+
+.vinyl-radio-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .vinyl-radio .vinyl-hint {

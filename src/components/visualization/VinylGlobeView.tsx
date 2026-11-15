@@ -332,7 +332,7 @@ export function VinylGlobeView({
           ref={spinRef}
           className={isLoaded ? 'vinyl-turntable is-loaded' : 'vinyl-turntable'}
           role="img"
-          aria-label={t('vinyl.recordLabel', { centre: centreText, month: monthLabel })}
+          aria-label={t(travel === 'time' ? 'vinyl.recordLabelTime' : 'vinyl.recordLabel', { centre: centreText, month: monthLabel })}
         >
           <Globe
             ref={globeRef}

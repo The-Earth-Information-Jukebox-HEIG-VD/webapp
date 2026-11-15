@@ -40,7 +40,7 @@ export function VinylRecordView({ center, monthLabel, chunkIndex, started, histo
         className="vinyl-record-svg"
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
-        aria-label={t('vinyl.recordLabel', { centre: formatLatLng(center, i18n.language, hemis), month: monthLabel })}
+        aria-label={t(travel === 'time' ? 'vinyl.recordLabelTime' : 'vinyl.recordLabel', { centre: formatLatLng(center, i18n.language, hemis), month: monthLabel })}
       >
         <circle cx={SIZE / 2} cy={SIZE / 2} r={OUTER + 4} fill="#141418" />
         {Array.from({ length: VINYL_CHUNKS }, (_, k) => (

@@ -194,7 +194,7 @@ export function VinylControls({
         </p>
       </fieldset>
 
-      <fieldset className="vinyl-group vinyl-travel">
+      <fieldset className="vinyl-group vinyl-travel" aria-describedby={`${id}-restart`}>
         <legend>{t('vinyl.travel')}</legend>
         {TRAVELS.map((mode) => (
           <div key={mode} className="vinyl-radio">
@@ -207,12 +207,15 @@ export function VinylControls({
               aria-describedby={`${id}-travel-${mode}-hint`}
               onChange={() => onTravelChange(mode)}
             />
-            <label htmlFor={`${id}-travel-${mode}`}>
-              <span className="vinyl-radio-name">{t(`vinyl.travel${cap(mode)}`)}</span>
+            {/* The hint is the description, not part of the name: kept out of the label */}
+            <div className="vinyl-radio-text">
+              <label htmlFor={`${id}-travel-${mode}`} className="vinyl-radio-name">
+                {t(`vinyl.travel${cap(mode)}`)}
+              </label>
               <span id={`${id}-travel-${mode}-hint`} className="vinyl-hint">
                 {t(`vinyl.travel${cap(mode)}Hint`)}
               </span>
-            </label>
+            </div>
           </div>
         ))}
         {travel === 'both' && (
@@ -258,7 +261,7 @@ export function VinylControls({
         </div>
         <p className="vinyl-hint">{t('vinyl.pickHint')}</p>
       </fieldset>
-      <p className="vinyl-hint vinyl-restart">{t('vinyl.restartHint')}</p>
+      <p id={`${id}-restart`} className="vinyl-hint vinyl-restart">{t('vinyl.restartHint')}</p>
     </form>
   );
 }

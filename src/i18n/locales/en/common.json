@@ -512,6 +512,7 @@
     "pickHint": "Or click the globe to place the centre of the record.",
     "restartHint": "Changing the month, the centre, the way the needle travels or the music style starts the record again from the edge.",
     "recordLabel": "The globe as a vinyl record, centred on {{centre}}, playing {{month}}. The needle spirals from the edge to the centre.",
+    "recordLabelTime": "The globe as a vinyl record, centred on {{centre}}, starting in {{month}}. The needle stays on the centre while the months go by; a spot at the centre shows the data.",
     "grooveOf": "Groove {{k}} of {{n}}",
     "caption": {
       "centre": "Centre {{centre}}",

@@ -512,6 +512,7 @@
     "pickHint": "Oder klicken Sie auf den Globus, um die Mitte der Platte zu setzen.",
     "restartHint": "Wenn Sie Monat, Mittelpunkt, Reiseart der Nadel oder Musikstil ändern, beginnt die Platte wieder am Rand.",
     "recordLabel": "Der Globus als Schallplatte, zentriert auf {{centre}}, spielt {{month}}. Die Nadel läuft spiralförmig vom Rand zur Mitte.",
+    "recordLabelTime": "Der Globus als Schallplatte mit Mittelpunkt {{centre}}, ab {{month}}. Die Nadel bleibt in der Mitte, während die Monate vergehen; ein Fleck in der Mitte zeigt die Daten.",
     "grooveOf": "Rille {{k}} von {{n}}",
     "caption": {
       "centre": "Mitte {{centre}}",

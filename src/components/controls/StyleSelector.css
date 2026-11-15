@@ -3,7 +3,8 @@
 .style-selector-select {
   min-height: 44px;
   padding: 0 var(--spacing-sm);
-  border: 1px solid var(--color-border);
+  /* 1.4.11: --color-border is only 1.6:1 on the surface; text-muted is 4.5:1 */
+  border: 1px solid var(--color-text-muted);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);

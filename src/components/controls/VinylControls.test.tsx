@@ -4,6 +4,7 @@ import { axe } from 'jest-axe';
 import '../../i18n';
 import { VinylControls } from './VinylControls';
 import { ExperienceModeSwitch } from './ExperienceModeSwitch';
+import { usePlayerShortcuts } from '../../hooks/usePlayerShortcuts';
 
 const range = { start: '2017-03', end: '2022-03', disjoint: false };
 
@@ -116,7 +117,10 @@ describe('ExperienceModeSwitch', () => {
     const group = screen.getByRole('group', { name: 'The needle travels through' });
     expect(group).toBeInTheDocument();
     expect(screen.getAllByRole('radio')).toHaveLength(3);
-    expect(screen.getByRole('radio', { name: /Space/ })).toBeChecked();
+    // The name is the short label only; the hint is the description
+    expect(screen.getByRole('radio', { name: 'Space' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Both' })).toHaveAccessibleDescription(/date moves on each groove/i);
+    expect(group).toHaveAccessibleDescription(/starts the record again/i);
     expect(screen.getByRole('radio', { name: /Time/ })).toHaveAccessibleDescription(/one place/i);
     fireEvent.click(screen.getByRole('radio', { name: /Time/ }));
     expect(onTravelChange).toHaveBeenCalledWith('time');
@@ -130,5 +134,37 @@ describe('ExperienceModeSwitch', () => {
     expect(onStepChange).toHaveBeenCalledWith('month');
     expect(screen.getByRole('group', { name: 'Starting month' })).toBeInTheDocument();
     expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe('VinylControls and global player shortcuts', () => {
+  it('arrow keys on the radios and the step select do not reach the player', () => {
+    const onPrev = vi.fn();
+    const onNext = vi.fn();
+    function Harness() {
+      usePlayerShortcuts({ onPlayPause: vi.fn(), onPrev, onNext, onFirst: vi.fn(), onLast: vi.fn(), onMute: vi.fn() });
+      return (
+        <VinylControls
+          center={{ lat: 50, lng: 10 }}
+          onCenterChange={() => {}}
+          timePeriod="2020-03"
+          onTimePeriodChange={() => {}}
+          range={range}
+          clamped={false}
+          travel="both"
+          onTravelChange={() => {}}
+          step="year"
+          onStepChange={() => {}}
+        />
+      );
+    }
+    render(<Harness />);
+    for (const el of [screen.getByRole('radio', { name: 'Both' }), screen.getByLabelText('The date moves on by')]) {
+      el.focus();
+      const ev = fireEvent.keyDown(el, { key: 'ArrowRight' });
+      expect(ev).toBe(true); // not preventDefault-ed: the radio/select keeps its arrow
+    }
+    expect(onNext).not.toHaveBeenCalled();
+    expect(onPrev).not.toHaveBeenCalled();
   });
 });

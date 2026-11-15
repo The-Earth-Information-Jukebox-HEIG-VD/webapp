@@ -35,6 +35,12 @@ describe('StyleSelector accessibility', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Music style: Funk');
   });
 
+  it('does not announce a restored or reloaded style, only the user\'s choice', () => {
+    const { rerender } = render(<StyleSelector genres={genres} value="orchestra" onChange={() => {}} />);
+    rerender(<StyleSelector genres={genres.map((g) => ({ ...g }))} value="funk" onChange={() => {}} />);
+    expect(screen.getByRole('status')).toHaveTextContent('');
+  });
+
   it('keeps global player shortcuts out of the select', () => {
     const onPlayPause = vi.fn();
     const onPrev = vi.fn();
