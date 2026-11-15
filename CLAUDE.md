@@ -14,7 +14,7 @@
 
 - **Forms**: every `<input>` has an associated `<label>` (`htmlFor`/`id` or wrap).
 - **Buttons**: semantic `<button>`; `aria-label` when icon-only.
-- **Dialogs**: close on Escape and give focus back to the trigger. A true modal (`aria-modal="true"`) also traps focus; the `DatePicker` popover is a non-modal `role="dialog"` (no `aria-modal`, no focus trap): it closes on Escape, outside click or Tab out, and focus returns to its trigger. Global shortcuts ignore any open `role="dialog"` / `aria-modal`.
+- **Dialogs**: close on Escape and give focus back to the trigger. A true modal (`aria-modal="true"`) also traps focus; the `DatePicker` popover is a non-modal `role="dialog"` (no `aria-modal`, no focus trap): it closes on Escape, outside click or Tab out, and focus returns to its trigger. The player shortcuts (`usePlayerShortcuts.ts`) ignore any open `role="dialog"` / `aria-modal`. Known issue: the Escape handler in `GlobeView.tsx` only skips when an `aria-modal` is open, so Escape in the date picker also returns to zone selection.
 - **Charts/visualizations**: include a hidden `<table>` with the full data.
 - **Audio/sonification**: text alternatives are the `sr-only` data tables and summaries (`SeriesChart.tsx` table + `graph.summary`, `GlobeView.tsx` table) plus `aria-live` announcements. `AudioTranscript` is a legacy unused component.
 - **Dynamic content**: `aria-live` regions for status updates.
