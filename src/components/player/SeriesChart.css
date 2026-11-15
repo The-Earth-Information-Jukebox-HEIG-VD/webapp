@@ -1,0 +1,189 @@
+/*
+ * Data graph above the player timeline. The SVG stretches (preserveAspectRatio="none",
+ * non-scaling strokes); all text is HTML so it never stretches.
+ * Line colours are the track colours, all >= 3:1 on the surface (WCAG 1.4.11).
+ */
+.series-chart {
+  margin-bottom: var(--spacing-xs);
+}
+
+.series-chart-message {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 72px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.series-chart-message p {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.series-chart-skeleton {
+  flex: 0 0 40%;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+  /* static: no animation, so nothing to switch off for reduced motion */
+}
+
+.series-chart-retry {
+  min-height: 44px;
+  padding: 0 var(--spacing-md);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.series-chart-retry:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.series-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+  margin: 0 0 var(--spacing-xs);
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  font-feature-settings: 'tnum';
+}
+
+.series-legend-item {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.series-swatch {
+  width: 24px;
+  height: 6px;
+  flex-shrink: 0;
+}
+
+.series-legend-name {
+  font-weight: 600;
+}
+
+.series-legend-zero,
+.series-legend-units,
+.series-legend-note {
+  color: var(--color-text-secondary);
+}
+
+.series-legend-note {
+  margin-left: auto;
+}
+
+.series-plot {
+  position: relative;
+  height: 72px;
+  /* darkest surface: every track colour is >= 3:1 on it (fires is 2.8:1 on surface-elevated) */
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+}
+
+.series-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.series-line {
+  stroke-width: 2;
+}
+
+.series-dots {
+  stroke-width: 4;
+}
+
+.series-zero {
+  stroke-width: 1;
+  stroke-dasharray: 1 3;
+  opacity: 0.6;
+}
+
+/* No transition: the playhead is static, so reduced motion needs no special case */
+.series-playhead,
+.series-hover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.series-playhead {
+  border-left: 2px solid var(--color-text);
+  margin-left: -1px;
+}
+
+.series-hover {
+  border-left: 1px dashed var(--color-text-secondary);
+}
+
+.series-pointer {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.series-axis {
+  position: relative;
+  height: 1rem;
+}
+
+.series-axis-label {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  font-size: 0.625rem;
+  line-height: 0.75rem;
+  color: var(--color-text-secondary);
+  font-feature-settings: 'tnum';
+  pointer-events: none;
+}
+
+.high-contrast .series-plot {
+  border: 2px solid var(--color-text);
+  background: var(--color-background);
+}
+
+.high-contrast .series-line {
+  stroke-width: 3.5;
+}
+
+.high-contrast .series-dots {
+  stroke-width: 6;
+}
+
+.high-contrast .series-zero {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .series-plot {
+    height: 56px;
+  }
+
+  .series-legend-note {
+    margin-left: 0;
+  }
+}
+
+.series-chart-message:focus {
+  outline: none;
+}

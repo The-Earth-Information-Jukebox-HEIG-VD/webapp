@@ -8,17 +8,9 @@ import {
   type InstrumentInfo,
 } from '../services/sonificationApi';
 import type { Track } from '../types/tracks';
+import { TRACK_COLORS, FALLBACK_TRACK_COLOR, trackColor } from '../data/trackColors';
 
-/** Presentation colour per dataset_id; unknown datasets get the neutral fallback. */
-export const TRACK_COLORS: Record<string, string> = {
-  temperature: '#e67e22',
-  precipitation: '#3498db',
-  co2: '#8e44ad',
-  snow: '#5dade2',
-  lightning: '#f1c40f',
-  night_lights: '#d4ac0d',
-};
-export const FALLBACK_TRACK_COLOR = '#95a5a6';
+export { TRACK_COLORS, FALLBACK_TRACK_COLOR };
 
 /** Tracks switched on before the user chooses. */
 const DEFAULT_ENABLED = new Set(['temperature']);
@@ -39,7 +31,7 @@ export function instrumentToTrack(info: InstrumentInfo): Track {
       info.first_time_period && info.last_time_period
         ? { start: info.first_time_period, end: info.last_time_period }
         : null,
-    color: TRACK_COLORS[info.dataset_id] ?? FALLBACK_TRACK_COLOR,
+    color: trackColor(info.dataset_id),
     defaultEnabled: DEFAULT_ENABLED.has(info.dataset_id),
   };
 }

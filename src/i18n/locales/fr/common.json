@@ -315,10 +315,8 @@
     "antarctic": "Antarctique"
   },
   "tracks": {
-    "title": "Pistes Audio",
     "temperature": "Température",
     "lightning": "Éclairs",
-    "description": "Activez plusieurs pistes pour entendre différentes mesures climatiques ensemble. Chacune utilise son propre instrument.",
     "precipitation": "Précipitations",
     "co2": "CO₂",
     "noneSelected": "Aucune piste sélectionnée. Sélectionnez au moins une piste pour lancer la lecture.",
@@ -327,7 +325,16 @@
     "loading": "Chargement des pistes…",
     "retry": "Réessayer",
     "snow": "Neige",
-    "night_lights": "Lumières nocturnes"
+    "night_lights": "Lumières nocturnes",
+    "fires": "Feux",
+    "heading": "Que voulez-vous entendre ?",
+    "hint": "Chaque jeu de données joue son propre instrument. Choisissez-en un ou plusieurs.",
+    "onlyWhenPresent": "seulement quand présent",
+    "sounding": "Joue en ce moment",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "selectedCount_one": "{{count}} piste sélectionnée",
+    "selectedCount_other": "{{count}} pistes sélectionnées"
   },
   "moments": {
     "title": "Moments Climatiques Clés",
@@ -465,6 +472,8 @@
       "snow": "Neige",
       "nightlights": "Lumières nocturnes"
     },
-    "noSelectedDataset": "Aucune des pistes sélectionnées n'a de données à afficher sur le globe."
+    "noSelectedDataset": "Aucune des pistes sélectionnées n'a de données à afficher sur le globe.",
+    "playedBy": "joué par {{instrument}}",
+    "instrument": "Instrument"
   }
 }

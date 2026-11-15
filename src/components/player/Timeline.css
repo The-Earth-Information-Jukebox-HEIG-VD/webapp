@@ -72,10 +72,43 @@
 }
 
 .marker-line {
-  flex: 1;
+  position: absolute;
+  bottom: 6px;
   width: 1px;
-  background: var(--color-border-light);
-  opacity: 0.5;
+  height: 6px;
+  background: var(--color-text-muted);
+}
+
+.track-marker.medium .marker-line {
+  height: 10px;
+}
+
+.track-marker.major .marker-line {
+  height: 14px;
+  width: 2px;
+}
+
+.track-markers.no-minor .track-marker.minor {
+  display: none;
+}
+
+.track-marker.minor .marker-line {
+  opacity: 1;
+}
+
+.track-hover {
+  position: absolute;
+  top: -30px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  font-feature-settings: 'tnum';
+  z-index: 9;
 }
 
 .marker-year {
@@ -138,12 +171,7 @@
 
 /* Hide year markers on small screens */
 @media (max-width: 640px) {
-  .marker-year {
+  .track-marker.minor {
     display: none;
-  }
-
-  .track-marker:first-child .marker-year,
-  .track-marker:last-child .marker-year {
-    display: block;
   }
 }

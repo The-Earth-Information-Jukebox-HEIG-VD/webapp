@@ -2,19 +2,30 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import '../../i18n';
-import { GlobeView } from './GlobeView';
+import { GlobeView, flightDuration } from './GlobeView';
 import { KNOWN_DATASETS } from '../../data/datasetRegistry';
+import { findZoneFeature } from '../../data/zones';
+import { getFeatureView } from '../../utils/geometry';
 import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
 import type { VolumeDataset } from '../../services/volumeData';
+import type { Track } from '../../types/tracks';
 
 // WebGL is not available in jsdom: capture the props given to the globe instead
 let globeProps: Record<string, unknown> = {};
-vi.mock('react-globe.gl', () => ({
-  default: (props: Record<string, unknown>) => {
-    globeProps = props;
-    return <div data-testid="globe" />;
-  },
-}));
+// Camera calls made through the globe ref
+const pointOfView = vi.fn();
+vi.mock('react-globe.gl', async () => {
+  const { forwardRef, useImperativeHandle, useEffect } = await import('react');
+  return {
+    default: forwardRef((props: Record<string, unknown>, ref) => {
+      globeProps = props;
+      useImperativeHandle(ref, () => ({ pointOfView }));
+      const onGlobeReady = props.onGlobeReady as () => void;
+      useEffect(() => onGlobeReady(), [onGlobeReady]);
+      return <div data-testid="globe" />;
+    }),
+  };
+});
 
 const [temperature, co2] = KNOWN_DATASETS;
 const datasets: VolumeDataset[] = [temperature, co2].map((info) => ({
@@ -71,7 +82,7 @@ describe('GlobeView playback mode', () => {
     expect(dots).toHaveLength(1);
     expect(dots[0]).toMatchObject({ dataset: 0, cell: 0 });
     const color = (globeProps.pointColor as (d: object) => string)(dots[0]);
-    expect(color).toMatch(/^rgba\(255, 90, 54, /); // temperature color
+    expect(color).toMatch(/^rgba\(231, 134, 21, /); // temperature color
   });
 
   it('lists every dataset with its stored values in the legend and data table (accessibility)', async () => {
@@ -92,5 +103,92 @@ describe('GlobeView playback mode', () => {
     fireEvent.click(screen.getByRole('button', { name: /change zone/i }));
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onBack).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('GlobeView camera', () => {
+  beforeEach(() => {
+    pointOfView.mockClear();
+  });
+
+  it('shows the whole Earth while no zone is selected', () => {
+    render(<GlobeView {...baseProps} selectedZone={null} />);
+    expect(pointOfView).toHaveBeenLastCalledWith({ lat: 20, lng: 0, altitude: 2.5 }, expect.any(Number));
+  });
+
+  it('frames the selected zone', () => {
+    const { rerender } = render(<GlobeView {...baseProps} selectedZone={null} />);
+    rerender(<GlobeView {...baseProps} selectedZone="france" />);
+    const expected = getFeatureView(findZoneFeature('france')!);
+    expect(pointOfView).toHaveBeenLastCalledWith(expected, expect.any(Number));
+    expect(expected.altitude).toBeLessThan(1);
+  });
+
+  it('keeps the camera where it is when playback starts or stops', () => {
+    const { rerender } = render(<GlobeView {...baseProps} selectedZone="france" mode="select" />);
+    pointOfView.mockClear();
+    rerender(<GlobeView {...baseProps} selectedZone="france" mode="playback" zoneData={zoneData} onBackToSelection={vi.fn()} />);
+    rerender(<GlobeView {...baseProps} selectedZone="france" mode="select" />);
+    expect(pointOfView).not.toHaveBeenCalled();
+  });
+});
+
+describe('GlobeView legend instruments', () => {
+  const track = (id: string, instrument: string): Track => ({
+    id, nameKey: `tracks.${id}`, label: id, instrument, role: 'harmony', available: true,
+    alwaysPlaying: true, units: null, period: null, color: '#ffffff', defaultEnabled: true,
+  });
+  const tracks = [track('temperature', 'Piano (chords)'), track('co2', 'Cello')];
+
+  it('names the instrument of each enabled track and marks the sounding ones', async () => {
+    const { container } = render(
+      <GlobeView
+        {...baseProps}
+        mode="playback"
+        zoneData={zoneData}
+        onBackToSelection={vi.fn()}
+        tracks={tracks}
+        enabledTrackIds={new Set(['temperature', 'co2'])}
+        soundingIds={new Set(['temperature'])}
+      />
+    );
+    const legend = screen.getByRole('region', { name: 'Datasets' });
+    expect(legend).toHaveTextContent('♪ Piano (chords)');
+    expect(legend).toHaveTextContent('played by Piano (chords) (Sounding now)');
+    expect(legend).toHaveTextContent('♪ Cello');
+    expect(legend).not.toHaveTextContent('played by Cello (Sounding now)');
+    expect(screen.getAllByTestId('legend-sounding')).toHaveLength(1);
+    expect(screen.getByRole('table')).toHaveTextContent('Piano (chords)');
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('hides the instrument of a track switched off', () => {
+    render(
+      <GlobeView
+        {...baseProps}
+        mode="playback"
+        zoneData={zoneData}
+        onBackToSelection={vi.fn()}
+        tracks={tracks}
+        enabledTrackIds={new Set(['co2'])}
+      />
+    );
+    const legend = screen.getByRole('region', { name: 'Datasets' });
+    expect(legend).not.toHaveTextContent('Piano');
+    expect(legend).toHaveTextContent('♪ Cello');
+  });
+});
+
+describe('flightDuration', () => {
+  it('is short for a nearby hop and longer across the planet, within bounds', () => {
+    const near = flightDuration({ lat: 46, lng: 2, altitude: 0.4 }, { lat: 47, lng: 8, altitude: 0.3 });
+    const far = flightDuration({ lat: 46, lng: 2, altitude: 0.4 }, { lat: -17, lng: 178, altitude: 0.25 });
+    expect(near).toBeGreaterThanOrEqual(700);
+    expect(near).toBeLessThan(far);
+    expect(far).toBeLessThanOrEqual(2200);
+  });
+
+  it('uses a default when the current position is unknown', () => {
+    expect(flightDuration(undefined, { lat: 0, lng: 0, altitude: 1 })).toBe(1200);
   });
 });

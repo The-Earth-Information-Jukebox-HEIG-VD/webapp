@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   fetchZoneData,
+  fetchZoneSeries,
   monthsBetween,
   addMonths,
   fetchInstruments,
@@ -132,5 +133,34 @@ describe('period helpers', () => {
     expect(monthsBetween('2015-11', '2016-02')).toBe(3);
     expect(addMonths('2015-11', 3)).toBe('2016-02');
     expect(addMonths('2025-12', 1)).toBe('2026-01');
+  });
+});
+
+describe('fetchZoneSeries', () => {
+  it('POSTs the area and returns the series', async () => {
+    const body = {
+      zone_id: 'europe', step: 'month', point_count: 2,
+      series: { co2: { units: 'ppm', anomaly: false, start: '2002-07', yearly: false, values: [370, null] } },
+      missing: ['fires'],
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal('fetch', fetchMock);
+    const res = await fetchZoneSeries({
+      zone_id: 'europe', zone_name: 'Europe', dataset_ids: ['co2', 'fires'], points: [], aggregation: 'mean',
+    });
+    expect(res.series.co2.values).toEqual([370, null]);
+    expect(res.missing).toEqual(['fires']);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/zones\/series$/);
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body as string).dataset_ids).toEqual(['co2', 'fires']);
+  });
+
+  it('maps a 400 to noDataForPeriod', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Unknown dataset' }, 400)));
+    const err = await failure(fetchZoneSeries({
+      zone_id: null, zone_name: null, dataset_ids: ['x'], points: [], aggregation: 'mean',
+    }));
+    expect(err.kind).toBe('noDataForPeriod');
   });
 });

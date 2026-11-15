@@ -247,6 +247,20 @@
   font-feature-settings: 'tnum';
 }
 
+.globe-legend-instrument {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: #d0d6e0;
+  /* Bars stay legible on the dark legend background */
+  --sounding-bars-color: #8ab4f8;
+}
+
+.globe-legend-instrument[data-sounding] {
+  color: #ffffff;
+}
+
 .globe-data-status,
 .globe-data-error {
   margin: var(--spacing-xs) 0 0;
@@ -261,4 +275,33 @@
   .globe-data-panel {
     max-width: 60%;
   }
+}
+
+/* ── Smooth appearance ───────────────────────────────────────────── */
+/* The globe fades in once its texture is ready instead of popping over the skeleton */
+.globe-canvas {
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.globe-canvas.is-loaded {
+  opacity: 1;
+}
+
+/* Overlays (year, zone type, playback legend) slide in when they appear */
+.globe-year-display,
+.globe-zone-type,
+.globe-data-panel,
+.globe-legend-instrument {
+  animation: overlayIn var(--duration-base) var(--ease-out) both;
+}
+
+/* Value changes every month: ease the colour, never the layout */
+.globe-legend-range,
+.globe-legend-instrument {
+  transition: color var(--transition-base);
+}
+
+.globe-legend li {
+  transition: opacity var(--transition-base);
 }

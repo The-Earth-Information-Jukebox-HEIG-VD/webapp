@@ -13,7 +13,12 @@ interface Shortcut {
 
 const shortcuts: Shortcut[] = [
   { keys: ['Space'], description: 'Play or pause sonification' },
-  { keys: ['←', '→'], description: 'Seek backward or forward 5%' },
+  { keys: ['←', '→'], description: 'Seek backward or forward 2%' },
+  { keys: ['Shift', '←'], description: 'On the timeline: back 1 month' },
+  { keys: ['Shift', '→'], description: 'On the timeline: forward 1 month' },
+  { keys: ['Page Up'], description: 'On the timeline: forward 1 year' },
+  { keys: ['Page Down'], description: 'On the timeline: back 1 year' },
+  { keys: ['M'], description: 'Mute or unmute' },
   { keys: ['Home'], description: 'Jump to beginning' },
   { keys: ['End'], description: 'Jump to end' },
   { keys: ['Tab'], description: 'Navigate between controls' },

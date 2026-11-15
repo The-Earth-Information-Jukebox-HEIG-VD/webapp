@@ -315,10 +315,8 @@
     "antarctic": "Antarctic"
   },
   "tracks": {
-    "title": "Audio Tracks",
     "temperature": "Temperature",
     "lightning": "Lightning",
-    "description": "Switch on several tracks to hear different climate measurements together. Each uses its own instrument.",
     "precipitation": "Precipitation",
     "co2": "CO₂",
     "noneSelected": "No track selected. Select at least one track to play.",
@@ -327,7 +325,16 @@
     "loading": "Loading tracks…",
     "retry": "Retry",
     "snow": "Snow",
-    "night_lights": "Night lights"
+    "night_lights": "Night lights",
+    "fires": "Fires",
+    "heading": "What do you want to hear?",
+    "hint": "Each dataset plays its own instrument. Pick one or more.",
+    "onlyWhenPresent": "only when present",
+    "sounding": "Sounding now",
+    "show": "Show",
+    "hide": "Hide",
+    "selectedCount_one": "{{count}} track selected",
+    "selectedCount_other": "{{count}} tracks selected"
   },
   "moments": {
     "title": "Key Climate Moments",
@@ -465,6 +472,8 @@
       "snow": "Snow",
       "nightlights": "Night lights"
     },
-    "noSelectedDataset": "None of the selected tracks has data to show on the globe."
+    "noSelectedDataset": "None of the selected tracks has data to show on the globe.",
+    "playedBy": "played by {{instrument}}",
+    "instrument": "Instrument"
   }
 }

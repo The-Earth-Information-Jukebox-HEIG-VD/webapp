@@ -5,10 +5,11 @@
     "stop": "Stop and reset",
     "skipBackward": "Skip backward 10 years",
     "skipForward": "Skip forward 10 years",
-    "tracks": "Audio tracks ({{count}} active)",
+    "tracks": "Sounds: {{count}} selected",
     "jumpToStart": "Jump to start",
     "jumpToEnd": "Jump to end",
-    "selectZoneFirst": "Select a zone on the globe to play"
+    "selectZoneFirst": "Select a zone on the globe to play",
+    "tracksShort": "Sounds"
   },
   "status": {
     "playing": "Playing",
@@ -42,7 +43,9 @@
     "home": "Jump to start",
     "end": "Jump to end",
     "m": "Mute/Unmute",
-    "question": "Show keyboard shortcuts"
+    "question": "Show keyboard shortcuts",
+    "pageUpDown": "Forward or back 1 year (timeline)",
+    "shiftArrow": "Back or forward 1 month (timeline)"
   },
   "announcements": {
     "nowPlaying": "Now playing {{year}}: {{reading}}",
@@ -66,5 +69,33 @@
     "ppm": "parts per million",
     "percent": "percent",
     "mmPerDay": "millimetres per day"
+  },
+  "chooseSounds": "Choose sounds",
+  "datePicker": {
+    "open": "Go to a date, currently {{date}}",
+    "title": "Go to a date",
+    "year": "Year",
+    "month": "Month",
+    "go": "Go",
+    "close": "Close",
+    "jumped": "Jumped to {{date}}"
+  },
+  "graph": {
+    "toggle": "Graph",
+    "toggleLabel": "Show data graph",
+    "title": "Data graph",
+    "summary": "Data graph for {{zone}}, {{start}} to {{end}}: {{datasets}}. Each line uses its own scale. {{lines}}",
+    "lineSummary": "{{name}}: lowest {{min}} in {{minDate}}, highest {{max}} in {{maxDate}}.",
+    "tableCaption": "Yearly average of each dataset in the selected area",
+    "year": "Year",
+    "noData": "No data",
+    "zeroNormal": "0 = normal",
+    "loading": "Loading the data graph…",
+    "empty": "Select a zone and at least one sound to see the data graph.",
+    "scaleNote": "Each line uses its own scale",
+    "zoneFallback": "the selected area",
+    "error": "The data graph could not be loaded.",
+    "unavailable": "No data for this selection.",
+    "lineNoData": "{{name}}: no data in this area."
   }
 }

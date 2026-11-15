@@ -1,10 +1,11 @@
 /**
  * Sonification API client.
  *
- * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.1):
+ * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.4):
  *   GET  /api/instruments       which instrument plays which dataset
  *   GET  /api/health            server status
  *   POST /api/zones/zone-data   selected points + one period in, 30 s of audio out
+ *   POST /api/zones/series      full monthly series of the selected area, for the data graph
  *
  * The embedded base64 `audio_data` is played as is.
  */
@@ -43,6 +44,36 @@ export interface ZoneDataResponse {
   /** Mean over the points at time_period, per dataset_id, in the units of /api/instruments */
   values: Record<string, number>;
   point_count: number;
+}
+
+export interface ZoneSeriesRequest {
+  zone_id: string | null;
+  zone_name: string | null;
+  dataset_ids: string[];
+  points: GridPoint[];
+  /** Only "mean" exists */
+  aggregation: 'mean';
+}
+
+export interface DatasetSeries {
+  units: string | null;
+  /** The values are departures from normal */
+  anomaly: boolean;
+  /** "YYYY-MM": month of values[0] */
+  start: string;
+  /** One value per year (stored in the January slot of each year) */
+  yearly: boolean;
+  /** values[i] is the month `start + i`; null = no data */
+  values: (number | null)[];
+}
+
+export interface ZoneSeriesResponse {
+  zone_id: string | null;
+  step: 'month';
+  point_count: number;
+  series: Record<string, DatasetSeries>;
+  /** Requested datasets the server has no data for */
+  missing: string[];
 }
 
 export interface InstrumentInfo {
@@ -166,6 +197,18 @@ async function request<T>(path: string, init: RequestInit, signal?: AbortSignal)
 export function fetchZoneData(req: ZoneDataRequest, signal?: AbortSignal): Promise<ZoneDataResponse> {
   return request<ZoneDataResponse>(
     '/zones/zone-data',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    },
+    signal
+  );
+}
+
+export function fetchZoneSeries(req: ZoneSeriesRequest, signal?: AbortSignal): Promise<ZoneSeriesResponse> {
+  return request<ZoneSeriesResponse>(
+    '/zones/series',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
