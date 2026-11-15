@@ -54,6 +54,19 @@ describe('formatReading', () => {
     expect(speakableUnits('mg/m3', t)).toBe('Milligramm pro Kubikmeter');
   });
 
+  it('shows the vegetation index as NDVI, with two decimals below 1', async () => {
+    await i18n.changeLanguage('en');
+    expect(formatUnits('vegetation index (NDVI)')).toBe('NDVI');
+    expect(formatReading(0.624, 'vegetation index (NDVI)', false, t)).toBe('0.62 NDVI');
+    expect(formatReading(0.624, 'vegetation index (NDVI)', false, t, { speakable: true })).toBe('0.62 vegetation index');
+    // Clear sea chlorophyll would otherwise read "0.0 mg/m³"
+    expect(formatReading(0.043, 'mg/m3', false, t)).toBe('0.04 mg/m³');
+    expect(formatReading(2.71, 'mg/m3', false, t)).toBe('2.7 mg/m³');
+    await i18n.changeLanguage('fr');
+    expect(speakableUnits('vegetation index (NDVI)', t)).toBe('indice de végétation');
+    await i18n.changeLanguage('en');
+  });
+
   it('detects anomaly units', () => {
     expect(isAnomalyUnits('degC anomaly')).toBe(true);
     expect(isAnomalyUnits('ppm')).toBe(false);

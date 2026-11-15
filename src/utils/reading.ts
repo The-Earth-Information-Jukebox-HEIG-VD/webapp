@@ -8,7 +8,7 @@ const UNIT_SYMBOLS: Record<string, string> = {
   degK: 'K',
   K: 'K',
   ppm: 'ppm',
-  // Ocean chlorophyll (the backend code is not fixed yet: accept the usual spellings)
+  // Ocean chlorophyll (backend: "mg/m3"; other spellings accepted)
   'mg/m3': 'mg/m³',
   'mg/m^3': 'mg/m³',
   'mg m-3': 'mg/m³',
@@ -16,6 +16,8 @@ const UNIT_SYMBOLS: Record<string, string> = {
   '1e18 molecules/cm2': '×10¹⁸ molec/cm²',
   '10^18 molecules/cm2': '×10¹⁸ molec/cm²',
   'x10^18 molecules/cm2': '×10¹⁸ molec/cm²',
+  // Vegetation greenness, a plain index from -0.2 to 1
+  'vegetation index (NDVI)': 'NDVI',
 };
 
 /** Backend unit codes -> i18n key (player:units.*) of the spoken name. */
@@ -33,6 +35,8 @@ const SPOKEN_KEYS: Record<string, string> = {
   '10^18 molecules/cm2': 'coColumn',
   'x10^18 molecules/cm2': 'coColumn',
   '×10¹⁸ molec/cm²': 'coColumn',
+  'vegetation index (NDVI)': 'ndvi',
+  NDVI: 'ndvi',
 };
 
 const MINUS = '−';
@@ -87,7 +91,9 @@ export function formatReading(
   const lang = i18n.language || 'en';
   const fraction = isFraction(units);
   const shown = fraction ? value * 100 : value;
-  const digits = fraction || (!anomaly && Math.abs(shown) >= 100) ? 0 : 1;
+  // Small absolute values (vegetation index 0-0.9, sea chlorophyll from 0.03 mg/m³)
+  // get two decimals, or they would all read "0.0"
+  const digits = fraction || (!anomaly && Math.abs(shown) >= 100) ? 0 : !anomaly && Math.abs(shown) < 1 ? 2 : 1;
   const rounded = Number(shown.toFixed(digits));
   const number = new Intl.NumberFormat(lang, {
     minimumFractionDigits: digits,

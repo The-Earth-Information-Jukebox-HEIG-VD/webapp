@@ -71,7 +71,8 @@
     "percent": "percent",
     "mmPerDay": "millimetres per day",
     "mgPerM3": "milligrams per cubic metre",
-    "coColumn": "times ten to the 18th molecules per square centimetre"
+    "coColumn": "times ten to the 18th molecules per square centimetre",
+    "ndvi": "vegetation index"
   },
   "chooseSounds": "Choose sounds",
   "datePicker": {

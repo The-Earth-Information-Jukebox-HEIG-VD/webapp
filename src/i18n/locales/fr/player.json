@@ -71,7 +71,8 @@
     "percent": "pour cent",
     "mmPerDay": "millimètres par jour",
     "mgPerM3": "milligrammes par mètre cube",
-    "coColumn": "fois dix puissance 18 molécules par centimètre carré"
+    "coColumn": "fois dix puissance 18 molécules par centimètre carré",
+    "ndvi": "indice de végétation"
   },
   "chooseSounds": "Choisir les sons",
   "datePicker": {

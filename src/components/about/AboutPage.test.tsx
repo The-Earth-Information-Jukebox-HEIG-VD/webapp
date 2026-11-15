@@ -30,7 +30,7 @@ describe('AboutPage accessibility', () => {
     await i18n.changeLanguage('en');
     render(<AboutPage />);
     const sources = within(screen.getByRole('region', { name: 'Data sources' }));
-    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /MODIS active fires/, /Earth at Night/, /Sea Ice Index/, /Natural Earth/]) {
+    for (const name of [/GISTEMP/, /GPM IMERG/, /ISS LIS/, /MODIS active fires/, /Earth at Night/, /Sea Ice Index/, /MODIS Terra vegetation/, /MOPITT/, /OceanColor/, /Natural Earth/]) {
       expect(sources.getByRole('link', { name })).toBeInTheDocument();
     }
     // In the datasets repository but not played by the backend yet: not claimed
@@ -47,7 +47,8 @@ describe('AboutPage accessibility', () => {
     await i18n.changeLanguage('en');
     render(<AboutPage />);
     const orchestra = within(screen.getByRole('region', { name: /orchestra/i }));
-    for (const text of [/Lightning: timpani/, /Fires: trombones/, /Night lights: synth pad/, /Sea ice: bowed glass/]) {
+    for (const text of [/Lightning: timpani/, /Fires: trombones/, /Night lights: synth pad/, /Sea ice: bowed glass/,
+      /Vegetation \(NDVI\): clarinet/, /Carbon monoxide: bassoon/, /Ocean plankton \(chlorophyll\): vibraphone/]) {
       expect(orchestra.getByText(text)).toBeInTheDocument();
     }
     expect(screen.queryByText(/xylophone|harp/i)).not.toBeInTheDocument();

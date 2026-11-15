@@ -71,7 +71,8 @@
     "percent": "Prozent",
     "mmPerDay": "Millimeter pro Tag",
     "mgPerM3": "Milligramm pro Kubikmeter",
-    "coColumn": "mal zehn hoch 18 Moleküle pro Quadratzentimeter"
+    "coColumn": "mal zehn hoch 18 Moleküle pro Quadratzentimeter",
+    "ndvi": "Vegetationsindex"
   },
   "chooseSounds": "Klänge wählen",
   "datePicker": {
