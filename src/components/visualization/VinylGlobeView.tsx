@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import { Raycaster, Sphere, Vector2, Vector3 } from 'three';
 import type { Track } from '../../types/tracks';
-import type { VinylChunkMeta, VinylStop } from '../../services/vinylApi';
-import { KNOWN_DATASETS, valueToAlpha } from '../../data/datasetRegistry';
+import type { VinylChunkMeta } from '../../services/vinylApi';
 import {
   NEEDLE_SCREEN_ANGLE_DEG,
   THETA_MAX_DEG,
@@ -26,6 +25,8 @@ import { regionNameAt } from '../../utils/regionName';
 import { flightDuration } from './GlobeView';
 import { VinylChunkTable } from './VinylChunkTable';
 import { useHemisphereLabels } from './useHemisphereLabels';
+import { trailLayers, trailSpots } from './vinylTrail';
+import { useTrailSpotLayer } from './useTrailSpotLayer';
 import './VinylGlobeView.css';
 
 interface VinylGlobeViewProps {
@@ -67,12 +68,6 @@ const ACTIVE_COLOR = '#ffb74d';
 const RAD = Math.PI / 180;
 /** How often the data trail checks whether the needle reached the next stop */
 const TRAIL_TICK_MS = 200;
-
-function hexToRgba(hex: string, alpha: number): string {
-  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
-  if (!m) return hex;
-  return `rgba(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}, ${alpha.toFixed(3)})`;
-}
 
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
@@ -237,46 +232,13 @@ export function VinylGlobeView({
     return () => window.clearInterval(id);
   }, [isPlaying, started, history, chunkIndex, getLiveProgress]);
 
-  const trackStyles = useMemo(
-    () =>
-      tracks.map((tr) => ({
-        id: tr.id,
-        color: tr.color,
-        display: KNOWN_DATASETS.find((d) => d.trackIds.includes(tr.id))?.display ?? null,
-      })),
-    [tracks]
+  // The trail is drawn like zone mode's flowing spots, by the GPU (useTrailSpotLayer)
+  const layers = useMemo(() => trailLayers(tracks), [tracks]);
+  const spots = useMemo(
+    () => trailSpots(started ? history : {}, chunkIndex, reached, layers),
+    [started, history, chunkIndex, reached, layers]
   );
-
-  const trail = useMemo<Dot[]>(() => {
-    if (!started) return [];
-    const dots: Dot[] = [];
-    const n = trackStyles.length;
-    const add = (k: number, stops: VinylStop[], count: number, radiusDeg: number) => {
-      const spread = n > 1 ? radiusDeg * 0.4 : 0;
-      for (let i = 0; i < count; i++) {
-        const s = stops[i];
-        const cosLat = Math.max(0.2, Math.cos(s.lat * RAD));
-        trackStyles.forEach((ts, j) => {
-          const v = s.values[ts.id];
-          if (v === null || v === undefined || !Number.isFinite(v)) return;
-          const a = (2 * Math.PI * j) / Math.max(1, n);
-          const alpha = ts.display ? 0.25 + 0.75 * valueToAlpha(v, ts.display) : 0.8;
-          dots.push({
-            id: `${k}:${i}:${ts.id}`,
-            lat: s.lat + spread * Math.cos(a),
-            lng: s.lng + (spread * Math.sin(a)) / cosLat,
-            color: hexToRgba(ts.color, alpha),
-            radius: Math.max(0.3, radiusDeg * 0.3),
-          });
-        });
-      }
-    };
-    for (const meta of Object.values(history)) {
-      const count = meta.chunkIndex === chunkIndex ? reached : meta.stops.length;
-      add(meta.chunkIndex, meta.stops, count, meta.radiusDeg);
-    }
-    return dots;
-  }, [started, history, chunkIndex, reached, trackStyles]);
+  useTrailSpotLayer(globeRef, isLoaded, layers, spots);
 
   // Grooves: faint rings, the groove being played highlighted
   const paths = useMemo<PathDatum[]>(() => {
@@ -291,15 +253,15 @@ export function VinylGlobeView({
     return rings;
   }, [c, chunkIndex, started]);
 
-  // Centre spindle, the data trail and (reduced motion) the point being played
+  // Centre spindle and (reduced motion) the point being played
   const markers = useMemo<Dot[]>(() => {
-    const list: Dot[] = [{ id: 'center', lat: c.lat, lng: c.lng, color: '#ffffff', radius: 0.6 }, ...trail];
+    const list: Dot[] = [{ id: 'center', lat: c.lat, lng: c.lng, color: '#ffffff', radius: 0.6 }];
     if (reducedMotion && started) {
       const p = needlePoint(c, (chunkIndex + 0.5) / VINYL_CHUNKS);
       list.push({ id: 'needle', lat: p.lat, lng: p.lng, color: ACTIVE_COLOR, radius: 1.2 });
     }
     return list;
-  }, [c, trail, reducedMotion, started, chunkIndex]);
+  }, [c, reducedMotion, started, chunkIndex]);
 
   // Click: undo the rotation shown on screen, then cast a ray from the camera.
   // (Not toGlobeCoords: it measures the rotated canvas, whose box grows with the angle.)

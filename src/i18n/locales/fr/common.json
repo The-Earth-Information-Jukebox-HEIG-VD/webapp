@@ -411,7 +411,7 @@
     "howPitch": "Les valeurs élevées jouent des notes aiguës, par rapport à l'étendue propre à votre zone : une valeur donne donc toujours la même note.",
     "howLoudness": "La pluie, la neige, la foudre, les feux et les lumières nocturnes ne jouent que lorsqu'il y en a suffisamment. Plus il y en a, plus leur instrument joue fort : une forte pluie fait répéter les notes des violons plus vite, plus il y a d'éclairs, plus les timbales frappent de coups par temps, et les trombones enflent avec les feux. Les lumières nocturnes changent une fois par an : la nappe de synthétiseur commence nettement chaque janvier, puis s'estompe lentement au fil de l'année.",
     "howGaps": "Lorsqu'un jeu de données n'a pas de données pour une date (par exemple le CO₂ avant septembre 2002), son instrument se tait.",
-    "howGlobe": "Pendant la musique, le globe affiche les données de votre zone : une couleur par jeu de données, et plus la valeur est forte, plus le point est opaque. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
+    "howGlobe": "Pendant la musique, le globe affiche les données de votre zone sous forme de taches : une couleur par jeu de données, et plus la valeur est forte, plus la tache est grande. Là où il n'y a rien, il n'y a pas de tache : les taches apparaissent, grandissent et s'effacent au fil des mois. La température est une tache pleine quand il fait plus chaud que la normale et un anneau quand il fait plus froid. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
     "orchestraTitle": "L'orchestre",
     "orchestraText": "Chaque jeu de données a son instrument :",
     "instruments": {

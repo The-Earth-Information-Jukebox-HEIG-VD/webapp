@@ -411,7 +411,7 @@
     "howPitch": "Höhere Werte klingen höher, gemessen am eigenen Wertebereich Ihrer Zone: Ein Wert ergibt also immer denselben Ton.",
     "howLoudness": "Regen, Schnee, Blitze, Brände und Nachtlichter spielen nur, wenn genug davon vorhanden ist. Je mehr davon, desto lauter spielt ihr Instrument: Starker Regen lässt die Violinen ihre Töne schneller wiederholen, mehr Blitze bedeuten mehr Paukenschläge pro Zählzeit, und die Posaunen schwellen mit den Bränden an. Nachtlichter ändern sich einmal im Jahr: Das Synthesizer-Pad setzt jeden Januar deutlich ein und klingt dann im Lauf des Jahres langsam ab.",
     "howGaps": "Hat ein Datensatz für ein Datum keine Daten (zum Beispiel CO₂ vor September 2002), schweigt sein Instrument.",
-    "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone: eine Farbe pro Datensatz, und je stärker der Wert, desto deckender der Punkt. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
+    "howGlobe": "Während die Musik spielt, zeigt der Globus die Daten Ihrer Zone als Flecken: eine Farbe pro Datensatz, und je stärker der Wert, desto größer der Fleck. Wo nichts ist, gibt es keinen Fleck: Die Flecken erscheinen, wachsen und verblassen im Lauf der Monate. Die Temperatur ist ein gefüllter Fleck, wenn es wärmer als normal ist, und ein Ring, wenn es kälter ist. Wählen Sie Zone wechseln oder drücken Sie Esc, um eine andere Zone zu wählen.",
     "orchestraTitle": "Das Orchester",
     "orchestraText": "Jeder Datensatz hat sein eigenes Instrument:",
     "instruments": {

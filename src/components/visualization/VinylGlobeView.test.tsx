@@ -4,7 +4,7 @@ import { axe } from 'jest-axe';
 import '../../i18n';
 import { VinylGlobeView } from './VinylGlobeView';
 import { VinylRecordView } from './VinylRecordView';
-import { PerspectiveCamera } from 'three';
+import { PerspectiveCamera, type Group, type InstancedMesh, type MeshBasicMaterial } from 'three';
 import { VINYL_ALTITUDE } from '../../utils/vinylGeometry';
 import type { Track } from '../../types/tracks';
 import type { VinylChunkMeta } from '../../services/vinylApi';
@@ -26,6 +26,28 @@ const toGeoCoords = vi.fn(({ x, y, z }: { x: number; y: number; z: number }) => 
   altitude: 0,
 }));
 
+// Scene of the globe: the spot layer adds its meshes here
+const sceneGroups: Group[] = [];
+const scene = {
+  add: (g: Group) => sceneGroups.push(g),
+  remove: (g: Group) => sceneGroups.splice(sceneGroups.indexOf(g), 1),
+};
+const getCoords = (lat: number, lng: number, alt = 0) => {
+  const r = R * (1 + alt);
+  const phi = (lat * Math.PI) / 180;
+  const lambda = (lng * Math.PI) / 180;
+  return { x: r * Math.cos(phi) * Math.sin(lambda), y: r * Math.sin(phi), z: r * Math.cos(phi) * Math.cos(lambda) };
+};
+/** Spots drawn per mesh colour (discs only: no halos, no rings) */
+function drawnDiscs(): number[] {
+  return sceneGroups.flatMap((g) =>
+    g.children
+      .filter((m): m is InstancedMesh => (m as InstancedMesh).isInstancedMesh)
+      .filter((m) => !(m.material as MeshBasicMaterial).transparent && m.geometry.type === 'CircleGeometry')
+      .map((m) => m.count)
+  );
+}
+
 vi.mock('react-globe.gl', async () => {
   const { forwardRef, useImperativeHandle, useEffect } = await import('react');
   return {
@@ -38,6 +60,8 @@ vi.mock('react-globe.gl', async () => {
         camera: () => camera,
         getGlobeRadius: () => R,
         toGeoCoords,
+        scene: () => scene,
+        getCoords,
       }));
       const onGlobeReady = props.onGlobeReady as () => void;
       useEffect(() => onGlobeReady(), [onGlobeReady]);
@@ -97,46 +121,33 @@ describe('VinylGlobeView', () => {
     expect(onCenterPick).toHaveBeenCalledTimes(1);
   });
 
-  it('leaves the data of the stops already passed on the globe', () => {
-    const temperature = { id: 'temperature', color: '#e67e22', nameKey: 'x', label: 'Temperature', units: 'degC anomaly' } as Track;
+  it('leaves flowing spots on the globe for the stops already passed', () => {
+    // Draw at once (no grow-in) so the spots can be counted
+    document.documentElement.classList.add('reduced-motion');
+    const temperature = { id: 'temperature', color: '#e67e22', nameKey: 'x', label: 'T', units: 'degC anomaly' } as Track;
     const meta: VinylChunkMeta = {
       chunkIndex: 0,
       nextChunkIndex: 1,
       center: base.center,
       timePeriod: '2020-03',
       stops: [
-        { lat: 1, lng: 1, values: { temperature: 1 } },
+        { lat: 1, lng: 1, values: { temperature: 1.5 } },
         { lat: 2, lng: 2, values: { temperature: null } },
-        { lat: 3, lng: 3, values: { temperature: 0 } },
+        { lat: 3, lng: 3, values: { temperature: -1.5 } },
       ],
       stopSeconds: 10,
       radiusDeg: 2,
-      values: { temperature: 0.5 },
+      values: { temperature: 0 },
     };
     render(<VinylGlobeView {...base} started chunkIndex={1} history={{ 0: meta }} tracks={[temperature]} />);
-    const dots = (globeProps.pointsData as { id: string }[]).filter((d) => d.id.startsWith('0:'));
-    // Groove 0 is behind the needle: every stop with data, none for null
-    expect(dots.map((d) => d.id)).toEqual(['0:0:temperature', '0:2:temperature']);
-  });
-
-  it('reveals the current groove stop by stop', () => {
-    const temperature = { id: 'temperature', color: '#e67e22', nameKey: 'x', label: 'T', units: null } as Track;
-    const meta: VinylChunkMeta = {
-      chunkIndex: 0,
-      nextChunkIndex: 1,
-      center: base.center,
-      timePeriod: '2020-03',
-      stops: [0, 1, 2].map((i) => ({ lat: i, lng: i, values: { temperature: 1 } })),
-      stopSeconds: 10,
-      radiusDeg: 2,
-      values: { temperature: 1 },
-    };
-    // 15 s into groove 0: stops 0 and 1 reached
-    render(
-      <VinylGlobeView {...base} started chunkIndex={0} getLiveProgress={() => 0.05} history={{ 0: meta }} tracks={[temperature]} />
-    );
-    const dots = (globeProps.pointsData as { id: string }[]).filter((d) => d.id.startsWith('0:'));
-    expect(dots).toHaveLength(2);
+    // No more dots in the points layer: only the centre spindle
+    expect((globeProps.pointsData as { id: string }[]).map((d) => d.id)).toEqual(['center']);
+    // Groove 0 is behind the needle: 2 spots (null has none); the cold one is a ring, not a disc
+    expect(drawnDiscs()).toEqual([2]);
+    const ringMesh = sceneGroups[0].children.find(
+      (m) => (m as InstancedMesh).geometry.type === 'RingGeometry' && !((m as InstancedMesh).material as MeshBasicMaterial).transparent
+    ) as InstancedMesh;
+    expect(ringMesh.count).toBe(2);
   });
 
   it('does not animate with reduced motion, and marks the groove being played', () => {
@@ -154,6 +165,26 @@ describe('VinylGlobeView', () => {
     render(<VinylGlobeView {...base} started isPlaying />);
     expect(raf).toHaveBeenCalled();
     raf.mockRestore();
+  });
+
+  it('reveals the current groove stop by stop', () => {
+    document.documentElement.classList.add('reduced-motion');
+    const rain = { id: 'precipitation', color: '#3498db', nameKey: 'x', label: 'Rain', units: 'mm/h' } as Track;
+    const meta: VinylChunkMeta = {
+      chunkIndex: 0,
+      nextChunkIndex: 1,
+      center: base.center,
+      timePeriod: '2020-03',
+      stops: [0, 1, 2].map((i) => ({ lat: i, lng: i, values: { precipitation: 0.4 } })),
+      stopSeconds: 10,
+      radiusDeg: 2,
+      values: { precipitation: 0.4 },
+    };
+    // 15 s into groove 0: stops 0 and 1 reached
+    render(
+      <VinylGlobeView {...base} started chunkIndex={0} getLiveProgress={() => 0.05} history={{ 0: meta }} tracks={[rain]} />
+    );
+    expect(drawnDiscs()).toEqual([2]);
   });
 });
 

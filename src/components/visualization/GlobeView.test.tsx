@@ -67,22 +67,16 @@ describe('GlobeView playback mode', () => {
     globeProps = {};
   });
 
-  it('shows zone polygons and no data dots in select mode', () => {
+  it('shows zone polygons in select mode', () => {
     render(<GlobeView {...baseProps} mode="select" />);
     expect((globeProps.polygonsData as object[]).length).toBeGreaterThan(0);
-    expect(globeProps.pointsData).toEqual([]);
     expect(screen.queryByRole('button', { name: /change zone/i })).not.toBeInTheDocument();
   });
 
-  it('removes the zone polygons and draws the stored values as dots', () => {
+  it('removes the zone polygons in playback and draws no 3D points (spots are on their own skin)', () => {
     render(<GlobeView {...baseProps} mode="playback" zoneData={zoneData} onBackToSelection={vi.fn()} />);
     expect(globeProps.polygonsData).toEqual([]);
-    // Only the non-NaN temperature cell is drawn; CO2 has no data this month
-    const dots = globeProps.pointsData as { dataset: number; cell: number }[];
-    expect(dots).toHaveLength(1);
-    expect(dots[0]).toMatchObject({ dataset: 0, cell: 0 });
-    const color = (globeProps.pointColor as (d: object) => string)(dots[0]);
-    expect(color).toMatch(/^rgba\(231, 134, 21, /); // temperature color
+    expect(globeProps.pointsData).toBeUndefined();
   });
 
   it('lists every dataset with its stored values in the legend and data table (accessibility)', async () => {

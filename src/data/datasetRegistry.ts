@@ -6,8 +6,8 @@
  * (row 0 = 90N, column 0 = 180W), NaN = no data.
  *
  * The volume has no metadata sidecars, so units, colors and the display range
- * used for dot opacity live here. The display range only scales opacity: the
- * values themselves are shown exactly as stored.
+ * used for the size of the globe spots live here. The display range only
+ * scales the spots: the values themselves are shown exactly as stored.
  */
 
 import { firstTrackColor, FALLBACK_TRACK_COLOR } from './trackColors';
@@ -17,11 +17,11 @@ export const GRID_COLS = 1440;
 export const GRID_RES_DEG = 0.25;
 
 export interface DatasetDisplay {
-  /** Value mapped to transparent. */
+  /** Value mapped to no spot. */
   min: number;
-  /** Value mapped to fully opaque. */
+  /** Value mapped to the biggest spot. */
   max: number;
-  /** 'abs': opacity from |value| (signed anomalies). */
+  /** 'abs': size from |value| (signed anomalies; below zero is drawn as a ring). */
   mode: 'linear' | 'abs';
 }
 
@@ -77,7 +77,8 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     trackIds: ['lightning'],
     units: '',
     color: firstTrackColor(['lightning']),
-    display: { min: 0, max: 1, mode: 'linear' },
+    // Share of the cell with lightning; above half is already a storm hot spot
+    display: { min: 0, max: 0.5, mode: 'linear' },
   },
   {
     id: 'rain',
@@ -87,7 +88,8 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     trackIds: ['precipitation', 'rain'],
     units: 'mm/h',
     color: firstTrackColor(['precipitation', 'rain']),
-    display: { min: 0, max: 0.75, mode: 'linear' },
+    // Spot size: 0.5 mm/h (12 mm/day) is already heavy monthly rain
+    display: { min: 0, max: 0.5, mode: 'linear' },
   },
   {
     id: 'snow',
@@ -111,15 +113,15 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     display: { min: 0, max: 0.5, mode: 'linear' },
   },
   {
-    // Days with a fire per month (2002-07 to 2026-11); 94% of cells are 0, p99.5 = 17
+    // Days of the month with at least one fire detected (0-31)
     id: 'fires',
     folder: 'fires_2002_2026',
     prefix: 'fires',
     labelKey: 'globeData.datasets.fires',
     trackIds: ['fires'],
-    units: '',
+    units: 'days',
     color: firstTrackColor(['fires']),
-    display: { min: 0, max: 17, mode: 'linear' },
+    display: { min: 0, max: 20, mode: 'linear' },
   },
 ];
 
@@ -142,7 +144,7 @@ export function datasetForFolder(folder: string, prefix: string, _index: number)
   };
 }
 
-/** Opacity (0-1) of a dot for a stored value. NaN -> 0 (hidden). */
+/** Share (0-1) of the display range reached by a stored value (spot size). NaN -> 0 (hidden). */
 export function valueToAlpha(value: number, display: DatasetDisplay): number {
   if (Number.isNaN(value)) return 0;
   const v = display.mode === 'abs' ? Math.abs(value) : value;

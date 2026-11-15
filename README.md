@@ -11,7 +11,7 @@ Full technical documentation: <https://the-earth-information-jukebox-heig-vd.git
 - Zone series chart: the Graph toggle shows the zone's values over time, full width, with a data table for screen readers
 - Date picker ("Go to a date") to jump to any month of the timeline
 - iOS silent-switch handling: playback stays audible when the ringer switch is on silent (`src/audio/iosAudioUnlock.ts`)
-- In development: vinyl experience mode. A switch between "Time travel" (the zone mode above) and "Vinyl", where one month of data plays as a record whose 10 grooves (30 s each) spiral across the globe, with a needle, a centre point and presets. This is work in progress: the backend has no vinyl endpoint yet, so `src/services/vinylApi.ts` simulates it from the zone endpoint
+- Vinyl experience mode: a switch between "Time travel" (the zone mode above) and "Vinyl", where one month of data plays as a record whose 10 grooves (30 s each) spiral across the globe from the rim to a chosen centre (click, preset or latitude/longitude), under a fixed tonearm. Each groove is sent to `POST /api/zones/groove` (backend API v2.6) and the values read along the way stay on the globe as flowing spots
 - During playback, the zone's values from the datasets volume are drawn on the globe, in step with the music
 - English, French and German (i18next)
 - Built for WCAG 2.1 AA: keyboard shortcuts (Space, ←/→, Home/End, M, Escape), screen reader announcements, data tables for the globe
@@ -86,7 +86,7 @@ src/
 ├── components/         UI: about, controls, layout, moments, player, visualization (globe, list)
 │                       (the root files AudioPlayer, DataSelector, DataVisualizer, InfoPanel, KeyboardShortcuts and AudioTranscript are legacy and unused)
 ├── hooks/              useSonification, usePlaybackPosition (position store outside React state), useInstruments, useZoneDataFrames, useHashRoute, useVinylSonification, …
-├── services/           sonificationApi.ts (backend client), volumeData.ts (datasets reader), vinylApi.ts (vinyl mode, simulated)
+├── services/           sonificationApi.ts (backend client), volumeData.ts (datasets reader), vinylApi.ts (vinyl mode: groove paths, /api/zones/groove)
 ├── audio/              ChunkPlayer.ts (plays the backend's audio chunks), iosAudioUnlock.ts (iOS silent switch)
 ├── data/               dataset registry (colours, units), key moments, zone outlines (Natural Earth)
 ├── utils/              .npy parser, geometry, zone grid cells, formatting
