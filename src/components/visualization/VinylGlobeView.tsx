@@ -323,7 +323,6 @@ export function VinylGlobeView({
   const centreText = fmt(center);
   const needleNow = needlePoint(c, started ? (chunkIndex + 0.5) / VINYL_CHUNKS : 0);
   const region = regionNameAt(needleNow, t);
-  const simulated = Object.values(history).some((m) => m.simulated);
 
   const pivot = { x: size * 0.92, y: size * 0.1 };
   const head = Math.max(4, size * 0.012);
@@ -405,7 +404,6 @@ export function VinylGlobeView({
           {t('vinyl.grooveOf', { k: (started ? chunkIndex : 0) + 1, n: VINYL_CHUNKS })}
           {region && ` · ${t('vinyl.caption.near', { region })}`}
         </span>
-        {simulated && <span className="vinyl-caption-note">{t('vinyl.simulated')}</span>}
       </div>
 
       <p className="vinyl-pick-hint">{t('vinyl.pickHint')}</p>

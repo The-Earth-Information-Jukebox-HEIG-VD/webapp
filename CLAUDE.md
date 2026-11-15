@@ -8,7 +8,7 @@
 - iOS mutes Web Audio under the silent/ringer switch ("ambient" session): `play()` must, synchronously in the gesture, request `navigator.audioSession.type = 'playback'` or start the silent `<audio>` fallback (`src/audio/iosAudioUnlock.ts`). An `'interrupted'` context (call, Siri, lock screen) pauses the player.
 - There is no per-track volume: the backend returns one mixed file.
 - API types in `src/services/sonificationApi.ts` mirror `../sonification/backend/FRONTEND_API.md`; update them together.
-- Vinyl mode (`src/services/vinylApi.ts`, `hooks/useVinylSonification.ts`) plays `POST /api/zones/groove` (API v2.6): each 30 s chunk sends `groovePath(center, k)` (10 bars; `points_per_bar` 4/2/1 so points stay ≥ 2° apart, ≤ 80 points); `stops[i]` plays from `i × stop_seconds` and drives the data trail on the globe. It reuses ChunkPlayer unchanged: groove k is encoded as the synthetic period `2000-01 + 10k months` (never sent to the backend). A backend without the route (FastAPI `404 Not Found`) switches to a zone-data simulation (`simulated: true`); `grep -rn "TODO(backend-vinyl)" src` marks it. The vinyl position lives in its own position store too.
+- Vinyl mode (`src/services/vinylApi.ts`, `hooks/useVinylSonification.ts`) plays `POST /api/zones/groove` (API v2.6): each 30 s chunk sends `groovePath(center, k)` (10 bars; `points_per_bar` 4/2/1 so points stay ≥ 2° apart, ≤ 80 points); `stops[i]` plays from `i × stop_seconds` and drives the data trail on the globe (`null` = no data, no dot). It reuses ChunkPlayer unchanged: groove k is encoded as the synthetic period `2000-01 + 10k months` (never sent to the backend). The vinyl position lives in its own position store too.
 
 ## Accessibility component rules (WCAG 2.1 AA is mandatory)
 

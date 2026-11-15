@@ -546,7 +546,6 @@
       "pacific": "Pacific Ocean",
       "atlantic": "Atlantic Ocean",
       "indian-ocean": "Indian Ocean"
-    },
-    "simulated": "Simulated: this server has no groove endpoint yet (API v2.6), each groove is a mean over its band."
+    }
   }
 }

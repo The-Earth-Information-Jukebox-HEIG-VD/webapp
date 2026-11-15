@@ -7,22 +7,14 @@
  * and gets back 30 s of music plus one stop per point: stops[i] plays from
  * i * stop_seconds. The groove endpoint has no "next" cursor, the frontend
  * chooses the next stretch (k + 1) itself.
- *
- * Fallback: a backend older than v2.6 has no groove route (404 "Not Found").
- * The record is then simulated with zone-data over the groove's band (one mean
- * for the whole groove, 10 months of time instead of space).
- * TODO(backend-vinyl): remove the fallback once every deployed backend serves /api/zones/groove.
  */
 import {
-  ApiError,
   addMonths,
   fetchGroove,
-  fetchZoneData,
   monthsBetween,
   periodToYear,
   type GrooveRequest,
   type GrooveResponse,
-  type ZoneDataRequest,
   type ZoneDataResponse,
 } from './sonificationApi';
 import type { ChunkFetcher } from '../audio/ChunkPlayer';
@@ -30,7 +22,6 @@ import {
   BARS_PER_CHUNK,
   GROOVE_RADIUS_DEG,
   VINYL_CHUNKS,
-  bandPoints,
   clampCenter,
   groovePath,
   type LatLng,
@@ -73,16 +64,13 @@ export interface VinylResponse {
   audio_data: string;
   /** Mean of the non-null stop values, per dataset_id */
   values: Record<string, number>;
-  /** True when played by the zone-data fallback (no groove endpoint) */
-  simulated: boolean;
 }
 
 export interface VinylDeps {
   fetchGroove: (req: GrooveRequest, signal?: AbortSignal) => Promise<GrooveResponse>;
-  fetchZoneData: (req: ZoneDataRequest, signal?: AbortSignal) => Promise<ZoneDataResponse>;
 }
 
-const DEFAULT_DEPS: VinylDeps = { fetchGroove, fetchZoneData };
+const DEFAULT_DEPS: VinylDeps = { fetchGroove };
 
 /** The groove request for chunk k of the record centred on `center`. */
 export function buildGrooveRequest(
@@ -117,19 +105,6 @@ export function meanValues(stops: VinylStop[]): Record<string, number> {
   return Object.fromEntries(Object.entries(sum).map(([id, { total, n }]) => [id, total / n]));
 }
 
-/** A backend without the groove route (FastAPI's own 404, or 405). */
-function isMissingRoute(err: unknown): boolean {
-  return err instanceof ApiError && ((err.status === 404 && err.detail === 'Not Found') || err.status === 405);
-}
-
-/** Set once the backend answered that it has no groove route. */
-let grooveUnavailable = false;
-
-/** Test seam: forget what the backend said. */
-export function resetGrooveAvailability(): void {
-  grooveUnavailable = false;
-}
-
 /** One groove of the record. */
 export async function fetchVinylChunk(
   req: VinylRequest,
@@ -138,56 +113,19 @@ export async function fetchVinylChunk(
 ): Promise<VinylResponse> {
   const center = clampCenter(req.center);
   const k = Math.max(0, Math.min(VINYL_CHUNKS - 1, Math.floor(req.chunk_index)));
-  const grooveReq = buildGrooveRequest(center, k, req.time_period, req.dataset_ids);
-  const base = {
+  const g = await deps.fetchGroove(buildGrooveRequest(center, k, req.time_period, req.dataset_ids), signal);
+  return {
+    dataset_ids: g.dataset_ids,
     time_period: req.time_period,
     center,
     chunk_index: k,
     next_chunk_index: k + 1 < VINYL_CHUNKS ? k + 1 : null,
     chunk_count: VINYL_CHUNKS,
-  };
-
-  if (!grooveUnavailable) {
-    try {
-      const g = await deps.fetchGroove(grooveReq, signal);
-      return {
-        ...base,
-        dataset_ids: g.dataset_ids,
-        stops: g.stops,
-        stop_seconds: g.stop_seconds,
-        radius_deg: g.radius_deg,
-        audio_data: g.audio_data,
-        values: meanValues(g.stops),
-        simulated: false,
-      };
-    } catch (err) {
-      if (!isMissingRoute(err)) throw err;
-      grooveUnavailable = true;
-    }
-  }
-
-  // Fallback (TODO(backend-vinyl)): zone-data over the band the groove sweeps
-  const zone = await deps.fetchZoneData(
-    {
-      zone_id: `${grooveReq.zone_id}:${k}`,
-      zone_name: null,
-      dataset_ids: req.dataset_ids,
-      points: bandPoints(center, k),
-      time_period: req.time_period,
-      aggregation: 'mean',
-    },
-    signal
-  );
-  const values = zone.values ?? {};
-  return {
-    ...base,
-    dataset_ids: zone.dataset_ids,
-    stops: grooveReq.path.map((p) => ({ lat: p.lat, lng: p.lng, values: { ...values } })),
-    stop_seconds: (BARS_PER_CHUNK * 3) / grooveReq.path.length,
-    radius_deg: grooveReq.radius_deg,
-    audio_data: zone.audio_data,
-    values,
-    simulated: true,
+    stops: g.stops,
+    stop_seconds: g.stop_seconds,
+    radius_deg: g.radius_deg,
+    audio_data: g.audio_data,
+    values: meanValues(g.stops),
   };
 }
 
@@ -236,7 +174,6 @@ export interface VinylChunkMeta {
   radiusDeg: number;
   /** Mean along the groove, per dataset_id (announcements, table) */
   values: Record<string, number>;
-  simulated: boolean;
 }
 
 export type VinylPlayerChunk = ZoneDataResponse & { vinyl: VinylChunkMeta };
@@ -282,7 +219,6 @@ export function makeVinylChunkFetcher(
         stopSeconds: v.stop_seconds,
         radiusDeg: v.radius_deg,
         values: v.values,
-        simulated: v.simulated,
       },
     };
     return chunk;

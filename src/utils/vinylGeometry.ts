@@ -11,7 +11,6 @@
  * - Progress p in [0, 1] runs over the whole side (VINYL_CHUNKS chunks).
  * - Screen angles: clockwise from +x (CSS / canvas convention, y pointing down).
  */
-import type { GridPoint } from '../types/zones';
 
 export interface LatLng {
   lat: number;
@@ -185,60 +184,6 @@ export function groovePath(
   const path: LatLng[] = [];
   for (let i = 0; i < n; i++) path.push(needlePoint(center, p0 + ((p1 - p0) * i) / n, opts));
   return { pointsPerBar, path };
-}
-
-export interface BandOptions extends SpiralOptions {
-  /** Half width of the band across the groove (default: 3°, or half the groove pitch if smaller) */
-  halfWidthDeg?: number;
-  /** Sampling step along and across the path (default 1°: about one cell of the 1-2° datasets) */
-  stepDeg?: number;
-  /** Upper bound on the returned points (the step is coarsened until it fits) */
-  maxPoints?: number;
-}
-
-function toGridPoint(p: LatLng): GridPoint {
-  // Same pixel space as getPointsInFeature (3600 x 1800); the backend ignores x/y
-  return {
-    lat: p.lat,
-    lng: p.lng,
-    x: Math.round(((p.lng + 180) / 360) * 3600),
-    y: Math.round(((90 - p.lat) / 180) * 1800),
-  };
-}
-
-/**
- * Grid points of the band the needle sweeps during chunk k: the groove plus
- * `halfWidthDeg` on each side, de-duplicated on a `stepDeg` grid.
- * Used by the simulation to ask the zone-data endpoint for that area.
- */
-export function bandPoints(center: LatLng, k: number, opts: BandOptions = {}): GridPoint[] {
-  const { thetaMax, thetaMin, chunks, turnsPerChunk } = resolve(opts);
-  const pitch = (thetaMax - thetaMin) / (chunks * turnsPerChunk);
-  const halfWidth = opts.halfWidthDeg ?? Math.min(3, pitch / 2);
-  const maxPoints = opts.maxPoints ?? 2500;
-  let step = opts.stepDeg ?? 1;
-  const [p0, p1] = chunkProgressRange(k, chunks);
-
-  for (;;) {
-    const seen = new Set<string>();
-    const out: GridPoint[] = [];
-    const n = Math.max(8, Math.ceil(segmentLengthDeg(k, opts) / step));
-    const across = Math.max(0, Math.floor(halfWidth / step));
-    for (let i = 0; i <= n; i++) {
-      const { thetaDeg, bearingDeg } = spiralAt(p0 + ((p1 - p0) * i) / n, opts);
-      for (let j = -across; j <= across; j++) {
-        const theta = thetaDeg + j * step;
-        if (theta < 0) continue;
-        const pt = destination(center, theta, bearingDeg);
-        const key = `${Math.round(pt.lat / step)}:${Math.round(normalizeLng(pt.lng) / step)}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(toGridPoint(pt));
-      }
-    }
-    if (out.length <= maxPoints) return out;
-    step *= 2;
-  }
 }
 
 /**

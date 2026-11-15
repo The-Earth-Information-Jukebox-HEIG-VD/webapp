@@ -546,7 +546,6 @@
       "pacific": "Océan Pacifique",
       "atlantic": "Océan Atlantique",
       "indian-ocean": "Océan Indien"
-    },
-    "simulated": "Simulé : ce serveur n’a pas encore le point d’accès des sillons (API v2.6), chaque sillon est une moyenne sur sa bande."
+    }
   }
 }

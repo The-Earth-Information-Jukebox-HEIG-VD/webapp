@@ -1,7 +1,7 @@
 /**
  * Sonification API client.
  *
- * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.4):
+ * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.6):
  *   GET  /api/instruments       which instrument plays which dataset
  *   GET  /api/health            server status
  *   POST /api/zones/zone-data   selected points + one period in, 30 s of audio out

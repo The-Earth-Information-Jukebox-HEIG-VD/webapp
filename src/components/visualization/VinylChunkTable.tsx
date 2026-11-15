@@ -39,7 +39,6 @@ export function VinylChunkTable({
     <table className={className}>
       <caption>
         {t('vinyl.table.caption', { centre: fmt(center), month: monthLabel })}. {t('vinyl.table.meanNote')}
-        {Object.values(history).some((m) => m.simulated) && ` ${t('vinyl.simulated')}`}
       </caption>
       <thead>
         <tr>

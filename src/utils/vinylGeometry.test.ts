@@ -5,7 +5,6 @@ import {
   VINYL_ALTITUDE,
   VINYL_CHUNKS,
   angularDistanceDeg,
-  bandPoints,
   destination,
   formatLatLng,
   groovePath,
@@ -60,23 +59,6 @@ describe('vinylGeometry', () => {
     // North pole: latitude of the needle is 90 - theta
     const p = needlePoint({ lat: 90, lng: 0 }, 0.5);
     close(p.lat, 90 - spiralAt(0.5).thetaDeg, 0.2);
-  });
-
-  it('bandPoints stays within the band, is de-duplicated and bounded', () => {
-    const c = { lat: 50, lng: 10 };
-    const pts = bandPoints(c, 0);
-    expect(pts.length).toBeGreaterThan(100);
-    expect(pts.length).toBeLessThanOrEqual(2500);
-    const keys = new Set(pts.map((p) => `${p.lat.toFixed(4)}:${p.lng.toFixed(4)}`));
-    expect(keys.size).toBe(pts.length);
-    for (const p of pts) {
-      expect(p.lat).toBeGreaterThanOrEqual(-90);
-      expect(p.lat).toBeLessThanOrEqual(90);
-      const d = angularDistanceDeg(c, p);
-      expect(d).toBeLessThanOrEqual(THETA_MAX_DEG + 3.01);
-      expect(d).toBeGreaterThanOrEqual(spiralAt(0.1).thetaDeg - 3.01);
-    }
-    expect(bandPoints(c, 0, { maxPoints: 300 }).length).toBeLessThanOrEqual(300);
   });
 
   it('grooveRing is a closed circle at constant distance', () => {

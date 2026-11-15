@@ -29,7 +29,6 @@ function setup(initial: { datasetIds: string[]; center: { lat: number; lng: numb
           radius_deg: 2,
           audio_data: 'AAAA',
           values: { temperature: 0.5 },
-          simulated: false,
         });
       })
   );

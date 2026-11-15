@@ -546,7 +546,6 @@
       "pacific": "Pazifischer Ozean",
       "atlantic": "Atlantischer Ozean",
       "indian-ocean": "Indischer Ozean"
-    },
-    "simulated": "Simuliert: Dieser Server hat noch keinen Rillen-Endpunkt (API v2.6), jede Rille ist ein Mittelwert über ihr Band."
+    }
   }
 }

@@ -9,22 +9,15 @@ import {
   makeVinylChunkFetcher,
   meanValues,
   progressOfPosition,
-  resetGrooveAvailability,
   syntheticPeriod,
   type VinylDeps,
   type VinylRequest,
   type VinylResponse,
 } from './vinylApi';
-import {
-  ApiError,
-  type GrooveRequest,
-  type GrooveResponse,
-  type ZoneDataRequest,
-  type ZoneDataResponse,
-} from './sonificationApi';
+import { ApiError, type GrooveRequest, type GrooveResponse, type ZoneDataResponse } from './sonificationApi';
 import { ChunkPlayer, computeChunkTiming } from '../audio/ChunkPlayer';
 import { MockAudioContext } from '../test/setup';
-import { GROOVE_RADIUS_DEG, bandPoints, groovePath } from '../utils/vinylGeometry';
+import { GROOVE_RADIUS_DEG, groovePath } from '../utils/vinylGeometry';
 
 const center = { lat: 50, lng: 10 };
 
@@ -47,22 +40,9 @@ function grooveResponse(req: GrooveRequest): GrooveResponse {
   };
 }
 
-function zoneResponse(req: ZoneDataRequest): ZoneDataResponse {
-  return {
-    zone_id: req.zone_id,
-    dataset_ids: req.dataset_ids,
-    time_period: req.time_period,
-    next_time_period: '2020-01',
-    audio_data: 'AAAA',
-    values: { temperature: 1.1 },
-    point_count: req.points.length,
-  };
-}
-
 function deps(overrides: Partial<VinylDeps> = {}): VinylDeps {
   return {
     fetchGroove: vi.fn(async (req: GrooveRequest) => grooveResponse(req)),
-    fetchZoneData: vi.fn(async (req: ZoneDataRequest) => zoneResponse(req)),
     ...overrides,
   };
 }
@@ -80,7 +60,6 @@ const flush = async () => {
 
 beforeEach(() => {
   MockAudioContext.sources.length = 0;
-  resetGrooveAvailability();
 });
 
 describe('synthetic periods', () => {
@@ -134,32 +113,13 @@ describe('fetchVinylChunk', () => {
     expect(res.values.lightning).toBe(0);
     expect(res.chunk_index).toBe(4);
     expect(res.next_chunk_index).toBe(5);
-    expect(res.simulated).toBe(false);
-    expect(d.fetchZoneData).not.toHaveBeenCalled();
   });
 
   it('ends after the tenth groove', async () => {
     expect((await fetchVinylChunk(req(9), undefined, deps())).next_chunk_index).toBeNull();
   });
 
-  it('falls back to zone-data when the server has no groove route, and stays there', async () => {
-    const fetchGroove = vi.fn(async () => {
-      throw new ApiError(404, 'Not Found', 'noDataForPeriod');
-    });
-    const d = deps({ fetchGroove });
-    const res = await fetchVinylChunk(req(2), undefined, d);
-    expect(res.simulated).toBe(true);
-    const zoneReq = (d.fetchZoneData as ReturnType<typeof vi.fn>).mock.calls[0][0] as ZoneDataRequest;
-    expect(zoneReq.points).toEqual(bandPoints(center, 2));
-    expect(zoneReq.time_period).toBe('2018-07');
-    expect(res.stops).toHaveLength(groovePath(center, 2).path.length);
-    expect(res.stops[0].values).toEqual({ temperature: 1.1 });
-
-    await fetchVinylChunk(req(3), undefined, d);
-    expect(fetchGroove).toHaveBeenCalledTimes(1);
-  });
-
-  it('passes real backend errors through', async () => {
+  it('passes backend errors through (e.g. no data at that date)', async () => {
     const err = new ApiError(400, 'No data at that date', 'noDataForPeriod');
     const d = deps({
       fetchGroove: vi.fn(async () => {
@@ -167,7 +127,6 @@ describe('fetchVinylChunk', () => {
       }),
     });
     await expect(fetchVinylChunk(req(0), undefined, d)).rejects.toBe(err);
-    expect(d.fetchZoneData).not.toHaveBeenCalled();
   });
 
   it('meanValues ignores null and missing values', () => {
@@ -195,7 +154,6 @@ describe('vinyl fetcher on the real ChunkPlayer', () => {
       radius_deg: 2,
       audio_data: 'AAAA',
       values: { temperature: k },
-      simulated: false,
     };
   }
 

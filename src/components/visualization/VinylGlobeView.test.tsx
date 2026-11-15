@@ -112,7 +112,6 @@ describe('VinylGlobeView', () => {
       stopSeconds: 10,
       radiusDeg: 2,
       values: { temperature: 0.5 },
-      simulated: false,
     };
     render(<VinylGlobeView {...base} started chunkIndex={1} history={{ 0: meta }} tracks={[temperature]} />);
     const dots = (globeProps.pointsData as { id: string }[]).filter((d) => d.id.startsWith('0:'));
@@ -131,7 +130,6 @@ describe('VinylGlobeView', () => {
       stopSeconds: 10,
       radiusDeg: 2,
       values: { temperature: 1 },
-      simulated: false,
     };
     // 15 s into groove 0: stops 0 and 1 reached
     render(
