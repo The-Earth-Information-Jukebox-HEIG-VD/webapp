@@ -156,7 +156,11 @@
 }
 
 /* Reduced motion: show static indicator instead */
-.reduced-motion .playing-indicator span,
+.reduced-motion .playing-indicator span {
+  animation: none;
+  transform: scaleY(0.7);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .playing-indicator span {
     animation: none;
@@ -188,10 +192,92 @@
   }
 }
 
-.reduced-motion .globe-skeleton,
+.reduced-motion .globe-skeleton {
+  animation: none;
+  background: var(--color-surface);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .globe-skeleton {
     animation: none;
     background: var(--color-surface);
+  }
+}
+
+/* Sounding indicator: three bars (track panel rows, globe legend) */
+.sounding-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.sounding-bars i {
+  display: block;
+  width: 3px;
+  height: 12px;
+  background: var(--sounding-bars-color, var(--color-primary-light));
+  border-radius: 1px;
+  transform-origin: bottom;
+  animation: sounding-bars 0.9s ease-in-out infinite;
+}
+.sounding-bars i:nth-child(2) { animation-delay: 0.2s; }
+.sounding-bars i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes sounding-bars {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sounding-bars i { animation: none; transform: scaleY(0.7); }
+}
+.reduced-motion .sounding-bars i { animation: none; transform: scaleY(0.7); }
+
+/* ── View transitions (utils/motion.ts withViewTransition) ─────────────
+   Named regions morph from their old box to their new one; the rest of the
+   page cross-fades. Skipped entirely when motion is reduced. */
+::view-transition-group(*) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+}
+
+/* Contents of a region that changes shape: keep proportions, no stretching */
+::view-transition-old(tracks-panel),
+::view-transition-new(tracks-panel),
+::view-transition-old(visualization),
+::view-transition-new(visualization) {
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+/* Cross-fade only (track panel show/hide): nothing travels, the page simply
+   dissolves from the old layout to the new one */
+.vt-crossfade .tracks-section,
+.vt-crossfade .visualization-section {
+  view-transition-name: none;
+}
+
+.vt-crossfade::view-transition-old(root),
+.vt-crossfade::view-transition-new(root) {
+  animation-duration: var(--duration-fast);
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Overlays appearing on top of the globe */
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

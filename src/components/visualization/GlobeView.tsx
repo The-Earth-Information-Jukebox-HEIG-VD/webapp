@@ -3,13 +3,37 @@ import { useTranslation } from 'react-i18next';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { ZoneFeature, ZoneViewType, GridPoint } from '../../types/zones';
 import { getZoneFeatures, findZoneFeature } from '../../data/zones';
-import { getPointsInFeature, getFeatureCentroid } from '../../utils/geometry';
+import { getPointsInFeature, getFeatureView } from '../../utils/geometry';
 import { GRID_RES_DEG, valueToAlpha } from '../../data/datasetRegistry';
 import type { ZoneDataFrames } from '../../hooks/useZoneDataFrames';
+import type { Track } from '../../types/tracks';
+import { prefersReducedMotion } from '../../utils/motion';
 import './GlobeView.css';
 
 // Default image dimensions for NASA SVS data (typical equirectangular projection)
 const DEFAULT_IMAGE_DIMENSIONS = { width: 3600, height: 1800 };
+
+/** Whole-Earth view shown while no zone is selected. */
+const DEFAULT_VIEW = { lat: 20, lng: 0, altitude: 2.5 };
+
+/**
+ * Camera flight time (ms) that keeps the apparent speed steady: a hop to a
+ * neighbouring country is quick, a flight across the planet with a big zoom
+ * change takes longer instead of whipping past at the same 1 s.
+ */
+export function flightDuration(
+  from: { lat?: number; lng?: number; altitude?: number } | undefined,
+  to: { lat: number; lng: number; altitude: number }
+): number {
+  if (from?.lat === undefined || from.lng === undefined || from.altitude === undefined) return 1200;
+  const rad = Math.PI / 180;
+  const cosAngle =
+    Math.sin(from.lat * rad) * Math.sin(to.lat * rad) +
+    Math.cos(from.lat * rad) * Math.cos(to.lat * rad) * Math.cos((to.lng - from.lng) * rad);
+  const angleDeg = Math.acos(Math.min(1, Math.max(-1, cosAngle))) / rad;
+  const zoom = Math.abs(Math.log2((to.altitude + 0.1) / (from.altitude + 0.1)));
+  return Math.round(Math.min(2200, Math.max(700, 700 + angleDeg * 6 + zoom * 350)));
+}
 
 export type GlobeMode = 'select' | 'playback';
 
@@ -23,7 +47,23 @@ interface GlobeViewProps {
   /** Volume data of the selected zone (playback mode). */
   zoneData?: ZoneDataFrames;
   onBackToSelection?: () => void;
+  /** Audio tracks (GET /api/instruments): name the instrument playing each dataset. */
+  tracks?: Track[];
+  /** Tracks switched on in the track panel. */
+  enabledTrackIds?: Set<string>;
+  /** Tracks audible in the current chunk. */
+  soundingIds?: Set<string>;
 }
+
+/** An enabled audio track playing a dataset of the legend. */
+interface LegendInstrument {
+  id: string;
+  instrument: string;
+  sounding: boolean;
+}
+
+const NO_TRACKS: Track[] = [];
+const NO_IDS = new Set<string>();
 
 /**
  * Convert a hex color to rgba() format for better browser/library support.
@@ -103,9 +143,6 @@ function formatValue(v: number): string {
   return v.toFixed(a >= 100 ? 1 : 2);
 }
 
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-}
 
 /**
  * 3D Globe visualization using react-globe.gl
@@ -123,6 +160,9 @@ export function GlobeView({
   mode = 'select',
   zoneData,
   onBackToSelection,
+  tracks = NO_TRACKS,
+  enabledTrackIds = NO_IDS,
+  soundingIds = NO_IDS,
 }: GlobeViewProps) {
   const { t, i18n } = useTranslation();
   const globeRef = useRef<GlobeMethods>(undefined);
@@ -137,21 +177,33 @@ export function GlobeView({
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height: Math.min(height, width) });
+        // Fill the whole box: a square canvas left bands above/below in tall boxes
+        setDimensions({ width, height });
       }
     };
 
     updateDimensions();
+    // The container follows the track panel's height (App.css), which changes
+    // without a window resize (tracks loading, errors): observe the box itself
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      const observer = new ResizeObserver(updateDimensions);
+      observer.observe(containerRef.current);
+      return () => observer.disconnect();
+    }
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Set initial globe position
+  // The only place the camera is moved: frame the selected zone (or show the
+  // default view). Keyed on the zone only, so starting/pausing playback, seeking
+  // or toggling tracks never resets the view (nor the user's own zoom).
   useEffect(() => {
-    if (globeRef.current && isLoaded) {
-      globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, prefersReducedMotion() ? 0 : 1000);
-    }
-  }, [isLoaded]);
+    if (!globeRef.current || !isLoaded) return;
+    const feature = selectedZone ? findZoneFeature(selectedZone) : undefined;
+    const target = feature ? getFeatureView(feature) : DEFAULT_VIEW;
+    const current = globeRef.current.pointOfView() as Partial<typeof DEFAULT_VIEW> | undefined;
+    globeRef.current.pointOfView(target, prefersReducedMotion() ? 0 : flightDuration(current, target));
+  }, [isLoaded, selectedZone]);
 
   // Get zone features based on view type
   const zoneFeatures = useMemo(() => {
@@ -199,16 +251,8 @@ export function GlobeView({
       // Calculate grid points within the zone
       const points = getPointsInFeature(feature, DEFAULT_IMAGE_DIMENSIONS);
 
+      // The camera follows selectedZone (see the framing effect above)
       onZoneSelect(zoneId, points);
-
-      // Rotate globe to selected zone's centroid
-      if (globeRef.current) {
-        const centroid = getFeatureCentroid(feature);
-        globeRef.current.pointOfView(
-          { lat: centroid.lat, lng: centroid.lng, altitude: 2 },
-          prefersReducedMotion() ? 0 : 1000
-        );
-      }
     },
     [onZoneSelect]
   );
@@ -286,8 +330,18 @@ export function GlobeView({
         stats: frame ? statsOf(frame.get(ds.info.id)) : null,
         // Track just switched on: its first month is still downloading
         pending: !frame || !frame.has(ds.info.id),
+        // Instruments of the enabled tracks playing this dataset (one line per instrument)
+        instruments: ds.info.trackIds.reduce<LegendInstrument[]>((list, id) => {
+          const track = tracks.find((tr) => tr.id === id);
+          if (!track?.instrument || !enabledTrackIds.has(id)) return list;
+          const sounding = soundingIds.has(id);
+          const same = list.find((i) => i.instrument === track.instrument);
+          if (same) same.sounding ||= sounding;
+          else list.push({ id, instrument: track.instrument, sounding });
+          return list;
+        }, []),
       })),
-    [datasets, frame]
+    [datasets, frame, tracks, enabledTrackIds, soundingIds]
   );
 
   const monthLabel = useMemo(() => {
@@ -297,18 +351,6 @@ export function GlobeView({
       new Date(Date.UTC(y, m - 1, 1))
     );
   }, [zoneData?.month, i18n.language]);
-
-  // Fly to the zone when playback starts
-  useEffect(() => {
-    if (!isPlayback || !isLoaded || !globeRef.current || !selectedZone) return;
-    const feature = findZoneFeature(selectedZone);
-    if (!feature) return;
-    const centroid = getFeatureCentroid(feature);
-    globeRef.current.pointOfView(
-      { lat: centroid.lat, lng: centroid.lng, altitude: zoneViewType === 'country' ? 1.2 : 1.8 },
-      prefersReducedMotion() ? 0 : 1000
-    );
-  }, [isPlayback, isLoaded, selectedZone, zoneViewType]);
 
   // Escape returns to zone selection (unless a dialog is open)
   useEffect(() => {
@@ -339,7 +381,7 @@ export function GlobeView({
       )}
 
       {/* role="img" only on the canvas: it would hide the overlay controls from AT */}
-      <div className="globe-canvas" role="img" aria-label={t('viewMode.globeDescription')}>
+      <div className={isLoaded ? 'globe-canvas is-loaded' : 'globe-canvas'} role="img" aria-label={t('viewMode.globeDescription')}>
         <Globe
           ref={globeRef}
           width={dimensions.width}
@@ -400,10 +442,24 @@ export function GlobeView({
               <p className="globe-data-status">{t('globeData.noSelectedDataset')}</p>
             )}
             <ul>
-              {stats.map(({ ds, stats: s, pending }) => (
+              {stats.map(({ ds, stats: s, pending, instruments }) => (
                 <li key={ds.info.id} className={s ? undefined : 'no-data'}>
                   <span className="globe-legend-swatch" style={{ backgroundColor: ds.info.color }} aria-hidden="true" />
                   <span className="globe-legend-name">{t(ds.info.labelKey)}</span>
+                  {instruments.map((ins) => (
+                    <span key={ins.id} className="globe-legend-instrument" data-sounding={ins.sounding || undefined}>
+                      <span aria-hidden="true">♪ {ins.instrument}</span>
+                      <span className="sr-only">
+                        {t('globeData.playedBy', { instrument: ins.instrument })}
+                        {ins.sounding && ` (${t('tracks.sounding')})`}
+                      </span>
+                      {ins.sounding && (
+                        <span className="sounding-bars" data-testid="legend-sounding" aria-hidden="true">
+                          <i /><i /><i />
+                        </span>
+                      )}
+                    </span>
+                  ))}
                   <span className="globe-legend-range">
                     {s
                       ? t('globeData.range', {
@@ -440,6 +496,7 @@ export function GlobeView({
           <thead>
             <tr>
               <th scope="col">{t('globeData.dataset')}</th>
+              <th scope="col">{t('globeData.instrument')}</th>
               <th scope="col">{t('globeData.min')}</th>
               <th scope="col">{t('globeData.mean')}</th>
               <th scope="col">{t('globeData.max')}</th>
@@ -447,9 +504,10 @@ export function GlobeView({
             </tr>
           </thead>
           <tbody>
-            {stats.map(({ ds, stats: s }) => (
+            {stats.map(({ ds, stats: s, instruments }) => (
               <tr key={ds.info.id}>
                 <th scope="row">{t(ds.info.labelKey)}</th>
+                <td>{instruments.map((i) => i.instrument).join(', ')}</td>
                 {s ? (
                   <>
                     <td>{formatValue(s.min)}</td>

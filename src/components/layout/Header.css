@@ -5,6 +5,7 @@
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   height: var(--header-height);
+  transition: height var(--transition-base);
 }
 
 .header-container {
@@ -73,12 +74,55 @@
 }
 
 @media (max-width: 480px) {
-  .header {
-    height: 56px;
+  :root {
+    --header-height: 56px;
   }
 
   .logo-icon {
     width: 28px;
     height: 28px;
+  }
+}
+
+/* Compact header once the page is scrolled (see useCompactOnScroll) */
+:root[data-header-compact] {
+  --header-height: 40px;
+}
+
+.logo-icon,
+.logo-text,
+.nav-link {
+  transition: width var(--transition-fast), height var(--transition-fast), font-size var(--transition-fast),
+    padding var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.header--compact .logo-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.header--compact .logo-text {
+  font-size: var(--font-size-sm);
+}
+
+/* Keep links at least 24px tall (WCAG 2.5.8 target size) */
+.header--compact .nav-link {
+  padding: 2px var(--spacing-sm);
+  min-height: 24px;
+  font-size: var(--font-size-sm);
+}
+
+.header--compact .language-button {
+  padding: 2px var(--spacing-sm);
+  min-height: 24px;
+  font-size: var(--font-size-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .logo-icon,
+  .logo-text,
+  .nav-link {
+    transition: none;
   }
 }

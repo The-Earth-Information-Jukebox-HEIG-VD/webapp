@@ -315,10 +315,8 @@
     "antarctic": "Antarktis"
   },
   "tracks": {
-    "title": "Audio-Spuren",
     "temperature": "Temperatur",
     "lightning": "Blitze",
-    "description": "Aktivieren Sie mehrere Spuren, um verschiedene Klimamessungen gleichzeitig zu hören. Jede verwendet ein eigenes Instrument.",
     "precipitation": "Niederschlag",
     "co2": "CO₂",
     "noneSelected": "Keine Spur ausgewählt. Wählen Sie mindestens eine Spur zum Abspielen.",
@@ -327,7 +325,16 @@
     "loading": "Spuren werden geladen…",
     "retry": "Erneut versuchen",
     "snow": "Schnee",
-    "night_lights": "Nächtliche Lichter"
+    "night_lights": "Nächtliche Lichter",
+    "fires": "Brände",
+    "heading": "Was möchten Sie hören?",
+    "hint": "Jeder Datensatz spielt sein eigenes Instrument. Wählen Sie einen oder mehrere.",
+    "onlyWhenPresent": "nur wenn vorhanden",
+    "sounding": "Klingt gerade",
+    "show": "Anzeigen",
+    "hide": "Ausblenden",
+    "selectedCount_one": "{{count}} Spur ausgewählt",
+    "selectedCount_other": "{{count}} Spuren ausgewählt"
   },
   "moments": {
     "title": "Wichtige Klimamomente",
@@ -465,6 +472,8 @@
       "snow": "Schnee",
       "nightlights": "Nachtlichter"
     },
-    "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus."
+    "noSelectedDataset": "Keine der ausgewählten Spuren hat Daten für den Globus.",
+    "playedBy": "gespielt von {{instrument}}",
+    "instrument": "Instrument"
   }
 }

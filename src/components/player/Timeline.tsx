@@ -1,5 +1,6 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatMonthYear } from '../../utils/formatDate';
 import './Timeline.css';
 
 interface TimelineProps {
@@ -7,52 +8,80 @@ interface TimelineProps {
   currentYear: number;
   startYear: number;
   endYear: number;
+  /** Current position as a fractional year */
+  position?: number;
+  /** Right edge of the track (fractional year, month after the last data) */
+  timelineEnd?: number;
   onSeek: (position: number) => void;
   onSeekToYear: (year: number) => void;
+  /** Hover position along the track (0..1), null when the pointer leaves */
+  onHoverChange?: (fraction: number | null) => void;
+  /** Hide the date bubble (e.g. when the data graph shows the hovered date) */
+  hideHoverTooltip?: boolean;
+}
+
+export interface Tick {
+  year: number;
+  kind: 'minor' | 'medium' | 'major';
+  label: boolean;
+}
+
+/** Ticks: minor every year, medium every 5, labelled majors every 10/20/50 by span. */
+export function buildTicks(startYear: number, endYear: number, timelineEnd: number): Tick[] {
+  const span = Math.max(1, timelineEnd - startYear);
+  const interval = span > 100 ? 50 : span > 50 ? 20 : 10;
+  const ticks: Tick[] = [];
+  for (let year = Math.ceil(startYear); year <= endYear; year++) {
+    if (year % interval === 0) ticks.push({ year, kind: 'major', label: true });
+    else if (year % 5 === 0) ticks.push({ year, kind: 'medium', label: false });
+    else ticks.push({ year, kind: 'minor', label: false });
+  }
+  return ticks;
 }
 
 /**
  * Interactive timeline showing playback progress
  *
  * Features:
- * - Year markers at significant intervals
+ * - Year ticks (minor/medium/labelled major)
  * - Gradient fill showing warm/cool progression
- * - Click/drag to seek
- * - Keyboard accessible
+ * - Click/drag to seek, hover preview of month + year
+ * - Keyboard: arrows 2%, Shift+arrows 1 month, PageUp/PageDown 1 year, Home/End
  */
 export function Timeline({
   progress,
   currentYear,
   startYear,
   endYear,
+  position,
+  timelineEnd,
   onSeek,
+  onSeekToYear,
+  onHoverChange,
+  hideHoverTooltip = false,
 }: TimelineProps) {
-  const { t } = useTranslation('player');
+  const { t, i18n } = useTranslation('player');
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const [hover, setHover] = useState<{ fraction: number } | null>(null);
 
-  const totalYears = endYear - startYear;
+  const edge = timelineEnd ?? endYear + 1;
+  const span = Math.max(1e-6, edge - startYear);
+  const current = position ?? currentYear;
+  const locale = i18n.language;
+  const currentText = formatMonthYear(current, locale, 'long');
 
-  // Generate year markers at reasonable intervals
-  const getYearMarkers = useCallback(() => {
-    const markers: number[] = [];
-    const interval = totalYears > 100 ? 50 : totalYears > 50 ? 20 : 10;
+  const ticks = useMemo(() => buildTicks(startYear, endYear, edge), [startYear, endYear, edge]);
+  const showMinor = span <= 150;
 
-    let year = Math.ceil(startYear / interval) * interval;
-    while (year <= endYear) {
-      if (year >= startYear) {
-        markers.push(year);
-      }
-      year += interval;
-    }
-
-    // Always include end year if not already there
-    if (!markers.includes(endYear)) {
-      markers.push(endYear);
-    }
-
-    return markers;
-  }, [startYear, endYear, totalYears]);
+  const handleHover = useCallback((e: React.MouseEvent) => {
+    if (!trackRef.current) return;
+    const rect = trackRef.current.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    setHover({ fraction });
+    onHoverChange?.(fraction);
+  }, [onHoverChange]);
 
   const handleSeek = useCallback(
     (e: React.MouseEvent | React.TouchEvent) => {
@@ -97,11 +126,21 @@ export function Timeline({
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
-          onSeek(Math.max(0, progress - step));
+          if (e.shiftKey) onSeekToYear(current - 1 / 12);
+          else onSeek(Math.max(0, progress - step));
           break;
         case 'ArrowRight':
           e.preventDefault();
-          onSeek(Math.min(1, progress + step));
+          if (e.shiftKey) onSeekToYear(current + 1 / 12);
+          else onSeek(Math.min(1, progress + step));
+          break;
+        case 'PageUp':
+          e.preventDefault();
+          onSeekToYear(current + 1);
+          break;
+        case 'PageDown':
+          e.preventDefault();
+          onSeekToYear(current - 1);
           break;
         case 'Home':
           e.preventDefault();
@@ -113,10 +152,9 @@ export function Timeline({
           break;
       }
     },
-    [onSeek, progress]
+    [onSeek, onSeekToYear, progress, current]
   );
 
-  const yearMarkers = getYearMarkers();
   const progressPercent = progress * 100;
 
   return (
@@ -135,8 +173,13 @@ export function Timeline({
         aria-valuemin={startYear}
         aria-valuemax={endYear}
         aria-valuenow={currentYear}
-        aria-valuetext={t('timeline.year', { year: currentYear })}
+        aria-valuetext={currentText}
         onMouseDown={handleMouseDown}
+        onMouseMove={handleHover}
+        onMouseLeave={() => {
+          setHover(null);
+          onHoverChange?.(null);
+        }}
         onKeyDown={handleKeyDown}
       >
         {/* Background track */}
@@ -148,23 +191,31 @@ export function Timeline({
           style={{ width: `${progressPercent}%` }}
         />
 
-        {/* Year markers */}
-        <div className="track-markers">
-          {yearMarkers.map((year) => {
-            const position = ((year - startYear) / totalYears) * 100;
-            return (
-              <div
-                key={year}
-                className="track-marker"
-                style={{ left: `${position}%` }}
-                aria-hidden="true"
-              >
-                <span className="marker-line" />
-                <span className="marker-year">{year}</span>
-              </div>
-            );
-          })}
+        {/* Year ticks */}
+        <div className={`track-markers${showMinor ? '' : ' no-minor'}`} aria-hidden="true">
+          {ticks.map(({ year, kind, label }) => (
+            <div
+              key={year}
+              className={`track-marker ${kind}`}
+              style={{ left: `${((year - startYear) / span) * 100}%` }}
+              aria-hidden="true"
+            >
+              <span className="marker-line" />
+              {label && <span className="marker-year">{year}</span>}
+            </div>
+          ))}
         </div>
+
+        {/* Hover preview */}
+        {hover && !hideHoverTooltip && (
+          <div
+            className="track-hover"
+            style={{ left: `${hover.fraction * 100}%` }}
+            aria-hidden="true"
+          >
+            {formatMonthYear(startYear + hover.fraction * span, locale, 'short')}
+          </div>
+        )}
 
         {/* Current position thumb */}
         <div
@@ -173,7 +224,7 @@ export function Timeline({
           aria-hidden="true"
         >
           <span className="thumb-indicator" />
-          <span className="thumb-year">{currentYear}</span>
+          <span className="thumb-year">{formatMonthYear(current, locale, 'short')}</span>
         </div>
       </div>
     </div>

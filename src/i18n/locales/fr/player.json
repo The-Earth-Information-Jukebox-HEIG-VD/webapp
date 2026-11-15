@@ -5,10 +5,11 @@
     "stop": "Arrêter et réinitialiser",
     "skipBackward": "Reculer de 10 ans",
     "skipForward": "Avancer de 10 ans",
-    "tracks": "Pistes audio ({{count}} actives)",
+    "tracks": "Sons : {{count}} sélectionné(s)",
     "jumpToStart": "Aller au début",
     "jumpToEnd": "Aller à la fin",
-    "selectZoneFirst": "Sélectionnez une zone sur le globe pour lancer la lecture"
+    "selectZoneFirst": "Sélectionnez une zone sur le globe pour lancer la lecture",
+    "tracksShort": "Sons"
   },
   "status": {
     "playing": "Lecture en cours",
@@ -42,7 +43,9 @@
     "home": "Aller au début",
     "end": "Aller à la fin",
     "m": "Couper/Activer le son",
-    "question": "Afficher les raccourcis clavier"
+    "question": "Afficher les raccourcis clavier",
+    "pageUpDown": "Avancer ou reculer d'un an (chronologie)",
+    "shiftArrow": "Reculer ou avancer d'un mois (chronologie)"
   },
   "announcements": {
     "nowPlaying": "Lecture de {{year}} : {{reading}}",
@@ -66,5 +69,33 @@
     "ppm": "parties par million",
     "percent": "pour cent",
     "mmPerDay": "millimètres par jour"
+  },
+  "chooseSounds": "Choisir les sons",
+  "datePicker": {
+    "open": "Aller à une date, actuellement {{date}}",
+    "title": "Aller à une date",
+    "year": "Année",
+    "month": "Mois",
+    "go": "Aller",
+    "close": "Fermer",
+    "jumped": "Position : {{date}}"
+  },
+  "graph": {
+    "toggle": "Graphique",
+    "toggleLabel": "Afficher le graphique des données",
+    "title": "Graphique des données",
+    "summary": "Graphique des données pour {{zone}}, de {{start}} à {{end}} : {{datasets}}. Chaque courbe a sa propre échelle. {{lines}}",
+    "lineSummary": "{{name}} : minimum {{min}} en {{minDate}}, maximum {{max}} en {{maxDate}}.",
+    "tableCaption": "Moyenne annuelle de chaque jeu de données dans la zone sélectionnée",
+    "year": "Année",
+    "noData": "Pas de données",
+    "zeroNormal": "0 = normale",
+    "loading": "Chargement du graphique des données…",
+    "empty": "Sélectionnez une zone et au moins un son pour voir le graphique des données.",
+    "scaleNote": "Chaque courbe a sa propre échelle",
+    "zoneFallback": "la zone sélectionnée",
+    "error": "Le graphique des données n’a pas pu être chargé.",
+    "unavailable": "Aucune donnée pour cette sélection.",
+    "lineNoData": "{{name}} : pas de données dans cette zone."
   }
 }

@@ -1,6 +1,7 @@
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Timeline } from './Timeline';
+import { DatePicker } from './DatePicker';
 import { VolumeControl } from './VolumeControl';
 import type { TrackState } from '../../types/tracks';
 import type { SonificationError, SonificationStatus } from '../../hooks/useSonification';
@@ -8,10 +9,25 @@ import type { InstrumentsStatus } from '../../hooks/useInstruments';
 import type { ApiErrorKind } from '../../services/sonificationApi';
 import './AudioPlayerEnhanced.css';
 
+/** Data graph option: a toggle next to "Sounds" and the chart above the timeline */
+export interface PlayerGraphProps {
+  on: boolean;
+  onToggle: () => void;
+  /** Rendered above the timeline while `on`; gets the hover position shared with the Timeline */
+  content: (api: {
+    hoverFraction: number | null;
+    onHoverChange: (fraction: number | null) => void;
+  }) => ReactNode;
+}
+
 interface AudioPlayerEnhancedProps {
   isPlaying: boolean;
   progress: number;
   currentYear: number;
+  /** Current date as a fractional year */
+  position?: number;
+  /** Fractional year just after the last data month */
+  timelineEnd?: number;
   yearRange: { start: number; end: number };
   trackStates: TrackState[];
   onPlay: () => void;
@@ -19,7 +35,8 @@ interface AudioPlayerEnhancedProps {
   onSeek: (position: number) => void;
   onSeekToYear: (year: number) => void;
   onVolumeChange: (volume: number) => void;
-  onOpenTrackPanel: () => void;
+  /** Bring the track panel into view and focus its first row */
+  onShowTracks: () => void;
   /** Disable Play (e.g. no zone selected yet). Pause stays available. */
   playDisabled?: boolean;
   /** Backend request status */
@@ -34,6 +51,8 @@ interface AudioPlayerEnhancedProps {
   tracksStatus?: InstrumentsStatus;
   /** Why the track list failed to load, when tracksStatus is 'error' */
   tracksErrorKind?: ApiErrorKind | null;
+  /** Optional data graph; the player works without it */
+  graph?: PlayerGraphProps;
 }
 
 /**
@@ -50,6 +69,8 @@ export function AudioPlayerEnhanced({
   isPlaying,
   progress,
   currentYear,
+  position: positionProp,
+  timelineEnd: timelineEndProp,
   yearRange,
   trackStates,
   onPlay,
@@ -57,7 +78,7 @@ export function AudioPlayerEnhanced({
   onSeek,
   onSeekToYear,
   onVolumeChange,
-  onOpenTrackPanel,
+  onShowTracks,
   playDisabled = false,
   status = 'idle',
   error = null,
@@ -66,11 +87,16 @@ export function AudioPlayerEnhanced({
   onRetry,
   tracksStatus = 'ready',
   tracksErrorKind = null,
+  graph,
 }: AudioPlayerEnhancedProps) {
   const { t } = useTranslation('player');
+  const position = positionProp ?? currentYear;
+  const timelineEnd = timelineEndProp ?? yearRange.end + 1;
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const playButtonRef = useRef<HTMLButtonElement>(null);
+  const [hoverFraction, setHoverFraction] = useState<number | null>(null);
+  const graphOn = graph?.on ?? false;
   const isLoading = status === 'loading';
   const hasError = status === 'error' && error !== null;
 
@@ -165,12 +191,14 @@ export function AudioPlayerEnhanced({
       if (target?.closest('input, textarea, select, [contenteditable="true"], [role="slider"]')) {
         return;
       }
+      // Controls inside a popover dialog (date picker) keep their own keys
+      if (target?.closest('[role="dialog"]')) return;
       // Space on a focused button/link must activate THAT control
-      // (e.g. "Audio tracks"), not toggle playback
+      // (e.g. "Sounds", a track row), not toggle playback
       if (e.key === ' ' && target?.closest('button, a, [role="button"]')) {
         return;
       }
-      // Don't steal keys while a dialog (track panel, shortcuts help) is open
+      // Don't steal keys while a dialog (shortcuts help) is open
       if (document.querySelector('[aria-modal="true"]')) return;
 
       switch (e.key) {
@@ -209,7 +237,7 @@ export function AudioPlayerEnhanced({
   const enabledTracksCount = trackStates.filter((t) => t.enabled).length;
 
   return (
-    <div className="audio-player-enhanced">
+    <div className={`audio-player-enhanced${graphOn ? ' has-chart' : ''}`}>
       {/* Visible status line: loading / error with Retry / end of data / no track */}
       {isLoading && (
         <p className="player-message">
@@ -228,8 +256,13 @@ export function AudioPlayerEnhanced({
         <p className="player-message">{t('endOfData')}</p>
       )}
       {playPauseDisabled && playDisabledHint && (
-        <p id="play-disabled-hint" className="player-message">
-          {playDisabledHint}
+        <p className="player-message">
+          <span id="play-disabled-hint">{playDisabledHint}</span>
+          {!canPlay && !playDisabled && tracksStatus === 'ready' && (
+            <button type="button" className="player-link" onClick={onShowTracks}>
+              {t('chooseSounds')}
+            </button>
+          )}
         </p>
       )}
 
@@ -265,18 +298,26 @@ export function AudioPlayerEnhanced({
         </button>
       </div>
 
-      <span className="player-year" aria-hidden="true">
-        {currentYear}
-      </span>
+      <DatePicker
+        position={position}
+        yearRange={yearRange}
+        timelineEnd={timelineEnd}
+        onSeekToYear={onSeekToYear}
+      />
 
       <div className="player-timeline">
+        {graph && graphOn && graph.content({ hoverFraction, onHoverChange: setHoverFraction })}
         <Timeline
           progress={progress}
           currentYear={currentYear}
           startYear={yearRange.start}
           endYear={yearRange.end}
+          position={position}
+          timelineEnd={timelineEnd}
           onSeek={onSeek}
           onSeekToYear={onSeekToYear}
+          onHoverChange={graphOn ? setHoverFraction : undefined}
+          hideHoverTooltip={graphOn}
         />
       </div>
 
@@ -288,16 +329,28 @@ export function AudioPlayerEnhanced({
           isMuted={isMuted}
         />
 
+        {graph && (
+          <button
+            type="button"
+            className={`tracks-button graph-button${graph.on ? ' pressed' : ''}`}
+            onClick={graph.onToggle}
+            aria-pressed={graph.on}
+            aria-label={t('graph.toggleLabel')}
+          >
+            {graph.on ? <CheckIcon /> : <GraphIcon />}
+            <span className="tracks-label" aria-hidden="true">{t('graph.toggle')}</span>
+          </button>
+        )}
+
         <button
           type="button"
-          className="control-button tracks-button"
-          onClick={onOpenTrackPanel}
+          className={`tracks-button${enabledTracksCount === 0 ? ' empty' : ''}`}
+          onClick={onShowTracks}
           aria-label={t('controls.tracks', { count: enabledTracksCount })}
         >
           <TracksIcon />
-          {enabledTracksCount > 0 && (
-            <span className="tracks-badge" aria-hidden="true">{enabledTracksCount}</span>
-          )}
+          <span className="tracks-label" aria-hidden="true">{t('controls.tracksShort')}</span>
+          <span className="tracks-count" aria-hidden="true">{enabledTracksCount}</span>
         </button>
       </div>
 
@@ -357,6 +410,22 @@ function TracksIcon() {
       <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="6" cy="18" r="3" fill="currentColor" />
       <circle cx="18" cy="16" r="3" fill="currentColor" />
+    </svg>
+  );
+}
+
+function GraphIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M3 17l5-6 4 3 6-8 3 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

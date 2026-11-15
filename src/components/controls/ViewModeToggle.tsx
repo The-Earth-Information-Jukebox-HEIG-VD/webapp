@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useViewMode } from '../../contexts/ViewModeContext';
 import { InfoTooltip } from './InfoTooltip';
+import { withViewTransition } from '../../utils/motion';
 import './ViewModeToggle.css';
 
 /**
@@ -18,7 +19,7 @@ export function ViewModeToggle() {
       <button
         type="button"
         className={`view-mode-button ${viewMode === 'globe' ? 'active' : ''}`}
-        onClick={() => setViewMode('globe')}
+        onClick={() => withViewTransition(() => setViewMode('globe'))}
         disabled={!isGlobeSupported}
         aria-pressed={viewMode === 'globe'}
         aria-label={t('viewMode.globe')}
@@ -31,7 +32,7 @@ export function ViewModeToggle() {
       <button
         type="button"
         className={`view-mode-button ${viewMode === 'list' ? 'active' : ''}`}
-        onClick={() => setViewMode('list')}
+        onClick={() => withViewTransition(() => setViewMode('list'))}
         aria-pressed={viewMode === 'list'}
         aria-label={t('viewMode.list')}
       >

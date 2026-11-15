@@ -10,6 +10,8 @@
  * values themselves are shown exactly as stored.
  */
 
+import { firstTrackColor, FALLBACK_TRACK_COLOR } from './trackColors';
+
 export const GRID_ROWS = 720;
 export const GRID_COLS = 1440;
 export const GRID_RES_DEG = 0.25;
@@ -37,7 +39,7 @@ export interface DatasetInfo {
    */
   trackIds: string[];
   units: string;
-  /** #RRGGBB, distinct per dataset. */
+  /** #RRGGBB, from the shared track palette (trackColors.ts). */
   color: string;
   display: DatasetDisplay;
 }
@@ -54,7 +56,7 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.temperature_anomaly',
     trackIds: ['temperature', 'temperature_anomaly'],
     units: '°C',
-    color: '#ff5a36',
+    color: firstTrackColor(['temperature', 'temperature_anomaly']),
     display: { min: 0, max: 5, mode: 'abs' },
   },
   {
@@ -64,7 +66,7 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.co2',
     trackIds: ['co2'],
     units: 'ppm',
-    color: '#b06cff',
+    color: firstTrackColor(['co2']),
     display: { min: 370, max: 435, mode: 'linear' },
   },
   {
@@ -74,7 +76,7 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.lightning',
     trackIds: ['lightning'],
     units: '',
-    color: '#ffe14d',
+    color: firstTrackColor(['lightning']),
     display: { min: 0, max: 1, mode: 'linear' },
   },
   {
@@ -84,7 +86,7 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.rain',
     trackIds: ['precipitation', 'rain'],
     units: 'mm/h',
-    color: '#2ad4ff',
+    color: firstTrackColor(['precipitation', 'rain']),
     display: { min: 0, max: 0.75, mode: 'linear' },
   },
   {
@@ -94,7 +96,7 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.snow',
     trackIds: ['snowfall', 'snow'],
     units: 'mm/h',
-    color: '#f4f8ff',
+    color: firstTrackColor(['snowfall', 'snow']),
     display: { min: 0, max: 0.1, mode: 'linear' },
   },
   {
@@ -105,19 +107,16 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     labelKey: 'globeData.datasets.nightlights',
     trackIds: ['night_lights', 'nightlights'],
     units: '',
-    color: '#7cff6b',
+    color: firstTrackColor(['night_lights', 'nightlights']),
     display: { min: 0, max: 0.5, mode: 'linear' },
   },
 ];
-
-/** Colors for folders that appear in the volume but are not listed above. */
-const FALLBACK_COLORS = ['#ff8fd8', '#ffb347', '#6bffe0', '#c9a0ff', '#a0a0ff'];
 
 /**
  * Registry entry for a volume folder. Unknown folders get a fallback color;
  * their display range is filled from the first frame loaded (see volumeData).
  */
-export function datasetForFolder(folder: string, prefix: string, index: number): DatasetInfo {
+export function datasetForFolder(folder: string, prefix: string, _index: number): DatasetInfo {
   const known = KNOWN_DATASETS.find((d) => d.folder === folder || d.prefix === prefix);
   if (known) return { ...known, folder, prefix };
   return {
@@ -127,7 +126,7 @@ export function datasetForFolder(folder: string, prefix: string, index: number):
     labelKey: prefix,
     trackIds: [prefix],
     units: '',
-    color: FALLBACK_COLORS[index % FALLBACK_COLORS.length],
+    color: FALLBACK_TRACK_COLOR,
     display: { min: NaN, max: NaN, mode: 'linear' },
   };
 }

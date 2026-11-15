@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // Contexts
@@ -13,18 +13,16 @@ import { GlobeView, ListView } from './components/visualization';
 import type { GlobeMode } from './components/visualization/GlobeView';
 
 // Control components
-import { ViewModeToggle, ZoneViewSelector } from './components/controls';
+import { ViewModeToggle, ZoneViewSelector, TrackPanel } from './components/controls';
 
 // Pages
 import { AboutPage } from './components/about';
 import { useHashRoute } from './hooks/useHashRoute';
 import { getZoneDisplayName } from './utils/zoneName';
 
-// Panel components
-import { SlidingPanel, TrackSelector } from './components/panels';
-
 // Player components
 import { AudioPlayerEnhanced } from './components/player';
+import { SeriesChart, type ChartLine } from './components/player/SeriesChart';
 
 // Moments components
 import { KeyMomentsSection } from './components/moments';
@@ -33,8 +31,12 @@ import { KeyMomentsSection } from './components/moments';
 import { useSonification } from './hooks/useSonification';
 import { useInstruments } from './hooks/useInstruments';
 import { useZoneDataFrames } from './hooks/useZoneDataFrames';
+import { useZoneSeries } from './hooks/useZoneSeries';
+import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean';
+import { usePlayerBarHeight } from './hooks/usePlayerBarHeight';
 import { monthKey } from './services/volumeData';
 import { formatReading } from './utils/reading';
+import { withViewTransition, prefersReducedMotion } from './utils/motion';
 
 // Types
 import type { ZoneViewType, GridPoint } from './types/zones';
@@ -67,7 +69,14 @@ function AppContent() {
   const [globeMode, setGlobeMode] = useState<GlobeMode>('select');
   const [zoneViewType, setZoneViewType] = useState<ZoneViewType>('continent');
   const [selectedPoints, setSelectedPoints] = useState<GridPoint[]>([]);
-  const [isTrackPanelOpen, setIsTrackPanelOpen] = useState(false);
+  // "What do you want to hear?" panel shown or collapsed (remembered per browser)
+  const [tracksOpen, setTracksOpenState] = useLocalStorageBoolean('earth-jukebox-tracks-open', true);
+  // Collapsing/expanding re-lays out the workspace: a brief, still cross-fade
+  // (morphing the panel and globe to their new boxes moved too much)
+  const setTracksOpen = useCallback(
+    (open: boolean) => withViewTransition(() => setTracksOpenState(open), { crossfadeOnly: true }),
+    [setTracksOpenState]
+  );
 
   // Tracks come from the backend's /api/instruments
   const instruments = useInstruments();
@@ -85,9 +94,11 @@ function AppContent() {
     currentValue,
     units,
     isAnomaly,
+    chunkValues,
     chunkYear,
     currentYear,
     progress,
+    timelineEnd,
     yearRange,
     trackStates,
     play,
@@ -140,6 +151,64 @@ function AppContent() {
     enabledTrackIds,
   });
 
+  // Data graph above the timeline: one line per enabled track, for the selected area
+  const [graphOn, setGraphOn] = useLocalStorageBoolean('earth-jukebox-player-graph', false);
+  const enabledIdList = useMemo(
+    () => trackStates.filter((s) => s.enabled).map((s) => s.id),
+    [trackStates]
+  );
+  const zoneName = selectedZone ? getZoneDisplayName(selectedZone, t) : null;
+  const zoneSeries = useZoneSeries({
+    zoneId: selectedZone,
+    zoneName,
+    points: selectedPoints,
+    datasetIds: enabledIdList,
+    active: graphOn,
+  });
+  const chartLines = useMemo<ChartLine[]>(
+    () =>
+      tracks.flatMap((tr) => {
+        const series = enabledTrackIds.has(tr.id) ? zoneSeries.series[tr.id] : undefined;
+        return series
+          ? [{ id: tr.id, name: t(tr.nameKey, { defaultValue: tr.label }), color: tr.color, series }]
+          : [];
+      }),
+    [tracks, enabledTrackIds, zoneSeries.series, t]
+  );
+  const playerRef = useRef<HTMLElement>(null);
+  usePlayerBarHeight(playerRef);
+
+  // Datasets with a value in the audible chunk: the tracks actually sounding now
+  const soundingIds = useMemo(
+    () => (status === 'playing' ? new Set(Object.keys(chunkValues)) : new Set<string>()),
+    [status, chunkValues]
+  );
+
+  // "Sounds" button / "Choose sounds" link: bring the first track row into view and focus it
+  const focusTrackPanel = useCallback(() => {
+    // The rows only exist while the panel is open; the retry loop below waits for them
+    setTracksOpen(true);
+    const focusRow = (attempt = 0) => {
+      // Fall back to the panel root (tabIndex -1): the <aside> itself is not focusable
+      const target =
+        document.querySelector<HTMLElement>('#track-panel-body:not([hidden]) [data-track-row]') ??
+        document.querySelector<HTMLElement>('#tracks-section [tabindex="-1"]');
+      if (!target) {
+        // Coming from the About route the home page may not be rendered yet
+        if (attempt < 10) window.setTimeout(() => focusRow(attempt + 1), 50);
+        return;
+      }
+      target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+      target.focus({ preventScroll: true });
+    };
+    if (window.location.hash === '#about') {
+      window.location.hash = '#';
+      window.setTimeout(() => focusRow(), 50);
+    } else {
+      focusRow();
+    }
+  }, [setTracksOpen]);
+
   const handleJumpToMoment = useCallback((year: number) => {
     seekToYear(year);
   }, [seekToYear]);
@@ -178,6 +247,23 @@ function AppContent() {
             <ZoneViewSelector value={zoneViewType} onChange={setZoneViewType} />
           </section>
 
+          <div className={tracksOpen ? 'workspace' : 'workspace tracks-collapsed'}>
+          {/* Track panel: always visible, beside (or above) the globe */}
+          <aside id="tracks-section" className="tracks-section" aria-labelledby="track-panel-heading">
+            <TrackPanel
+              tracks={tracks}
+              trackStates={trackStates}
+              status={instruments.status}
+              errorKind={instruments.errorKind}
+              preparing={instruments.preparing}
+              onTrackToggle={setTrackEnabled}
+              onRetry={instruments.reload}
+              soundingIds={soundingIds}
+              open={tracksOpen}
+              onOpenChange={setTracksOpen}
+            />
+          </aside>
+
           {/* Visualization Section */}
           <section className="visualization-section" aria-label={t('app.climateVisualization')}>
             {viewMode === 'globe' ? (
@@ -189,6 +275,9 @@ function AppContent() {
                 mode={globeMode}
                 zoneData={zoneData}
                 onBackToSelection={handleBackToSelection}
+                tracks={tracks}
+                enabledTrackIds={enabledTrackIds}
+                soundingIds={soundingIds}
               />
             ) : (
               <ListView
@@ -199,6 +288,7 @@ function AppContent() {
               />
             )}
           </section>
+          </div>
 
           {/* Key Moments Section */}
           <section className="moments-section">
@@ -214,11 +304,13 @@ function AppContent() {
 
           {/* Player stays on every page so audio can always be paused (WCAG 1.4.2) */}
           {/* Audio Player (Sticky) */}
-          <section className="player-section" aria-label={t('app.audioControls')}>
+          <section className="player-section" ref={playerRef} aria-label={t('app.audioControls')}>
             <AudioPlayerEnhanced
               isPlaying={isPlaying}
               progress={progress}
               currentYear={currentYear}
+              position={position}
+              timelineEnd={timelineEnd}
               yearRange={yearRange}
               trackStates={trackStates}
               onPlay={handlePlay}
@@ -226,7 +318,7 @@ function AppContent() {
               onSeek={seek}
               onSeekToYear={seekToYear}
               onVolumeChange={setVolume}
-              onOpenTrackPanel={() => setIsTrackPanelOpen(true)}
+              onShowTracks={focusTrackPanel}
               playDisabled={!selectedZone}
               status={status}
               error={error}
@@ -235,29 +327,34 @@ function AppContent() {
               onRetry={retry}
               tracksStatus={instruments.status}
               tracksErrorKind={instruments.errorKind}
+              graph={{
+                on: graphOn,
+                onToggle: () => setGraphOn(!graphOn),
+                content: ({ hoverFraction, onHoverChange }) => (
+                  <SeriesChart
+                    lines={chartLines}
+                    status={
+                      !selectedZone || enabledIdList.length === 0 ? 'idle' : zoneSeries.status
+                    }
+                    errorKind={zoneSeries.errorKind}
+                    onRetry={zoneSeries.retry}
+                    zoneName={zoneName}
+                    startYear={yearRange.start}
+                    endYear={yearRange.end}
+                    timelineEnd={timelineEnd}
+                    position={position}
+                    hoverFraction={hoverFraction}
+                    onHoverChange={onHoverChange}
+                    onSeek={seek}
+                  />
+                ),
+              }}
             />
           </section>
         </main>
 
         <Footer />
       </div>
-
-      {/* Track Selection Panel */}
-      <SlidingPanel
-        isOpen={isTrackPanelOpen}
-        onClose={() => setIsTrackPanelOpen(false)}
-        title={t('tracks.title')}
-      >
-        <TrackSelector
-          tracks={tracks}
-          trackStates={trackStates}
-          status={instruments.status}
-          errorKind={instruments.errorKind}
-          preparing={instruments.preparing}
-          onTrackToggle={setTrackEnabled}
-          onRetry={instruments.reload}
-        />
-      </SlidingPanel>
 
       {/* Live region for screen reader announcements */}
       <div

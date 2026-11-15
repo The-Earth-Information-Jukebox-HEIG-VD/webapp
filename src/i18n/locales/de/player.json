@@ -5,10 +5,11 @@
     "stop": "Stoppen und zurücksetzen",
     "skipBackward": "10 Jahre zurückspringen",
     "skipForward": "10 Jahre vorspringen",
-    "tracks": "Audiospuren ({{count}} aktiv)",
+    "tracks": "Klänge: {{count}} ausgewählt",
     "jumpToStart": "Zum Anfang springen",
     "jumpToEnd": "Zum Ende springen",
-    "selectZoneFirst": "Wählen Sie eine Zone auf dem Globus, um abzuspielen"
+    "selectZoneFirst": "Wählen Sie eine Zone auf dem Globus, um abzuspielen",
+    "tracksShort": "Klänge"
   },
   "status": {
     "playing": "Wiedergabe läuft",
@@ -42,7 +43,9 @@
     "home": "Zum Anfang springen",
     "end": "Zum Ende springen",
     "m": "Stumm/Laut",
-    "question": "Tastaturkürzel anzeigen"
+    "question": "Tastaturkürzel anzeigen",
+    "pageUpDown": "Ein Jahr vor oder zurück (Zeitleiste)",
+    "shiftArrow": "Einen Monat zurück oder vor (Zeitleiste)"
   },
   "announcements": {
     "nowPlaying": "Wiedergabe {{year}}: {{reading}}",
@@ -66,5 +69,33 @@
     "ppm": "ppm (Teile pro Million)",
     "percent": "Prozent",
     "mmPerDay": "Millimeter pro Tag"
+  },
+  "chooseSounds": "Klänge wählen",
+  "datePicker": {
+    "open": "Zu einem Datum springen, aktuell {{date}}",
+    "title": "Zu einem Datum springen",
+    "year": "Jahr",
+    "month": "Monat",
+    "go": "Los",
+    "close": "Schließen",
+    "jumped": "Gesprungen zu {{date}}"
+  },
+  "graph": {
+    "toggle": "Diagramm",
+    "toggleLabel": "Datendiagramm anzeigen",
+    "title": "Datendiagramm",
+    "summary": "Datendiagramm für {{zone}}, {{start}} bis {{end}}: {{datasets}}. Jede Linie hat ihre eigene Skala. {{lines}}",
+    "lineSummary": "{{name}}: Minimum {{min}} im {{minDate}}, Maximum {{max}} im {{maxDate}}.",
+    "tableCaption": "Jahresmittel jedes Datensatzes im ausgewählten Gebiet",
+    "year": "Jahr",
+    "noData": "Keine Daten",
+    "zeroNormal": "0 = normal",
+    "loading": "Datendiagramm wird geladen…",
+    "empty": "Wählen Sie ein Gebiet und mindestens einen Klang, um das Datendiagramm zu sehen.",
+    "scaleNote": "Jede Linie hat ihre eigene Skala",
+    "zoneFallback": "das ausgewählte Gebiet",
+    "error": "Das Datendiagramm konnte nicht geladen werden.",
+    "unavailable": "Keine Daten für diese Auswahl.",
+    "lineNoData": "{{name}}: keine Daten in diesem Gebiet."
   }
 }

@@ -244,6 +244,8 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
     currentYear: Math.min(yearRange.end, Math.floor(currentPosition)),
     progress,
     yearRange,
+    /** Right edge of the timeline: fractional year of the month after the last data */
+    timelineEnd,
 
     // Latest value reported by the backend
     /** Track the announced value belongs to: the first enabled track with a value */
