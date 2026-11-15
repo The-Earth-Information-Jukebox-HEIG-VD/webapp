@@ -35,6 +35,7 @@ export const TRACK_COLORS: Record<string, string> = {
   lightning: '#ffe815',
   night_lights: '#38b484',
   fires: '#da154c',
+  sea_ice: '#834bff',
 };
 
 export const FALLBACK_TRACK_COLOR = '#9aa0a6';
