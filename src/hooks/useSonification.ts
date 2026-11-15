@@ -1,12 +1,44 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChunkPlayer, type PlayerState } from '../audio/ChunkPlayer';
-import { ApiError, periodYear, periodToYear, yearToPeriod, type ApiErrorKind } from '../services/sonificationApi';
+import {
+  ApiError,
+  periodYear,
+  periodToYear,
+  yearToPeriod,
+  withMonth,
+  monthOccurrence,
+  snapToMonth,
+  type ApiErrorKind,
+} from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
 import type { Track, TrackState } from '../types/tracks';
 import { isAnomalyUnits } from '../utils/reading';
 import { monthKey } from '../services/volumeData';
 import { splitFractionalYear } from '../utils/formatDate';
 import { createPositionStore, usePlaybackPosition } from './usePlaybackPosition';
+import { useLocalStorageString } from './useLocalStorageString';
+
+/** localStorage key of the month travel choice ("" = every month, "1".."12") */
+export const MONTH_TRAVEL_KEY = 'earth-jukebox-month-travel';
+
+/** Saved month travel value -> 1..12, or null (every month) for anything else. */
+export function parseMonthFilter(saved: string | null): number | null {
+  const n = Number(saved);
+  return saved && Number.isInteger(n) && n >= 1 && n <= 12 ? n : null;
+}
+
+/**
+ * "YYYY_MM" of the globe frame for a position. In month travel the playhead
+ * crosses one year per bar, so the frame stays on that month's occurrence.
+ */
+export function frameMonthKey(position: number, month: number | null): string {
+  if (month) {
+    const [y] = monthOccurrence(position, month).split('-');
+    return monthKey(Number(y), month);
+  }
+  const { year, month: m } = splitFractionalYear(position);
+  return monthKey(year, m);
+}
 
 export const DEFAULT_YEAR_RANGE = { start: 1880, end: 2025 };
 
@@ -65,18 +97,24 @@ export function computeTimelineEnd(tracks: Track[], enabledIds: ReadonlySet<stri
   return timelineOf(tracks, enabledIds).fractionalEnd;
 }
 
-/** Position, timeline progress (0..1) and displayed year from the raw store value */
+/**
+ * Position, timeline progress (0..1) and displayed year from the raw store value.
+ * In month travel (`month` 1..12), `datePosition` is the date being heard
+ * (that month's occurrence), while `position` keeps moving for the playhead.
+ */
 export function derivePlayback(
   raw: number | null,
   yearRange: { start: number; end: number },
-  timelineEnd: number
+  timelineEnd: number,
+  month: number | null = null
 ) {
   const position = raw ?? yearRange.start;
   const span = timelineEnd - yearRange.start;
   const progress = span > 0 ? Math.min(1, Math.max(0, (position - yearRange.start) / span)) : 0;
+  const datePosition = snapToMonth(position, month);
   // Same rounding as the displayed date (splitFractionalYear) so year, month and label agree
-  const currentYear = Math.min(yearRange.end, splitFractionalYear(position).year);
-  return { position, progress, currentYear };
+  const currentYear = Math.min(yearRange.end, splitFractionalYear(datePosition).year);
+  return { position, progress, currentYear, datePosition };
 }
 
 const SEEK_DEBOUNCE_MS = 250;
@@ -101,6 +139,16 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     values: Record<string, number>;
     year: number | null;
   }>({ values: {}, year: null });
+
+  // Month travel: null = every month, 1..12 = only that month, through the years
+  const [savedMonth, saveMonth] = useLocalStorageString(MONTH_TRAVEL_KEY);
+  const monthFilter = parseMonthFilter(savedMonth);
+  const monthFilterRef = useRef(monthFilter);
+  monthFilterRef.current = monthFilter;
+  const setMonthFilter = useCallback(
+    (month: number | null) => saveMonth(month === null ? '' : String(month)),
+    [saveMonth]
+  );
 
   // null = user has not touched the selection yet: use each track's default
   const [userEnabled, setUserEnabled] = useState<Set<string> | null>(null);
@@ -174,10 +222,10 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
 
   // Zone / tracks -> player (restarts from the current position when playing)
   useEffect(() => {
-    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds, endPeriod, genre });
+    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds, endPeriod, genre, month: monthFilter });
     // datasetKey stands for datasetIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoneId, zoneName, points, datasetKey, endPeriod, genre]);
+  }, [zoneId, zoneName, points, datasetKey, endPeriod, genre, monthFilter]);
 
   const canPlay = datasetIds.length > 0 && points.length > 0;
 
@@ -194,7 +242,10 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     setHasEnded(false);
     setInterrupted(false);
     flushSeek();
-    await playerRef.current?.play(`${rangeRef.current.start}-01`);
+    const first = `${rangeRef.current.start}-01`;
+    // Month travel starts at that month of the first year (the player snaps any period too)
+    const month = monthFilterRef.current;
+    await playerRef.current?.play(month ? withMonth(first, month) : first);
   }, [flushSeek]);
 
   const pause = useCallback(() => playerRef.current?.pause(), []);
@@ -246,6 +297,40 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     [tracks]
   );
 
+  // Seek waiting for a track or month travel change: the timeline range (and so
+  // the clamp in seekToYear) depends on the enabled tracks, and the player snaps
+  // to the travel month, so it must run after they apply (this effect comes after
+  // the setParams one above)
+  const pendingSeek = useRef<number | null>(null);
+  useEffect(() => {
+    if (pendingSeek.current === null) return;
+    const year = pendingSeek.current;
+    pendingSeek.current = null;
+    seekToYear(year);
+  }, [datasetKey, monthFilter, seekToYear]);
+
+  /**
+   * Key event: enable exactly `trackIds` (the unavailable ones are skipped; if
+   * none is available the selection is kept), switch month travel back to every
+   * month (an event spans consecutive months), then move the timeline to `year`.
+   */
+  const jumpTo = useCallback(
+    (trackIds: string[], year: number) => {
+      const wanted = trackIds.filter((id) => tracks.some((t) => t.id === id && t.available));
+      const nextKey = tracks.filter((t) => wanted.includes(t.id)).map((t) => t.id).join(',');
+      const tracksChange = wanted.length > 0 && nextKey !== datasetKey;
+      const monthChange = monthFilterRef.current !== null;
+      if (!tracksChange && !monthChange) {
+        seekToYear(year);
+        return;
+      }
+      pendingSeek.current = year;
+      if (tracksChange) setUserEnabled(new Set(wanted));
+      if (monthChange) setMonthFilter(null);
+    },
+    [tracks, datasetKey, seekToYear, setMonthFilter]
+  );
+
   const mainTrackId = datasetIds.find((id) => chunk.values[id] !== undefined) ?? null;
   const currentValue = mainTrackId ? chunk.values[mainTrackId] : null;
   const units = tracks.find((t) => t.id === mainTrackId)?.units ?? null;
@@ -253,12 +338,11 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
   // Coarse subscriptions only: re-render on year (~36 s) / month (~3 s) changes
   const currentYear = usePlaybackPosition(
     positionStore,
-    (raw) => derivePlayback(raw, yearRange, timelineEnd).currentYear
+    (raw) => derivePlayback(raw, yearRange, timelineEnd, monthFilter).currentYear
   );
-  const playbackMonthKey = usePlaybackPosition(positionStore, (raw) => {
-    const { year, month } = splitFractionalYear(raw ?? yearRange.start);
-    return monthKey(year, month);
-  });
+  const playbackMonthKey = usePlaybackPosition(positionStore, (raw) =>
+    frameMonthKey(raw ?? yearRange.start, monthFilter)
+  );
   const status: SonificationStatus =
     playerState === 'paused' ? 'idle' : playerState;
 
@@ -274,8 +358,11 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     positionStore,
     /** Whole year of the position (changes ~every 36 s) */
     currentYear,
-    /** "YYYY_MM" of the position (changes ~every 3 s) */
+    /** "YYYY_MM" of the position (changes ~every 3 s; in month travel, always the chosen month) */
     playbackMonthKey,
+    /** Month travel: 1..12 = only that month through the years, null = every month */
+    monthFilter,
+    setMonthFilter,
     yearRange,
     /** Right edge of the timeline: fractional year of the month after the last data */
     timelineEnd,
@@ -304,6 +391,8 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     seekToYear,
     setVolume,
     setTrackEnabled,
+    /** Select exactly these tracks, then seek (once their date range applies) */
+    jumpTo,
   };
 }
 

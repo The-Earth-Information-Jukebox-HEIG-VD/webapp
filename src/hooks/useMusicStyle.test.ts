@@ -49,4 +49,22 @@ describe('useMusicStyle', () => {
     await new Promise((r) => setTimeout(r, 20));
     expect(result.current.genre).toBeUndefined();
   });
+
+  it('fetches the list again on reload() after a failure (backend up late)', async () => {
+    let up = false;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => (up ? new Response(JSON.stringify(genres), { status: 200 }) : Promise.reject(new TypeError('Failed to fetch')))),
+    );
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => useMusicStyle());
+    await waitFor(() => expect(result.current.failed).toBe(true));
+    expect(result.current.genres).toHaveLength(0);
+    up = true;
+    act(() => result.current.reload());
+    await waitFor(() => expect(result.current.genres).toHaveLength(2));
+    expect(result.current.failed).toBe(false);
+    expect(result.current.genre).toBe('orchestra');
+    warn.mockRestore();
+  });
 });

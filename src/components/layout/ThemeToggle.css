@@ -1,0 +1,45 @@
+/* Light / dark switch: no border, surface tones only; 44x44 target */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background: var(--color-surface-hover);
+}
+
+.theme-toggle[aria-pressed="true"] {
+  background: var(--color-surface-active);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Compact header: same rule as the language button, but keep a 24px target */
+.header--compact .theme-toggle {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle {
+    transition: none;
+  }
+}

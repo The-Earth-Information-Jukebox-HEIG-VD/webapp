@@ -123,6 +123,17 @@ export const KNOWN_DATASETS: DatasetInfo[] = [
     color: firstTrackColor(['fires']),
     display: { min: 0, max: 20, mode: 'linear' },
   },
+  {
+    // Share of the sea covered by ice (0-100 %)
+    id: 'sea_ice',
+    folder: 'sea_ice_1979_2026',
+    prefix: 'sea_ice',
+    labelKey: 'globeData.datasets.sea_ice',
+    trackIds: ['sea_ice'],
+    units: '%',
+    color: firstTrackColor(['sea_ice']),
+    display: { min: 0, max: 100, mode: 'linear' },
+  },
 ];
 
 /**

@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, #1d1d24 0%, #0a0e17 70%);
+  background: var(--color-background);
   border-radius: var(--radius-xl);
   overflow: hidden;
 }
@@ -40,20 +40,20 @@
 
 /* Light grey on the dark background: > 3:1 (WCAG 1.4.11) */
 .vinyl-tonearm-arm {
-  stroke: #d0d4da;
+  stroke: var(--color-text-secondary);
   stroke-width: 3.5;
   stroke-linecap: round;
 }
 
 .vinyl-tonearm-pivot {
-  fill: #9aa0a6;
-  stroke: #e8eaed;
+  fill: var(--color-text-muted);
+  stroke: var(--color-text);
   stroke-width: 2;
 }
 
 .vinyl-tonearm-head {
-  fill: #ffb74d;
-  stroke: #0a0e17;
+  fill: #ffffff;
+  stroke: #071327;
   stroke-width: 1.5;
 }
 
@@ -66,7 +66,7 @@
   gap: 2px;
   max-width: calc(100% - 2 * var(--spacing-md));
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(7, 19, 39, 0.88);
   border-radius: var(--radius-md);
   color: var(--color-text);
   font-size: var(--font-size-sm);
@@ -85,7 +85,7 @@
   transform: translateX(-50%);
   margin: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(7, 19, 39, 0.88);
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
@@ -112,7 +112,6 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
 }
 
@@ -123,12 +122,12 @@
 
 .vinyl-record-groove {
   fill: none;
-  stroke: #5f6368;
+  stroke: var(--color-text-muted);
   stroke-width: 1;
 }
 
 .vinyl-record-groove.is-current {
-  stroke: #ffb74d;
+  stroke: var(--color-text);
   stroke-width: 3;
 }
 
@@ -140,7 +139,8 @@
 
 .vinyl-record-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 2px;
   font-size: var(--font-size-sm);
   color: var(--color-text);
 }
@@ -154,7 +154,6 @@
 .vinyl-record-table th,
 .vinyl-record-table td {
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-bottom: 1px solid var(--color-border);
   text-align: left;
 }
 

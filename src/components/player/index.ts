@@ -4,3 +4,4 @@ export { PositionDisplay } from './PositionDisplay';
 export { VolumeControl } from './VolumeControl';
 export { DatePicker } from './DatePicker';
 export { VinylPlayerBar } from './VinylPlayerBar';
+export { MonthTravelControl } from './MonthTravelControl';

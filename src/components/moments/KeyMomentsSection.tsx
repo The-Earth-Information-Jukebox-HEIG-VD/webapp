@@ -1,51 +1,83 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMomentsInRange } from '../../data/keyMoments';
+import {
+  decodeMomentStatus,
+  encodeMomentStatuses,
+  getMomentsForZone,
+} from '../../data/keyMoments';
+import type { KeyMoment } from '../../types/keyMoments';
+import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
+import { getZoneDisplayName } from '../../utils/zoneName';
+import { snapToMonth } from '../../services/sonificationApi';
 import { KeyMomentCard } from './KeyMomentCard';
 import './KeyMomentsSection.css';
 
 interface KeyMomentsSectionProps {
   startYear: number;
   endYear: number;
-  currentYear: number;
-  onJumpToMoment: (year: number) => void;
+  /** Selected zone id, or null when no zone is selected (then every event is shown) */
+  selectedZone: string | null;
+  /** Fine playback position (fractional year) */
+  positionStore: PositionStore;
+  onJumpToMoment: (moment: KeyMoment) => void;
+  /** Month travel (1-12): the playhead stands for that month of its year */
+  monthFilter?: number | null;
 }
 
 /**
- * Section displaying key climate moments as clickable cards
+ * Key events (extreme events, El Niño) as clickable cards.
  *
- * Allows users to quickly jump to significant events in the timeline.
+ * Only the events of the selected zone are listed; with no zone, all of them.
  */
 export function KeyMomentsSection({
   startYear,
   endYear,
-  currentYear,
+  selectedZone,
+  positionStore,
   onJumpToMoment,
+  monthFilter = null,
 }: KeyMomentsSectionProps) {
   const { t } = useTranslation();
 
-  const moments = getMomentsInRange(startYear, endYear);
+  const moments = useMemo(
+    () => getMomentsForZone(selectedZone, startYear, endYear),
+    [selectedZone, startYear, endYear]
+  );
 
-  // Group moments by significance
-  const highSignificance = moments.filter((m) => m.significance === 'high');
+  // One character per moment: re-renders only when a moment changes status.
+  // In month travel the playhead crosses a whole year per bar: use the month it
+  // stands for (the one the timeline shows), not the raw position.
+  const statuses = usePlaybackPosition(positionStore, (position) =>
+    encodeMomentStatuses(
+      moments,
+      position === null ? null : snapToMonth(position, monthFilter),
+      selectedZone
+    )
+  );
 
   return (
-    <section
-      className="key-moments-section"
-      aria-label={t('moments.title')}
-    >
-      <h2 className="moments-title">{t('moments.title')}</h2>
+    <section className="key-moments-section" aria-labelledby="key-moments-title">
+      <h2 id="key-moments-title" className="moments-title">{t('moments.title')}</h2>
 
-      <div className="moments-grid" role="list">
-        {highSignificance.map((moment) => (
-          <KeyMomentCard
-            key={moment.id}
-            moment={moment}
-            isActive={currentYear === moment.year}
-            isPast={currentYear > moment.year}
-            onJump={() => onJumpToMoment(moment.year)}
-          />
-        ))}
-      </div>
+      {moments.length === 0 ? (
+        <p className="moments-empty">
+          {t('moments.emptyForZone', {
+            zone: selectedZone ? getZoneDisplayName(selectedZone, t) : '',
+          })}
+        </p>
+      ) : (
+        <ul className="moments-grid">
+          {moments.map((moment, i) => (
+            <KeyMomentCard
+              key={moment.id}
+              moment={moment}
+              status={decodeMomentStatus(statuses, i)}
+              showZone={selectedZone === null}
+              onJump={() => onJumpToMoment(moment)}
+            />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

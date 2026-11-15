@@ -25,7 +25,7 @@
 }
 
 .volume-button:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -52,7 +52,7 @@
      border), which left dead space before 0% and after 100% */
   padding: 0;
   border: none;
-  background: var(--color-text-muted); /* 3:1+ against the surface (WCAG 1.4.11) */
+  background: var(--color-control-border); /* 3:1+ against the surface (WCAG 1.4.11) */
   border-radius: var(--radius-full);
   cursor: pointer;
   -webkit-appearance: none;
@@ -63,29 +63,30 @@
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
+  border: 3px solid var(--color-background);
+  box-sizing: border-box;
   border-radius: var(--radius-full);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
 }
 
 .volume-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border-radius: var(--radius-full);
   cursor: pointer;
-  border: none;
-  box-shadow: var(--shadow-sm);
+  border: 3px solid var(--color-background);
+  box-sizing: border-box;
 }
 
 .volume-slider:focus-visible {
-  outline: 3px solid var(--color-primary-light);
+  outline: 3px solid var(--color-focus);
   outline-offset: 4px;
 }
 
 .volume-slider:focus-visible::-webkit-slider-thumb {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

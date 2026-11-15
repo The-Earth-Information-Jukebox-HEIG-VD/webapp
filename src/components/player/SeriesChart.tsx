@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import type { ApiErrorKind, DatasetSeries } from '../../services/sonificationApi';
 import type { ZoneSeriesStatus } from '../../hooks/useZoneSeries';
-import { formatMonthYear, splitFractionalYear } from '../../utils/formatDate';
+import { formatMonthYear, monthName, splitFractionalYear } from '../../utils/formatDate';
+import { snapToMonth } from '../../services/sonificationApi';
 import { formatReading, formatUnits } from '../../utils/reading';
 import { buildTicks } from './Timeline';
 import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
@@ -35,13 +36,18 @@ interface SeriesChartProps {
   onHoverChange: (fraction: number | null) => void;
   /** Click on the plot: seek to this fraction (0..1) of the track */
   onSeek: (fraction: number) => void;
+  /**
+   * Month travel (1..12): one point per year at that month (each July), joined
+   * across the years; the table, summary and legend read that month only.
+   */
+  month?: number | null;
 }
 
 // SVG user space (preserveAspectRatio="none": it stretches to the element)
 export const VIEW_W = 1000;
 export const VIEW_H = 100;
 export const MARGIN_Y = 6;
-const DASHES = ['', '6 3', '2 3', '8 3 2 3', '1 4', '12 4', '4 2 1 2'];
+const DASHES = ['', '6 3', '2 3', '8 3 2 3', '1 4', '12 4', '4 2 1 2', '10 2 2 2 2 2'];
 /** Fixed dash per known track id: the pattern follows the track, never its rank. */
 const TRACK_DASH_INDEX: Record<string, number> = {
   temperature: 0,
@@ -51,6 +57,7 @@ const TRACK_DASH_INDEX: Record<string, number> = {
   lightning: 4,
   night_lights: 5,
   fires: 6,
+  sea_ice: 7,
 };
 
 /** Dash pattern of a line: stable per id, whatever other lines are shown. */
@@ -200,6 +207,55 @@ export function yearlyMeans(series: DatasetSeries): Map<number, number> {
   return new Map([...sums].map(([year, { sum, n }]) => [year, sum / n]));
 }
 
+/**
+ * Month travel: the value of `month` (1..12) in each year, by year. Yearly data
+ * (night lights) has one value per year: that value stands for every month.
+ */
+export function monthValues(series: DatasetSeries, month: number): Map<number, number> {
+  const first = startToYear(series.start);
+  const out = new Map<number, number>();
+  if (Number.isNaN(first)) return out;
+  series.values.forEach((v, i) => {
+    if (v === null || !Number.isFinite(v)) return;
+    const { year, month: m } = splitFractionalYear(first + i / 12);
+    if (series.yearly ? !out.has(year) : m === month) out.set(year, v);
+  });
+  return out;
+}
+
+/** min/max of a year -> value map (same shape as seriesRange). */
+function mapRange(values: Map<number, number>): { min: number; max: number } | null {
+  return seriesRange([...values.values()]);
+}
+
+/**
+ * Month travel paths: the line joins the month's value of consecutive years at
+ * x = year + (month-1)/12 (a missing year starts a new sub-path); `dots` marks
+ * isolated years, which would otherwise draw nothing.
+ */
+export function buildMonthPaths(
+  values: Map<number, number>,
+  month: number,
+  startYear: number,
+  edge: number,
+  range: { min: number; max: number } | null = mapRange(values)
+): { d: string; dots: string } {
+  if (!range) return { d: '', dots: '' };
+  const f = (n: number) => n.toFixed(2);
+  const offset = (month - 1) / 12;
+  const years = [...values.keys()].sort((a, b) => a - b);
+  const line: string[] = [];
+  const dots: string[] = [];
+  years.forEach((year, k) => {
+    const x = f(yearToX(year + offset, startYear, edge));
+    const y = f(valueToY(values.get(year)!, range.min, range.max));
+    const joined = k > 0 && years[k - 1] === year - 1;
+    line.push(`${joined ? 'L' : 'M'}${x} ${y}`);
+    if (!joined && years[k + 1] !== year + 1) dots.push(`M${x} ${y}h0.01`);
+  });
+  return { d: line.join(''), dots: dots.join('') };
+}
+
 function extremes(series: DatasetSeries) {
   const first = startToYear(series.start);
   let min: { v: number; i: number } | null = null;
@@ -217,7 +273,28 @@ function dateText(series: DatasetSeries, index: number, locale: string): string 
   return series.yearly ? String(Math.floor(year + 1e-9)) : formatMonthYear(year, locale, 'long');
 }
 
-function describeLine(line: ChartLine, t: TFunction, locale: string): string {
+function describeMonthLine(line: ChartLine, month: number, t: TFunction, locale: string): string {
+  let min: [number, number] | null = null;
+  let max: [number, number] | null = null;
+  for (const [year, v] of monthValues(line.series, month)) {
+    if (!min || v < min[1]) min = [year, v];
+    if (!max || v > max[1]) max = [year, v];
+  }
+  if (!min || !max) return t('player:graph.lineNoData', { name: line.name });
+  const { units, anomaly } = line.series;
+  const date = (year: number) =>
+    line.series.yearly ? String(year) : formatMonthYear(year + (month - 1) / 12, locale, 'long');
+  return t('player:graph.lineSummary', {
+    name: line.name,
+    min: formatReading(min[1], units, anomaly, t, { speakable: true }),
+    max: formatReading(max[1], units, anomaly, t, { speakable: true }),
+    minDate: date(min[0]),
+    maxDate: date(max[0]),
+  });
+}
+
+function describeLine(line: ChartLine, t: TFunction, locale: string, month: number | null = null): string {
+  if (month) return describeMonthLine(line, month, t, locale);
   const { min, max } = extremes(line.series);
   if (!min || !max) return t('player:graph.lineNoData', { name: line.name });
   const { units, anomaly } = line.series;
@@ -248,6 +325,7 @@ export function SeriesChart({
   hoverFraction,
   onHoverChange,
   onSeek,
+  month = null,
 }: SeriesChartProps) {
   const { t, i18n } = useTranslation('player');
   const locale = i18n.language;
@@ -258,11 +336,17 @@ export function SeriesChart({
   const span = Math.max(1e-6, edge - startYear);
   const fractionOf = (year: number) => Math.max(0, Math.min(1, (year - startYear) / span));
   const hoverYear = hoverFraction === null ? null : startYear + hoverFraction * span;
-  const readYear = hoverYear ?? position;
+  // Month travel: the date read is that month of the year under the playhead / pointer
+  const readYear = snapToMonth(hoverYear ?? position, month);
 
   const paths = useMemo(
     () =>
       lines.map((line) => {
+        if (month) {
+          const values = monthValues(line.series, month);
+          const range = mapRange(values);
+          return { line, range, ...buildMonthPaths(values, month, startYear, edge, range) };
+        }
         const range = seriesRange(line.series.values);
         return {
           line,
@@ -271,7 +355,7 @@ export function SeriesChart({
           dots: buildDotsPath(line.series, startYear, edge, range),
         };
       }),
-    [lines, startYear, edge]
+    [lines, startYear, edge, month]
   );
 
   const ticks = useMemo(
@@ -287,21 +371,23 @@ export function SeriesChart({
 
   const summary = useMemo(() => {
     if (lines.length === 0) return '';
-    return t('graph.summary', {
+    return t(month ? 'graph.summaryMonth' : 'graph.summary', {
       zone: zoneName ?? t('graph.zoneFallback'),
       start: startYear,
       end: endYear,
+      month: month ? monthName(month, locale, 'long') : '',
       datasets: lines.map((l) => l.name).join(', '),
-      lines: lines.map((l) => describeLine(l, t, locale)).filter(Boolean).join(' '),
+      lines: lines.map((l) => describeLine(l, t, locale, month)).filter(Boolean).join(' '),
     });
-  }, [lines, zoneName, startYear, endYear, t, locale]);
+  }, [lines, zoneName, startYear, endYear, t, locale, month]);
 
+  // One row per year: the yearly mean, or in month travel that month's value
   const table = useMemo(() => {
-    const means = lines.map((l) => yearlyMeans(l.series));
+    const means = lines.map((l) => (month ? monthValues(l.series, month) : yearlyMeans(l.series)));
     const years = new Set<number>();
     means.forEach((m) => m.forEach((_, y) => years.add(y)));
     return { means, years: [...years].sort((a, b) => a - b) };
-  }, [lines]);
+  }, [lines, month]);
 
   if (status === 'idle') {
     return (
@@ -474,7 +560,11 @@ export function SeriesChart({
       </div>
 
       <table className="sr-only">
-        <caption>{t('graph.tableCaption')}</caption>
+        <caption>
+          {month
+            ? t('graph.tableCaptionMonth', { month: monthName(month, locale, 'long') })
+            : t('graph.tableCaption')}
+        </caption>
         <thead>
           <tr>
             <th scope="col">{t('graph.year')}</th>

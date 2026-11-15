@@ -25,33 +25,48 @@
   min-height: 44px;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
+  border: none;
   border-radius: var(--radius-lg);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  transition: background-color var(--transition-fast);
 }
 
 .experience-option:hover {
   background: var(--color-surface-hover);
-  border-color: var(--color-border-light);
 }
 
 .experience-option:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.experience-option.active {
+.experience-option.active,
+.experience-option.active:hover:not(:disabled) {
   background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-on-primary);
+  box-shadow: var(--selected-ring);
+}
+
+.experience-option.active:hover:not(:disabled) {
+  background: var(--color-primary-light);
+}
+
+/* Selected + hovered: darker yellow (on-primary text stays ~10:1) */
+.experience-option.active:hover {
+  background: var(--color-primary-dark);
+  color: var(--color-on-primary);
 }
 
 .experience-option-icon {
-  font-size: var(--font-size-xl);
-  line-height: 1.2;
+  display: inline-flex;
+  flex: none;
+}
+
+.experience-option-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .experience-option-text {
@@ -71,13 +86,7 @@
 }
 
 .experience-option.active .experience-option-hint {
-  color: #ffffff;
-}
-
-.high-contrast .experience-option.active,
-.high-contrast .experience-option.active .experience-option-hint {
-  /* white on the high-contrast primary (#66b3ff) is only ~2:1 */
-  color: #000000;
+  color: var(--color-on-primary);
 }
 
 @media (max-width: 480px) {

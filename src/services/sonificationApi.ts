@@ -35,7 +35,15 @@ export interface ZoneDataRequest {
   aggregation: 'mean';
   /** Music style id (GET /api/genres); omitted = the backend's default */
   genre?: string;
+  /**
+   * API v2.12 (FRONTEND_API.md "the same month, year after year"): "year" = one bar
+   * per year at the month of `time_period` (each July from 1880-07). Omitted = "month".
+   */
+  step?: TimeStep;
 }
+
+/** One bar of music per month (default) or per year at a fixed month (month travel). */
+export type TimeStep = 'month' | 'year';
 
 export interface ZoneDataResponse {
   zone_id: string | null;
@@ -56,6 +64,11 @@ export interface ZoneDataResponse {
   duration_s?: number;
   /** Start second of each month (bar) of the chunk, from 0; its length is the number of months */
   bar_starts_s?: number[];
+  /**
+   * Echo of `step: "year"` (API v2.12; absent otherwise). Without the echo the
+   * backend is older, ignored the field and played months.
+   */
+  step?: TimeStep;
 }
 
 /** A point of a vinyl groove (longitudes past 180 are wrapped by the backend). */
@@ -184,7 +197,13 @@ export interface HealthResponse {
 // ---------------------------------------------------------------------------
 
 /** Which localized message to show (errors.<kind> in common.json). */
-export type ApiErrorKind = 'backendUnavailable' | 'serverPreparing' | 'noDataForPeriod' | 'unknown';
+export type ApiErrorKind =
+  | 'backendUnavailable'
+  | 'serverPreparing'
+  | 'noDataForPeriod'
+  /** The backend cannot play one month through the years yet (no `step: "year"` support) */
+  | 'yearStepUnsupported'
+  | 'unknown';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -373,6 +392,35 @@ export function addMonths(period: string, n: number): string {
   if (!m) return period;
   const total = Number(m[1]) * 12 + (Number(m[2]) - 1) + n;
   return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
+}
+
+/** Period of `month` (1-12) in the year of `period` ("YYYY" or "YYYY-MM"), e.g. ("1950-03", 7) -> "1950-07". */
+export function withMonth(period: string, month: number): string {
+  const m = /^(\d{4})/.exec(period);
+  if (!m) return period;
+  const mm = Math.min(12, Math.max(1, Math.round(month)));
+  return `${m[1]}-${String(mm).padStart(2, '0')}`;
+}
+
+/**
+ * Period of `month` (1-12) for a fractional year in month travel: the latest
+ * occurrence of that month at or before `fractionalYear`
+ * (1950.2 with July -> "1949-07"; 1950.6 -> "1950-07").
+ */
+export function monthOccurrence(fractionalYear: number, month: number): string {
+  const offset = (Math.min(12, Math.max(1, Math.round(month))) - 1) / 12;
+  const year = Math.floor(fractionalYear - offset + 1e-9);
+  return withMonth(String(year), month);
+}
+
+/**
+ * Month travel: the date a fractional position stands for (fractional year of
+ * the latest occurrence of `month` at or before it). Every month (null): unchanged.
+ * The playhead crosses a whole year per bar, so its labels must say "July 1950"
+ * all along, not "March 1951".
+ */
+export function snapToMonth(position: number, month: number | null | undefined): number {
+  return month ? periodToYear(monthOccurrence(position, month)) : position;
 }
 
 /** Decode a base64 string to an ArrayBuffer. */

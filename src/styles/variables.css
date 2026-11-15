@@ -1,17 +1,46 @@
 /**
  * CSS Custom Properties for EarthChestra
  *
- * Color palette is designed to be color-blind friendly,
- * using blue/orange for warm/cool instead of red/green.
+ * Brand palette comes from the logo (public/logo-*.png): label yellow,
+ * ocean blue and land green on the navy night background.
+ * Rules:
+ *  - Anything filled with --color-primary uses --color-on-primary for text/icons.
+ *  - --color-secondary (ocean blue) is for graphics only; use
+ *    --color-secondary-text when blue is text.
+ *  - Data colours live in src/data/trackColors.ts and never use these tokens.
+ *  - Containers are separated by surface tone and spacing, not borders.
+ *  - Two themes. The dark block below is the default (and applies to any
+ *    element marked data-theme="dark", e.g. the globe stage, which stays dark
+ *    in the light theme). [data-theme="light"] redefines the same tokens.
+ *    Light text/UI values were checked with a WCAG contrast computation
+ *    (text >= 4.5:1 on background/surface/hover/active; controls, borders
+ *    that identify a control and focus >= 3:1).
+ *  - --color-primary is a fill (yellow fails as text on white): text or
+ *    graphics in the brand colour on page surfaces use --color-primary-text;
+ *    links use --color-link; the focus ring uses --color-focus.
  */
 
-:root {
-  /* Primary brand colors */
-  --color-primary: #1a73e8;
-  --color-primary-dark: #1557b0;
-  --color-primary-light: #4a94f0;
-  --color-secondary: #34a853;
-  --color-secondary-dark: #2d8a47;
+/* Dark theme: the default, and an island inside the light theme */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Brand colors (from the logo) */
+  --color-primary: #f5d078;          /* record label yellow: 11.1:1 on surface */
+  --color-primary-dark: #e8b94f;
+  --color-primary-light: #fbe3a6;
+  --color-on-primary: #071327;       /* 12.5:1 on primary */
+  --color-primary-tint: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --color-primary-text: #f5d078;     /* brand colour as text/graphic on page surfaces */
+  --color-secondary: #4a6fc7;        /* ocean blue: graphics only (3.4:1) */
+  --color-secondary-dark: #2e5598;
+  --color-secondary-text: #8ea8e6;   /* ocean blue as text: 6.9:1 on surface */
+  --color-land: #5a8c7c;             /* land green: graphics only */
+  --color-land-text: #8fc3ae;
+  --color-link: #fbe3a6;
+  --color-link-hover: #f5d078;
+  --color-sounding: #fbe3a6;         /* "sounding" bars on page surfaces */
+  --color-focus: #f5d078;            /* 3px focus ring */
 
   /* Temperature indicators - Color-blind safe (blue/orange) */
   --color-warm: #e67e22;
@@ -20,34 +49,107 @@
   --color-cool-light: #5dade2;
 
   /* Surface colors */
-  --color-background: #0a0e17;
-  --color-surface: #1a1f2e;
-  --color-surface-hover: #252b3d;
-  --color-surface-active: #2d3548;
-  --color-surface-elevated: #1e2433;
+  /* Deep ocean blue from the logo (hue 218deg, like its #2e5598 shading), darkest to lightest */
+  --color-background: #071327;
+  --color-surface: #0f203e;
+  --color-surface-hover: #162d55;
+  --color-surface-active: #1c3663;
+  --color-surface-elevated: #112445;
 
   /* Text colors */
   --color-text: #e8eaed;
   --color-text-secondary: #b0b6bc;
-  --color-text-muted: #80868b;
-  --color-text-inverse: #0a0e17;
+  --color-text-muted: #9aa0a6;
+  --color-text-inverse: #071327;
 
   /* State colors */
-  --color-error: #ea4335;
+  --color-error: #f28b82;
   --color-warning: #fbbc04;
   --color-success: #34a853;
   --color-info: #4285f4;
 
-  /* Border colors */
-  --color-border: #3c4043;
+  /* Border colors: borders are the exception, not the rule */
+  --color-border: #1b2f55;           /* decorative dividers only */
   --color-border-light: #5f6368;
+  --color-control-border: #80868b;   /* form-control boundary, >= 3:1 (WCAG 1.4.11) */
 
   /* Globe visualization colors */
-  --color-globe-land: #2d3548;
-  --color-globe-ocean: #1a2634;
+  --color-globe-land: #1c3663;
+  --color-globe-ocean: #0f203e;
   --color-globe-marker: #e67e22;
   --color-globe-marker-hover: #f39c12;
 
+  /* Shadows */
+  /* Selected yellow fill: needs no extra mark on dark surfaces (11:1) */
+  --selected-ring: 0 0 0 0 transparent;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Light theme: page surfaces. Brand yellow stays a fill (navy text on it). */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --color-primary: #f5d078;
+  --color-primary-dark: #e8b94f;
+  --color-primary-light: #fbe3a6;
+  --color-on-primary: #071327;
+  --color-primary-tint: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  --color-primary-text: #7a5500;     /* 6.3:1 on background, >= 5.3:1 on every surface */
+  --color-secondary: #4a6fc7;
+  --color-secondary-dark: #2e5598;
+  --color-secondary-text: #2e5598;   /* ocean blue as text: 6.8:1 */
+  --color-land: #3f7a66;
+  --color-land-text: #2f6b57;
+  --color-link: #2e5598;
+  --color-link-hover: #1f3f75;
+  --color-sounding: #7a5500;
+  --color-focus: #2e5598;            /* >= 5.7:1 on every light surface */
+
+  --color-warm: #a8480c;
+  --color-warm-light: #c2570f;
+  --color-cool: #1f6a9c;
+  --color-cool-light: #2b80b8;
+
+  --color-background: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-hover: #eceff5;
+  --color-surface-active: #dfe4ee;
+  --color-surface-elevated: #ffffff;
+
+  --color-text: #0a0e17;
+  --color-text-secondary: #3c4352;
+  --color-text-muted: #545b69;
+  --color-text-inverse: #f6f7fb;
+
+  --color-error: #b3261e;
+  --color-warning: #8a5a00;
+  --color-success: #176b2c;
+  --color-info: #1a5fb4;
+
+  --color-border: #dde2ec;           /* decorative dividers only */
+  --color-border-light: #757d8e;
+  --color-control-border: #6b7280;   /* >= 4.5:1 on background and surface */
+
+  --color-globe-land: #1c3663;
+  --color-globe-ocean: #0f203e;
+  --color-globe-marker: #e67e22;
+  --color-globe-marker-hover: #f39c12;
+
+  /* Yellow on a white/pale page is 1.4:1 (WCAG 1.4.11): a navy inset ring (a
+     box-shadow, not a border) marks the bounds of selected/primary fills. */
+  --selected-ring: inset 0 0 0 2px var(--color-on-primary);
+
+  --shadow-sm: 0 1px 2px rgba(10, 14, 23, 0.08);
+  --shadow-md: 0 4px 6px rgba(10, 14, 23, 0.1);
+  --shadow-lg: 0 10px 15px rgba(10, 14, 23, 0.12);
+  --shadow-xl: 0 20px 25px rgba(10, 14, 23, 0.14);
+}
+
+:root {
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-family-dyslexic: 'Lexend', 'OpenDyslexic', var(--font-family);
@@ -74,16 +176,10 @@
 
   /* Border radius */
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 10px;
   --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
 
   /* Transitions */
   /* Motion: ease-out curves settle softly (no abrupt stop at the end) */
@@ -113,14 +209,4 @@
   /* Real height of the fixed player bar; kept in sync by usePlayerBarHeight */
   --player-bar-height: 68px;
   --max-content-width: 1400px;
-}
-
-/* High contrast mode overrides */
-.high-contrast {
-  --color-background: #000000;
-  --color-surface: #1a1a1a;
-  --color-text: #ffffff;
-  --color-text-secondary: #e0e0e0;
-  --color-border: #ffffff;
-  --color-border-light: #cccccc;
 }

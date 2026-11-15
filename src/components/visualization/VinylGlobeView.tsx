@@ -70,7 +70,7 @@ interface Dot {
 }
 
 const GROOVE_COLOR = 'rgba(255, 255, 255, 0.28)';
-const ACTIVE_COLOR = '#ffb74d';
+const ACTIVE_COLOR = '#ffffff';
 const RAD = Math.PI / 180;
 /** How often the data trail checks whether the needle reached the next stop */
 const TRAIL_TICK_MS = 200;
@@ -318,7 +318,7 @@ export function VinylGlobeView({
   const head = Math.max(4, size * 0.012);
 
   return (
-    <div ref={containerRef} className="vinyl-view">
+    <div ref={containerRef} className="vinyl-view" data-theme="dark">
       {!isLoaded && (
         <div className="globe-loading" aria-hidden="true">
           <div className="globe-skeleton" />
@@ -357,7 +357,7 @@ export function VinylGlobeView({
             pointAltitude={0.006}
             pointsMerge={true}
             pointsTransitionDuration={0}
-            atmosphereColor="#3a228a"
+            atmosphereColor="#4a6fc7"
             atmosphereAltitude={0.15}
             enablePointerInteraction={false}
             onGlobeReady={() => setIsLoaded(true)}

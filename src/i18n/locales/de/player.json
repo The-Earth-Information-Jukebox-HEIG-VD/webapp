@@ -97,7 +97,9 @@
     "zoneFallback": "das ausgewählte Gebiet",
     "error": "Das Datendiagramm konnte nicht geladen werden.",
     "unavailable": "Keine Daten für diese Auswahl.",
-    "lineNoData": "{{name}}: keine Daten in diesem Gebiet."
+    "lineNoData": "{{name}}: keine Daten in diesem Gebiet.",
+    "summaryMonth": "Datendiagramm für {{zone}}, {{month}} jedes Jahres von {{start}} bis {{end}}: {{datasets}}. Jede Linie hat ihre eigene Skala. {{lines}}",
+    "tableCaptionMonth": "Wert im {{month}} jedes Datensatzes im ausgewählten Gebiet, Jahr für Jahr"
   },
   "vinyl": {
     "play": "Platte abspielen",
@@ -110,5 +112,14 @@
     "ended": "Ende der Platte. Abspielen startet wieder am Rand.",
     "shortcuts": "Im Schallplattenmodus wechseln die Pfeiltasten zur vorherigen oder nächsten Rille, Pos1 und Ende zur ersten oder letzten.",
     "currentDate": "Datum: {{date}}"
+  },
+  "monthTravel": {
+    "label": "Monate",
+    "every": "Jeder Monat",
+    "only": "Nur {{month}}",
+    "hint": "Wählen Sie einen Monat, um ihn in jedem Jahr zu hören, z. B. jeden Juli.",
+    "hintActive": "Jeder {{month}}, {{start}}–{{end}}",
+    "announceMonth": "Monatsreise: nur noch {{month}}, Jahr für Jahr.",
+    "announceEvery": "Jetzt werden alle Monate gespielt."
   }
 }

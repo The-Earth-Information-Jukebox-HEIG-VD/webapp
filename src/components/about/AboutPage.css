@@ -3,9 +3,15 @@
   margin: 0 auto;
   padding: var(--spacing-lg);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   line-height: 1.6;
+}
+
+.about-logo {
+  display: block;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto var(--spacing-md);
 }
 
 .about-title {
@@ -17,7 +23,7 @@
 }
 
 .about-title:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 4px;
 }
 
@@ -45,7 +51,7 @@
 }
 
 .about-page a:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

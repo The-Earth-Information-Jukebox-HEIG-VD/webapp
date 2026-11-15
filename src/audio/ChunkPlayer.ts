@@ -4,12 +4,15 @@ import {
   addMonths,
   periodToYear,
   yearToPeriod,
+  monthOccurrence,
+  withMonth,
   base64ToArrayBuffer,
   isAbortError,
   ApiError,
   type ZoneDataRequest,
   type ZoneDataResponse,
 } from '../services/sonificationApi';
+import type { TimeStep } from '../services/sonificationApi';
 import type { GridPoint } from '../types/zones';
 import { requestPlaybackSession, SilentKeepAlive } from './iosAudioUnlock';
 
@@ -34,6 +37,11 @@ import { requestPlaybackSession, SilentKeepAlive } from './iosAudioUnlock';
  *   "playback" audio session (see iosAudioUnlock.ts); done inside the Play
  *   gesture. If iOS interrupts the context (call, Siri, lock screen), the player
  *   pauses so the UI shows Play again instead of a silent, frozen timeline.
+ * - Month travel (`params.month` set): every period is snapped to that month
+ *   and requested with `step: "year"` (API v2.12), so one bar is one year (each
+ *   July from 1880 to 2025). The position stays a fractional year and crosses one year
+ *   per bar. A backend that does not echo `step: "year"` (or rejects it with a
+ *   422) fails with `yearStepUnsupported` instead of playing monthly music.
  */
 
 export type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
@@ -48,6 +56,11 @@ export interface PlayerParams {
   endPeriod: string | null;
   /** Music style id (GET /api/genres); undefined = the backend's default */
   genre?: string;
+  /**
+   * Month travel: 1-12 = play only this month, one bar per year (`step: "year"`).
+   * null/undefined = every month (the default).
+   */
+  month?: number | null;
 }
 
 export interface ProgressInfo {
@@ -70,8 +83,10 @@ interface ScheduledChunk {
   duration: number;
   startPos: number;
   endPos: number;
-  /** Start second of each month in the chunk (null: even months over the duration) */
+  /** Start second of each bar in the chunk (null: even bars over the duration) */
   barStarts: number[] | null;
+  /** Months one bar stands for: 1, or 12 in month travel */
+  monthsPerBar: number;
 }
 
 const FIRST_CHUNK_DELAY_S = 0.05;
@@ -212,9 +227,9 @@ export class ChunkPlayer {
     this.setState('idle');
   }
 
-  /** Jump to a period ("YYYY-MM"). Restarts the audio if it is playing. */
+  /** Jump to a period ("YYYY-MM"; snapped to the travel month if any). Restarts the audio if it is playing. */
   seek(period: string): void {
-    const pos = periodToYear(period);
+    const pos = periodToYear(this.snap(period));
     if (Number.isNaN(pos)) return;
     this.position = pos;
     this.onProgress?.({ position: pos });
@@ -338,7 +353,15 @@ export class ChunkPlayer {
   }
 
   private currentPeriod(): string {
-    return yearToPeriod(this.position ?? 0);
+    const pos = this.position ?? 0;
+    const month = travelMonth(this.params);
+    return month ? monthOccurrence(pos, month) : yearToPeriod(pos);
+  }
+
+  /** In month travel, the period of the travel month in the same year; else unchanged. */
+  private snap(period: string): string {
+    const month = travelMonth(this.params);
+    return month ? withMonth(period, month) : period;
   }
 
   private setState(state: PlayerState): void {
@@ -350,7 +373,8 @@ export class ChunkPlayer {
   }
 
   /** Discard everything and request the chunk starting at `period`. */
-  private start(period: string): void {
+  private start(rawPeriod: string): void {
+    const period = this.snap(rawPeriod);
     this.teardown();
     this.controller = new AbortController();
     this.position = periodToYear(period);
@@ -368,7 +392,21 @@ export class ChunkPlayer {
     const request = withTimeout(controller.signal, REQUEST_TIMEOUT_MS);
 
     try {
-      const fetched = await this.fetchChunk(buildRequest(params, period), request.signal);
+      const yearStep = travelMonth(params) !== null;
+      let fetched: ZoneDataResponse;
+      try {
+        fetched = await this.fetchChunk(buildRequest(params, period), request.signal);
+      } catch (err) {
+        // A backend with a strict request model rejects the unknown `step` field
+        if (yearStep && err instanceof ApiError && err.status === 422) {
+          throw new ApiError(422, err.detail, 'yearStepUnsupported');
+        }
+        throw err;
+      }
+      // A backend without month travel ignores `step` and answers with monthly music
+      if (yearStep && fetched.step !== 'year') {
+        throw new ApiError(200, 'step "year" not supported by the backend', 'yearStepUnsupported');
+      }
       if (!fetched.audio_data) throw new ApiError(200, 'Empty audio', 'unknown');
       const buffer = await ctx.decodeAudioData(base64ToArrayBuffer(fetched.audio_data));
       if (gen !== this.generation) return;
@@ -377,6 +415,11 @@ export class ChunkPlayer {
     } catch (err) {
       if (gen !== this.generation) return;
       if (isAbortError(err) && !request.timedOut()) return;
+      // Retrying cannot help: the backend lacks the feature
+      if (err instanceof ApiError && err.kind === 'yearStepUnsupported') {
+        this.fail(err);
+        return;
+      }
       const error = request.timedOut()
         ? new ApiError(0, 'Request timed out', 'backendUnavailable')
         : err instanceof Error
@@ -408,7 +451,8 @@ export class ChunkPlayer {
     const master = this.master;
     if (!ctx || !master) return;
 
-    const timing = computeChunkTiming(response, buffer.duration, this.params?.endPeriod ?? null);
+    const step: TimeStep = travelMonth(this.params) !== null ? 'year' : 'month';
+    const timing = computeChunkTiming(response, buffer.duration, this.params?.endPeriod ?? null, step);
     const duration = timing.duration;
     const last = this.chunks[this.chunks.length - 1];
     const startTime = last
@@ -430,6 +474,7 @@ export class ChunkPlayer {
       startPos,
       endPos: timing.endMonths === null ? startPos : startPos + timing.endMonths / 12,
       barStarts: timing.barStarts,
+      monthsPerBar: timing.monthsPerBar,
     };
 
     source.onended = () => this.handleEnded(chunk);
@@ -507,6 +552,12 @@ export class ChunkPlayer {
   }
 }
 
+/** The month travel month (1-12) of the params, or null for every month. */
+function travelMonth(params: PlayerParams | null): number | null {
+  const m = params?.month;
+  return typeof m === 'number' && m >= 1 && m <= 12 ? Math.round(m) : null;
+}
+
 function buildRequest(params: PlayerParams, period: string): ZoneDataRequest {
   return {
     zone_id: params.zoneId,
@@ -516,29 +567,36 @@ function buildRequest(params: PlayerParams, period: string): ZoneDataRequest {
     time_period: period,
     aggregation: 'mean',
     ...(params.genre ? { genre: params.genre } : {}),
+    // Only in month travel: month requests stay exactly as before
+    ...(travelMonth(params) !== null ? { step: 'year' as const } : {}),
   };
 }
 
 /**
  * Length and extent of a chunk:
- * - `duration_s` when the backend sends it, else months * 3 s, where the months
- *   run from `time_period` to `next_time_period` (last chunk: to the month after
+ * - `duration_s` when the backend sends it, else bars * 3 s, where the bars
+ *   run from `time_period` to `next_time_period` (last chunk: to the bar after
  *   the enabled tracks' last data);
- * - the months covered are `bar_starts_s.length` when sent, else that same count.
+ * - the bars covered are `bar_starts_s.length` when sent, else that same count.
+ * A bar is one month, or one year with `step: "year"` (month travel).
  * Never longer than the decoded audio: if the length does not fit, fall back to
  * the buffer minus its reverb tail.
  *
- * @returns `duration` in seconds, `endMonths` the months covered (null if unknown)
- *   and `barStarts` the start second of each month (null: evenly spread)
+ * @returns `duration` in seconds, `endMonths` the months covered (null if unknown),
+ *   `barStarts` the start second of each bar (null: evenly spread) and
+ *   `monthsPerBar` (1, or 12 for a year step)
  */
 export function computeChunkTiming(
   response: ZoneDataResponse,
   bufferDuration: number,
-  endPeriod: string | null
-): { duration: number; endMonths: number | null; barStarts: number[] | null } {
-  const target = response.next_time_period ?? (endPeriod ? addMonths(endPeriod, 1) : null);
+  endPeriod: string | null,
+  step: TimeStep = 'month'
+): { duration: number; endMonths: number | null; barStarts: number[] | null; monthsPerBar: number } {
+  const monthsPerBar = step === 'year' ? 12 : 1;
+  const target = response.next_time_period ?? (endPeriod ? barAfter(response.time_period, endPeriod, step) : null);
   const months = target ? monthsBetween(response.time_period, target) : NaN;
-  const valid = Number.isFinite(months) && months > 0;
+  const bars = months / monthsPerBar;
+  const valid = Number.isFinite(bars) && bars > 0;
   const barStarts =
     Array.isArray(response.bar_starts_s) && response.bar_starts_s.length > 0 ? response.bar_starts_s : null;
   const declared = response.duration_s;
@@ -546,17 +604,29 @@ export function computeChunkTiming(
     typeof declared === 'number' && Number.isFinite(declared) && declared > 0
       ? declared
       : valid
-        ? months * SECONDS_PER_MONTH
+        ? bars * SECONDS_PER_MONTH
         : NaN;
   const fallback = Math.max(1, bufferDuration - REVERB_TAIL_S);
   const duration = Number.isFinite(computed) && computed < bufferDuration ? computed : fallback;
-  const endMonths = barStarts ? barStarts.length : valid ? months : null;
-  return { duration, endMonths, barStarts };
+  const endBars = barStarts ? barStarts.length : valid ? bars : null;
+  return { duration, endMonths: endBars === null ? null : endBars * monthsPerBar, barStarts, monthsPerBar };
 }
 
 /**
- * Months elapsed in a chunk after `seconds`: piecewise linear over the bars
- * (month i spans barStarts[i] to barStarts[i+1], the last one to `duration`).
+ * Period right after the last bar of data: the month after `endPeriod`, or in a
+ * year step, one year after the last occurrence of the chunk's month in the data.
+ */
+function barAfter(timePeriod: string, endPeriod: string, step: TimeStep): string {
+  if (step === 'month') return addMonths(endPeriod, 1);
+  const month = /^\d{4}-(\d{1,2})/.exec(timePeriod);
+  if (!month) return addMonths(endPeriod, 1);
+  return addMonths(monthOccurrence(periodToYear(endPeriod), Number(month[1])), 12);
+}
+
+/**
+ * Bars elapsed in a chunk after `seconds` (months, or years in month travel):
+ * piecewise linear over the bars (bar i spans barStarts[i] to barStarts[i+1],
+ * the last one to `duration`).
  */
 export function monthsElapsed(barStarts: number[], duration: number, seconds: number): number {
   const t = clamp(seconds, 0, duration);
@@ -570,7 +640,7 @@ export function monthsElapsed(barStarts: number[], duration: number, seconds: nu
 
 function positionInChunk(chunk: ScheduledChunk, seconds: number): number {
   if (chunk.barStarts && chunk.barStarts.length > 0) {
-    return chunk.startPos + monthsElapsed(chunk.barStarts, chunk.duration, seconds) / 12;
+    return chunk.startPos + (monthsElapsed(chunk.barStarts, chunk.duration, seconds) * chunk.monthsPerBar) / 12;
   }
   return chunk.startPos + (seconds / chunk.duration) * (chunk.endPos - chunk.startPos);
 }
@@ -619,6 +689,7 @@ function paramsChanged(a: PlayerParams, b: PlayerParams): boolean {
     a.zoneId !== b.zoneId ||
     a.points !== b.points ||
     a.genre !== b.genre ||
+    travelMonth(a) !== travelMonth(b) ||
     a.datasetIds.length !== b.datasetIds.length ||
     a.datasetIds.some((id, i) => id !== b.datasetIds[i])
   );

@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Timeline } from './Timeline';
 import { DatePicker } from './DatePicker';
 import { VolumeControl } from './VolumeControl';
+import { MonthTravelControl } from './MonthTravelControl';
 import type { TrackState } from '../../types/tracks';
 import { derivePlayback, type SonificationError, type SonificationStatus } from '../../hooks/useSonification';
 import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
 import type { InstrumentsStatus } from '../../hooks/useInstruments';
-import type { ApiErrorKind } from '../../services/sonificationApi';
+import { snapToMonth, type ApiErrorKind } from '../../services/sonificationApi';
 import './AudioPlayerEnhanced.css';
 
 /** Data graph option: a toggle next to "Sounds" and the chart above the timeline */
@@ -59,6 +60,10 @@ interface AudioPlayerEnhancedProps {
   tracksErrorKind?: ApiErrorKind | null;
   /** Optional data graph; the player works without it */
   graph?: PlayerGraphProps;
+  /** Month travel: 1..12 = only that month through the years, null = every month */
+  monthFilter?: number | null;
+  /** Shows the month travel selector when given */
+  onMonthFilterChange?: (month: number | null) => void;
 }
 
 /**
@@ -96,6 +101,8 @@ export function AudioPlayerEnhanced({
   tracksStatus = 'ready',
   tracksErrorKind = null,
   graph,
+  monthFilter = null,
+  onMonthFilterChange,
 }: AudioPlayerEnhancedProps) {
   const { t } = useTranslation('player');
   const timelineEnd = timelineEndProp ?? yearRange.end + 1;
@@ -107,6 +114,8 @@ export function AudioPlayerEnhanced({
   const graphOn = graph?.on ?? false;
   const isLoading = status === 'loading';
   const hasError = status === 'error' && error !== null;
+  // Retrying cannot help when the backend lacks the feature (month travel music)
+  const canRetry = hasError && error.kind !== 'yearStepUnsupported';
 
   const handleRetry = useCallback(() => {
     // The Retry button disappears once clicked: keep keyboard focus in the player
@@ -271,9 +280,11 @@ export function AudioPlayerEnhanced({
         {hasError && (
           <p className="player-message error" role="alert">
             <span>{t(`common:errors.${error.kind}`)}</span>
-            <button type="button" className="player-retry" onClick={handleRetry}>
-              {t('retry')}
-            </button>
+            {canRetry && (
+              <button type="button" className="player-retry" onClick={handleRetry}>
+                {t('retry')}
+              </button>
+            )}
           </p>
         )}
         {!isLoading && !hasError && hasEnded && (
@@ -327,6 +338,7 @@ export function AudioPlayerEnhanced({
           yearRange={yearRange}
           timelineEnd={timelineEnd}
           onSeekToYear={onSeekToYear}
+          month={monthFilter}
         />
 
         <div className="player-timeline">
@@ -339,8 +351,13 @@ export function AudioPlayerEnhanced({
             onSeekToYear={onSeekToYear}
             onHoverChange={graphOn ? setHoverFraction : undefined}
             hideHoverTooltip={graphOn}
+            month={monthFilter}
           />
         </div>
+
+        {onMonthFilterChange && (
+          <MonthTravelControl month={monthFilter} onChange={onMonthFilterChange} yearRange={yearRange} />
+        )}
 
         <div className="player-right">
           <VolumeControl
@@ -408,17 +425,20 @@ function LiveTimeline({
   const { position, progress, currentYear } = derivePlayback(
     raw,
     { start: props.startYear, end: props.endYear },
-    props.timelineEnd ?? props.endYear + 1
+    props.timelineEnd ?? props.endYear + 1,
+    props.month ?? null
   );
   return <Timeline {...props} progress={progress} currentYear={currentYear} position={position} />;
 }
 
 function LiveDatePicker({
   positionStore,
+  month,
   ...props
-}: Omit<DatePickerProps, 'position'> & { positionStore: PositionStore }) {
+}: Omit<DatePickerProps, 'position'> & { positionStore: PositionStore; month?: number | null }) {
   const raw = usePlaybackPosition(positionStore);
-  return <DatePicker {...props} position={raw ?? props.yearRange.start} />;
+  // Month travel: show the date being heard (that month of the year), not the moving playhead
+  return <DatePicker {...props} position={snapToMonth(raw ?? props.yearRange.start, month)} />;
 }
 
 // Icon components

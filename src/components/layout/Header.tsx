@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useCompactOnScroll } from '../../hooks/useCompactOnScroll';
 import { Navigation } from './Navigation';
 import { LanguageSelector } from '../controls/LanguageSelector';
+import { ThemeToggle } from './ThemeToggle';
 import './Header.css';
 
 /**
@@ -29,7 +30,10 @@ export function Header() {
       <div className="header-container">
         <div className="header-logo">
           <a href="#home" className="logo-link">
-            <GlobeIcon />
+            <picture>
+              <source srcSet="/logo-96.webp" type="image/webp" />
+              <img className="logo-icon" src="/logo-96.png" width={40} height={40} alt="" />
+            </picture>
             <span className="logo-text">{t('app.title')}</span>
           </a>
         </div>
@@ -37,29 +41,11 @@ export function Header() {
         <Navigation />
 
         <div className="header-actions">
+          <ThemeToggle />
           <LanguageSelector />
         </div>
       </div>
     </header>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg
-      className="logo-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="2" y1="12" x2="22" y2="12" />
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-    </svg>
   );
 }
 

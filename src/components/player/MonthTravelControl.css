@@ -1,0 +1,52 @@
+/* Month travel selector in the player bar (one month through the years). */
+.month-travel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-sm);
+  min-width: 0;
+}
+
+.month-travel-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.month-travel-select {
+  min-height: 44px;
+  max-width: 14rem;
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.month-travel-select:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Selected state: surface tone + weight, never the label yellow (close to the lightning colour) */
+.month-travel.active .month-travel-select {
+  background: var(--color-surface-active);
+  font-weight: 600;
+}
+
+.month-travel-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .month-travel {
+    flex: 1 0 100%;
+  }
+
+  .month-travel-hint {
+    flex: 1 0 100%;
+  }
+}

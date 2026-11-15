@@ -24,7 +24,7 @@
 }
 
 .info-tooltip-trigger:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -40,8 +40,7 @@
   transform: translateX(-50%);
   margin-top: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface-active);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   min-width: 240px;
@@ -65,17 +64,7 @@
   left: 50%;
   transform: translateX(-50%);
   border: 8px solid transparent;
-  border-bottom-color: var(--color-border);
-}
-
-.info-tooltip-content::after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 7px solid transparent;
-  border-bottom-color: var(--color-surface-elevated);
+  border-bottom-color: var(--color-surface-active);
 }
 
 .info-tooltip-body {
@@ -96,6 +85,29 @@
   color: var(--color-text);
 }
 
+/* Bubble aligned to the icon's right edge (icons near the right side of the screen) */
+.info-tooltip-content.align-end {
+  left: auto;
+  right: -8px;
+  transform: none;
+}
+
+.info-tooltip-content.align-end::before {
+  left: auto;
+  right: 12px;
+  transform: none;
+}
+
+/* The gap between icon and bubble stays hoverable (WCAG 1.4.13) */
+.info-tooltip-content::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: var(--spacing-sm);
+}
+
 /* Responsive: position tooltip to the left on small screens */
 @media (max-width: 480px) {
   .info-tooltip-content {
@@ -104,8 +116,7 @@
     transform: none;
   }
 
-  .info-tooltip-content::before,
-  .info-tooltip-content::after {
+  .info-tooltip-content::before {
     left: auto;
     right: 8px;
     transform: none;

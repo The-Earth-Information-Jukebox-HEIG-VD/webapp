@@ -1,8 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateInstrument } from '../../utils/instrumentName';
 import type { Track, TrackState } from '../../types/tracks';
 import type { InstrumentsStatus } from '../../hooks/useInstruments';
 import { periodYear, type ApiErrorKind } from '../../services/sonificationApi';
+import { InfoTooltip } from './InfoTooltip';
 import './TrackPanel.css';
 
 interface TrackPanelProps {
@@ -62,6 +64,7 @@ export function TrackPanel({
 
   return (
     <div ref={rootRef} tabIndex={-1} className="track-panel">
+      <div className="track-panel-header">
       <h2 id="track-panel-heading" className="track-panel-heading">
         {onOpenChange ? (
           <button
@@ -84,6 +87,10 @@ export function TrackPanel({
           t('tracks.heading')
         )}
       </h2>
+      <InfoTooltip label={t('tracks.infoLabel')} align="end">
+        <p>{t('tracks.hint')}</p>
+      </InfoTooltip>
+      </div>
 
       {/* Outside the collapsible body: announcements keep working while collapsed */}
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
@@ -95,7 +102,6 @@ export function TrackPanel({
       )}
 
       <div id="track-panel-body" className="track-panel-body" hidden={!open}>
-      <p className="track-panel-hint">{t('tracks.hint')}</p>
 
       {status === 'error' && (
         <div className="track-panel-status error" role="alert">
@@ -149,7 +155,7 @@ export function TrackPanel({
                 <span id={nameId} className="track-row-name">{name}</span>
                 {track.instrument && (
                   <span id={instrumentId} className="track-row-instrument">
-                    {track.instrument}
+                    {translateInstrument(track.instrument, t)}
                     {sounding && (
                       <span className="sounding-bars" data-testid="sounding" aria-hidden="true">
                         <i /><i /><i />

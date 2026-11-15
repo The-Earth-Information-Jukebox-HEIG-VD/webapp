@@ -34,7 +34,7 @@
 .progress-bar {
   flex: 1;
   height: 4px;
-  background: var(--color-border);
+  background: var(--color-control-border);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -42,7 +42,7 @@
 .progress-fill {
   display: block;
   height: 100%;
-  background: var(--color-primary);
+  background: var(--color-primary-text);
   border-radius: var(--radius-full);
   transition: width 0.2s ease;
 }

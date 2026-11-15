@@ -346,3 +346,114 @@ describe('ChunkPlayer on iOS', () => {
     player.dispose();
   });
 });
+
+describe('ChunkPlayer month travel (step "year", proposed backend contract)', () => {
+  const july = { ...params, endPeriod: '2025-12', month: 7 };
+  /** What a backend supporting month travel answers: 10 bars = 10 Julys */
+  function yearChunk(period: string, next: string | null): ZoneDataResponse {
+    return {
+      ...chunk(period, next),
+      step: 'year',
+      duration_s: 30,
+      bar_starts_s: Array.from({ length: 10 }, (_, i) => i * 3),
+    };
+  }
+
+  it('sends step "year" at the chosen month and moves one year per bar', async () => {
+    const requests: ZoneDataRequest[] = [];
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => {
+      requests.push(req);
+      return req.time_period === '1880-07' ? yearChunk('1880-07', '1890-07') : yearChunk('1890-07', null);
+    });
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams(july);
+    await player.play('1880-01'); // snapped to the month
+    await flush();
+    expect(requests[0]).toMatchObject({ time_period: '1880-07', step: 'year' });
+    expect(player.getPosition()).toBeCloseTo(1880.5, 5);
+
+    const ctx = (player as unknown as { ctx: { currentTime: number } }).ctx;
+    ctx.currentTime = 0.05 + 15; // 5 bars in: July 1885
+    player.tick();
+    expect(player.getPosition()).toBeCloseTo(1885.5, 5);
+    await flush();
+    expect(requests[1]).toMatchObject({ time_period: '1890-07', step: 'year' });
+    player.dispose();
+  });
+
+  it('snaps seeks to the chosen month of that year', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => yearChunk(req.time_period, null));
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams(july);
+    await player.play('1880-07');
+    await flush();
+    player.seek('1950-02');
+    await flush();
+    expect(fetchChunk.mock.calls.at(-1)?.[0].time_period).toBe('1950-07');
+    player.dispose();
+  });
+
+  it('fails with yearStepUnsupported when the backend ignores step (no echo)', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => chunk(req.time_period, '1881-05'));
+    const player = new ChunkPlayer({ fetchChunk });
+    const onError = vi.fn();
+    player.onError = onError;
+    player.setParams(july);
+    await player.play('1880-07');
+    await flush();
+    expect(player.getState()).toBe('error');
+    expect(onError.mock.calls[0][0]).toMatchObject({ kind: 'yearStepUnsupported' });
+    // No monthly music was scheduled
+    expect(MockAudioContext.sources).toHaveLength(0);
+    player.dispose();
+  });
+
+  it('maps a 422 (strict request model) to yearStepUnsupported', async () => {
+    const { ApiError } = await import('../services/sonificationApi');
+    const fetchChunk = vi.fn().mockRejectedValue(new ApiError(422, 'step: extra field', 'noDataForPeriod'));
+    const player = new ChunkPlayer({ fetchChunk });
+    const onError = vi.fn();
+    player.onError = onError;
+    player.setParams(july);
+    await player.play('1880-07');
+    await flush();
+    expect(onError.mock.calls[0][0]).toMatchObject({ kind: 'yearStepUnsupported' });
+    player.dispose();
+  });
+
+  it('leaves month requests unchanged (no step field)', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => chunk(req.time_period, null));
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams(params);
+    await player.play('1950-01');
+    await flush();
+    expect(fetchChunk.mock.calls[0][0]).not.toHaveProperty('step');
+    player.dispose();
+  });
+
+  it('restarts at the new month when the month changes while playing', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => yearChunk(req.time_period, '1890-07'));
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams(july);
+    await player.play('1880-07');
+    await flush();
+    player.setParams({ ...july, month: 1 });
+    await flush();
+    expect(fetchChunk.mock.calls.at(-1)?.[0]).toMatchObject({ time_period: '1880-01', step: 'year' });
+    player.dispose();
+  });
+});
+
+describe('computeChunkTiming with a year step', () => {
+  it('counts years per bar, without duration_s or bar_starts_s', () => {
+    const r: ZoneDataResponse = { ...chunk('1880-07', '1890-07'), step: 'year' };
+    // 10 bars x 3 s; 120 months covered
+    expect(computeChunkTiming(r, 31.7, null, 'year')).toMatchObject({ duration: 30, endMonths: 120, monthsPerBar: 12 });
+  });
+
+  it('ends the last chunk one year after the month\'s last occurrence', () => {
+    const r: ZoneDataResponse = { ...chunk('2020-07', null), step: 'year' };
+    // Data ends 2025-03: last July is 2024 -> 5 bars (2020..2024)
+    expect(computeChunkTiming(r, 31.7, '2025-03', 'year')).toMatchObject({ duration: 15, endMonths: 60 });
+  });
+});

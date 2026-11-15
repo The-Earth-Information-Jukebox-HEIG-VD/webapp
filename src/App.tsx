@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 // Contexts
 import { AccessibilityProvider, useAccessibility } from './contexts/AccessibilityContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { ViewModeProvider, useViewMode } from './contexts/ViewModeContext';
 import {
   ExperienceModeProvider,
@@ -50,7 +51,7 @@ import { usePlayerBarHeight } from './hooks/usePlayerBarHeight';
 import { useVinylSettings } from './hooks/useVinylSettings';
 import { useVinylSonification, VINYL_SIDE_SECONDS } from './hooks/useVinylSonification';
 import { formatReading, isAnomalyUnits } from './utils/reading';
-import { formatMonthYear } from './utils/formatDate';
+import { formatMonthYear, monthName } from './utils/formatDate';
 import { periodToYear } from './services/sonificationApi';
 import { formatLatLng, needlePoint, VINYL_CHUNKS } from './utils/vinylGeometry';
 import { regionNameAt } from './utils/regionName';
@@ -60,9 +61,11 @@ import { withViewTransition, prefersReducedMotion } from './utils/motion';
 
 // Types
 import type { ZoneViewType, GridPoint } from './types/zones';
+import type { KeyMoment } from './types/keyMoments';
 
 // Data
 import { findZoneFeature } from './data/zones';
+import { getPointsInFeature, DEFAULT_IMAGE_DIMENSIONS } from './utils/geometry';
 
 import './App.css';
 
@@ -74,7 +77,7 @@ import './App.css';
  * - Globe or List visualization with zone selection
  * - Multi-track audio sonification (NASA datasets)
  * - Enhanced player with timeline
- * - Key climate moments
+ * - Key events (extreme events, El Niño) linked to their zone
  * - Full accessibility support (always enabled)
  */
 function AppContent() {
@@ -102,7 +105,16 @@ function AppContent() {
   // Tracks come from the backend's /api/instruments
   // Music style: shared by zone and vinyl mode (the instrument names depend on it)
   const musicStyle = useMusicStyle();
-  const instruments = useInstruments(musicStyle.genre);
+  const { resolvedTheme } = useTheme();
+  const instruments = useInstruments(musicStyle.genre, resolvedTheme);
+  // The style list is fetched once at start; if that failed (backend not up yet),
+  // fetch it again as soon as the track list loads, so the selector comes back
+  const { reload: reloadStyles, failed: stylesFailed } = musicStyle;
+  useEffect(() => {
+    if (instruments.status === 'ready' && stylesFailed) reloadStyles();
+    // Only when the track list (re)loads: a backend without /api/genres must not loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instruments.status, reloadStyles]);
   const tracks = instruments.tracks;
 
   // Sonification hook
@@ -132,6 +144,9 @@ function AppContent() {
     seekToYear,
     setVolume,
     setTrackEnabled,
+    jumpTo,
+    monthFilter,
+    setMonthFilter,
   } = useSonification({
     tracks,
     points: selectedPoints,
@@ -198,6 +213,15 @@ function AppContent() {
       }),
     [tracks, enabledTrackIds, zoneSeries.series, t]
   );
+  // Month travel without backend support yet: the music cannot play, so show the
+  // graph (which already works from /zones/series) once, as the part of the feature that does
+  const unsupportedShown = useRef(false);
+  useEffect(() => {
+    if (error?.kind !== 'yearStepUnsupported') return;
+    if (!unsupportedShown.current && !graphOn) setGraphOn(true);
+    unsupportedShown.current = true;
+  }, [error, graphOn, setGraphOn]);
+
   const playerRef = useRef<HTMLElement>(null);
   usePlayerBarHeight(playerRef);
 
@@ -218,6 +242,19 @@ function AppContent() {
   const vinylStarted = vinyl.current !== null || vinyl.isPlaying;
   const vinylMonthLabel = formatMonthYear(periodToYear(vinylSettings.timePeriod), i18n.language);
   const [modeNotice, setModeNotice] = useState('');
+
+  // Month travel choice, announced in the same polite region as the mode switch
+  const handleMonthFilterChange = useCallback(
+    (month: number | null) => {
+      setMonthFilter(month);
+      setModeNotice(
+        month
+          ? t('player:monthTravel.announceMonth', { month: monthName(month, i18n.language, 'long') })
+          : t('player:monthTravel.announceEvery')
+      );
+    },
+    [setMonthFilter, t, i18n.language]
+  );
 
   // Only one player at a time: leaving a mode pauses its player
   const handleModeChange = useCallback(
@@ -310,9 +347,23 @@ function AppContent() {
     else focusTrackPanel();
   }, [tracksExpanded, setTracksOpen, focusTrackPanel]);
 
-  const handleJumpToMoment = useCallback((year: number) => {
-    seekToYear(year);
-  }, [seekToYear]);
+  // Key event: with no zone selected, select the event's zone first (and show
+  // its layer on the globe); select the event's dataset as the only track, then
+  // move the timeline to the event's first month
+  const handleJumpToMoment = useCallback((moment: KeyMoment) => {
+    if (selectedZone === null) {
+      const feature = findZoneFeature(moment.zoneIds[0]);
+      if (feature) {
+        const { type } = feature.properties;
+        setZoneViewType(type === 'country' || type === 'continent' ? type : 'water');
+        handleZoneSelect(
+          feature.properties.id,
+          getPointsInFeature(feature, DEFAULT_IMAGE_DIMENSIONS)
+        );
+      }
+    }
+    jumpTo([moment.dataset], periodToYear(moment.start));
+  }, [selectedZone, handleZoneSelect, jumpTo]);
 
   // Backend value of the current chunk, e.g. "+1.2 °C vs normal" (screen reader announcement)
   // With several tracks, name the track the value belongs to (the first enabled one with a value)
@@ -441,8 +492,10 @@ function AppContent() {
             <KeyMomentsSection
               startYear={yearRange.start}
               endYear={yearRange.end}
-              currentYear={currentYear}
+              selectedZone={selectedZone}
+              positionStore={positionStore}
               onJumpToMoment={handleJumpToMoment}
+              monthFilter={monthFilter}
             />
           </section>
           )}
@@ -491,6 +544,8 @@ function AppContent() {
               onShowTracks={focusTrackPanel}
               onToggleTracks={toggleTrackPanel}
               tracksExpanded={tracksExpanded}
+              monthFilter={monthFilter}
+              onMonthFilterChange={handleMonthFilterChange}
               playDisabled={!selectedZone}
               status={status}
               error={error}
@@ -519,6 +574,7 @@ function AppContent() {
                     hoverFraction={hoverFraction}
                     onHoverChange={onHoverChange}
                     onSeek={seek}
+                    month={monthFilter}
                   />
                 ),
               }}
@@ -584,11 +640,13 @@ function AppContent() {
 function App() {
   return (
     <AccessibilityProvider>
-      <ViewModeProvider>
-        <ExperienceModeProvider>
-          <AppContent />
-        </ExperienceModeProvider>
-      </ViewModeProvider>
+      <ThemeProvider>
+        <ViewModeProvider>
+          <ExperienceModeProvider>
+            <AppContent />
+          </ExperienceModeProvider>
+        </ViewModeProvider>
+      </ThemeProvider>
     </AccessibilityProvider>
   );
 }

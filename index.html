@@ -2,10 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#071327" />
+    <!-- No-flash theme: sets data-theme before first paint. Same rules as src/contexts/ThemeContext.tsx (saved choice, else the system setting). -->
+    <script>
+      (function () {
+        var theme = "dark";
+        try {
+          var saved = localStorage.getItem("earth-jukebox-theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+          else if (window.matchMedia && !window.matchMedia("(prefers-color-scheme: dark)").matches) theme = "light";
+        } catch (e) {
+          try { if (window.matchMedia && !window.matchMedia("(prefers-color-scheme: dark)").matches) theme = "light"; } catch (e2) {}
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", theme === "light" ? "#f6f7fb" : "#071327");
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="EarthChestra - NASA Earth observations played by an orchestra, shown live on a 3D globe" />
     <title>EarthChestra | NASA Space Apps 2026</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="EarthChestra | NASA Space Apps 2026" />
+    <meta property="og:description" content="EarthChestra - NASA Earth observations played by an orchestra, shown live on a 3D globe" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:alt" content="EarthChestra logo: the Earth drawn as a vinyl record" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- Google Fonts: Inter (default) and Lexend (dyslexia-friendly) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
