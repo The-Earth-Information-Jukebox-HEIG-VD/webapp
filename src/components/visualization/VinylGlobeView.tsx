@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import { Raycaster, Sphere, Vector2, Vector3 } from 'three';
 import type { Track } from '../../types/tracks';
-import type { VinylChunkMeta } from '../../services/vinylApi';
+import { periodAt, type VinylChunkMeta, type VinylTravel } from '../../services/vinylApi';
+import { periodToYear } from '../../services/sonificationApi';
+import { formatMonthYear } from '../../utils/formatDate';
 import {
   NEEDLE_SCREEN_ANGLE_DEG,
   THETA_MAX_DEG,
@@ -25,7 +27,7 @@ import { regionNameAt } from '../../utils/regionName';
 import { flightDuration } from './GlobeView';
 import { VinylChunkTable } from './VinylChunkTable';
 import { useHemisphereLabels } from './useHemisphereLabels';
-import { trailLayers, trailSpots } from './vinylTrail';
+import { timeSpot, trailLayers, trailSpots, type TrailSpots } from './vinylTrail';
 import { useTrailSpotLayer } from './useTrailSpotLayer';
 import './VinylGlobeView.css';
 
@@ -46,7 +48,11 @@ interface VinylGlobeViewProps {
   tracks: Track[];
   /** No continuous spin: the record moves once per groove */
   reducedMotion: boolean;
+  /** What the needle travels through (default 'space'); in 'time' it stays on the centre */
+  travel?: VinylTravel;
 }
+
+const NO_SPOTS: TrailSpots[] = [];
 
 interface PathDatum {
   id: string;
@@ -97,6 +103,7 @@ export function VinylGlobeView({
   history,
   tracks,
   reducedMotion,
+  travel = 'space',
 }: VinylGlobeViewProps) {
   const { t, i18n } = useTranslation();
   const hemis = useHemisphereLabels();
@@ -223,20 +230,36 @@ export function VinylGlobeView({
   }, [animate, draw, stillProgress]);
 
   // ---- Data trail: stops the needle has passed ----------------------------
+  const timeTravel = travel === 'time';
   const [reached, setReached] = useState(0);
+  // Real date under the needle when the date moves (time and both travel)
+  const [dateLabel, setDateLabel] = useState<string | null>(null);
   useEffect(() => {
-    const update = () => setReached(started ? reachedStops(history[chunkIndex], getLiveProgress(), chunkIndex) : 0);
+    const update = () => {
+      const p = getLiveProgress();
+      setReached(started ? reachedStops(history[chunkIndex], p, chunkIndex) : 0);
+      const meta = history[chunkIndex];
+      setDateLabel(
+        started && travel !== 'space' && meta
+          ? formatMonthYear(
+              periodToYear(periodAt(meta, Math.max(0, (p * VINYL_CHUNKS - chunkIndex) * 30))),
+              i18n.language
+            )
+          : null
+      );
+    };
     update();
     if (!isPlaying) return;
     const id = window.setInterval(update, TRAIL_TICK_MS);
     return () => window.clearInterval(id);
-  }, [isPlaying, started, history, chunkIndex, getLiveProgress]);
+  }, [isPlaying, started, history, chunkIndex, getLiveProgress, travel, i18n.language]);
 
   // The trail is drawn like zone mode's flowing spots, by the GPU (useTrailSpotLayer)
   const layers = useMemo(() => trailLayers(tracks), [tracks]);
+  // Time travel: the needle does not move over the ground, so there is no trail
   const spots = useMemo(
-    () => trailSpots(started ? history : {}, chunkIndex, reached, layers),
-    [started, history, chunkIndex, reached, layers]
+    () => (timeTravel ? NO_SPOTS : trailSpots(started ? history : {}, chunkIndex, reached, layers)),
+    [timeTravel, started, history, chunkIndex, reached, layers]
   );
   useTrailSpotLayer(globeRef, isLoaded, layers, spots);
 
@@ -256,12 +279,16 @@ export function VinylGlobeView({
   // Centre spindle and (reduced motion) the point being played
   const markers = useMemo<Dot[]>(() => {
     const list: Dot[] = [{ id: 'center', lat: c.lat, lng: c.lng, color: '#ffffff', radius: 0.6 }];
-    if (reducedMotion && started) {
+    if (timeTravel) {
+      // One spot on the centre, coloured by what the groove reads there
+      const spot = started ? timeSpot(history[chunkIndex]?.values, layers) : null;
+      if (spot) list.push({ id: 'time-spot', lat: c.lat, lng: c.lng, color: spot.color, radius: spot.radius });
+    } else if (reducedMotion && started) {
       const p = needlePoint(c, (chunkIndex + 0.5) / VINYL_CHUNKS);
       list.push({ id: 'needle', lat: p.lat, lng: p.lng, color: ACTIVE_COLOR, radius: 1.2 });
     }
     return list;
-  }, [c, reducedMotion, started, chunkIndex]);
+  }, [c, reducedMotion, started, chunkIndex, timeTravel, history, layers]);
 
   // Click: undo the rotation shown on screen, then cast a ray from the camera.
   // (Not toGlobeCoords: it measures the rotated canvas, whose box grows with the angle.)
@@ -284,7 +311,8 @@ export function VinylGlobeView({
   const fmt = (p: LatLng) => formatLatLng(p, i18n.language, hemis);
   const centreText = fmt(center);
   const needleNow = needlePoint(c, started ? (chunkIndex + 0.5) / VINYL_CHUNKS : 0);
-  const region = regionNameAt(needleNow, t);
+  // In time travel the needle stays on the centre
+  const region = regionNameAt(timeTravel ? c : needleNow, t);
 
   const pivot = { x: size * 0.92, y: size * 0.1 };
   const head = Math.max(4, size * 0.012);
@@ -304,7 +332,7 @@ export function VinylGlobeView({
           ref={spinRef}
           className={isLoaded ? 'vinyl-turntable is-loaded' : 'vinyl-turntable'}
           role="img"
-          aria-label={t('vinyl.recordLabel', { centre: centreText, month: monthLabel })}
+          aria-label={t(travel === 'time' ? 'vinyl.recordLabelTime' : 'vinyl.recordLabel', { centre: centreText, month: monthLabel })}
         >
           <Globe
             ref={globeRef}
@@ -360,7 +388,7 @@ export function VinylGlobeView({
       </div>
 
       <div className="vinyl-caption">
-        <span className="vinyl-caption-month">{monthLabel}</span>
+        <span className="vinyl-caption-month">{dateLabel ?? monthLabel}</span>
         <span>{t('vinyl.caption.centre', { centre: centreText })}</span>
         <span>
           {t('vinyl.grooveOf', { k: (started ? chunkIndex : 0) + 1, n: VINYL_CHUNKS })}
@@ -376,6 +404,7 @@ export function VinylGlobeView({
         history={history}
         tracks={tracks}
         currentIndex={started ? chunkIndex : null}
+        travel={travel}
       />
     </div>
   );

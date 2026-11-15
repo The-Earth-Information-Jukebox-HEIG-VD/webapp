@@ -108,6 +108,7 @@
     "sliderValue": "Sillon {{k}} sur {{n}}, {{elapsed}} sur {{total}}",
     "loadingGroove": "Chargement du sillon {{k}}…",
     "ended": "Fin du disque. Lecture pour recommencer depuis le bord.",
-    "shortcuts": "En mode vinyle, les flèches passent au sillon précédent ou suivant, Début et Fin au premier ou au dernier."
+    "shortcuts": "En mode vinyle, les flèches passent au sillon précédent ou suivant, Début et Fin au premier ou au dernier.",
+    "currentDate": "Date : {{date}}"
   }
 }

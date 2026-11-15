@@ -6,6 +6,8 @@ import {
   VINYL_CHUNKS,
   angularDistanceDeg,
   destination,
+  discPoints,
+  GROOVE_RADIUS_DEG,
   formatLatLng,
   groovePath,
   MIN_POINT_SPACING_DEG,
@@ -99,5 +101,26 @@ describe('vinylGeometry', () => {
     }
     // The needle start stays well inside the visible half of the globe
     expect(THETA_MAX_DEG).toBeLessThan(horizonDeg(VINYL_ALTITUDE) - 5);
+  });
+});
+
+describe('discPoints', () => {
+  it('spreads a few points over the reading disc, centre included', () => {
+    const c = { lat: 48.9, lng: 2.4 };
+    const pts = discPoints(c);
+    expect(pts).toHaveLength(19);
+    close(pts[0].lat, c.lat);
+    close(pts[0].lng, c.lng, 1e-9);
+    for (const p of pts) expect(angularDistanceDeg(c, p)).toBeLessThanOrEqual(GROOVE_RADIUS_DEG + 1e-6);
+    expect(Math.max(...pts.map((p) => angularDistanceDeg(c, p)))).toBeCloseTo(GROOVE_RADIUS_DEG, 5);
+  });
+
+  it('works at the date line and near a pole', () => {
+    for (const c of [{ lat: 0, lng: 180 }, { lat: 90, lng: 0 }]) {
+      for (const p of discPoints(c, 1)) {
+        expect(Math.abs(p.lat)).toBeLessThanOrEqual(90);
+        expect(Math.abs(p.lng)).toBeLessThanOrEqual(180);
+      }
+    }
   });
 });

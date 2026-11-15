@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Track } from '../../types/tracks';
-import type { VinylChunkMeta } from '../../services/vinylApi';
+import type { VinylChunkMeta, VinylTravel } from '../../services/vinylApi';
 import { VINYL_CHUNKS, formatLatLng, needlePoint, type LatLng } from '../../utils/vinylGeometry';
 import { regionNameAt } from '../../utils/regionName';
 import { VinylChunkTable } from './VinylChunkTable';
@@ -14,6 +14,7 @@ interface VinylRecordViewProps {
   started: boolean;
   history: Record<number, VinylChunkMeta>;
   tracks: Track[];
+  travel?: VinylTravel;
 }
 
 const SIZE = 200;
@@ -25,7 +26,7 @@ const INNER = 18;
  * highlighted) and the groove table shown as a regular, visible table.
  * It changes once per groove, so it never moves continuously.
  */
-export function VinylRecordView({ center, monthLabel, chunkIndex, started, history, tracks }: VinylRecordViewProps) {
+export function VinylRecordView({ center, monthLabel, chunkIndex, started, history, tracks, travel = 'space' }: VinylRecordViewProps) {
   const { t, i18n } = useTranslation();
   const hemis = useHemisphereLabels();
   const current = started ? chunkIndex : null;
@@ -39,7 +40,7 @@ export function VinylRecordView({ center, monthLabel, chunkIndex, started, histo
         className="vinyl-record-svg"
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
-        aria-label={t('vinyl.recordLabel', { centre: formatLatLng(center, i18n.language, hemis), month: monthLabel })}
+        aria-label={t(travel === 'time' ? 'vinyl.recordLabelTime' : 'vinyl.recordLabel', { centre: formatLatLng(center, i18n.language, hemis), month: monthLabel })}
       >
         <circle cx={SIZE / 2} cy={SIZE / 2} r={OUTER + 4} fill="#141418" />
         {Array.from({ length: VINYL_CHUNKS }, (_, k) => (
@@ -66,6 +67,7 @@ export function VinylRecordView({ center, monthLabel, chunkIndex, started, histo
         history={history}
         tracks={tracks}
         currentIndex={current}
+        travel={travel}
       />
     </div>
   );

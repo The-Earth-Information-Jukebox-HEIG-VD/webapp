@@ -413,7 +413,7 @@
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
     "howGlobe": "While the music plays, the globe shows the data of your zone as spots: one colour per dataset, and the stronger the value, the bigger the spot. Where there is nothing, there is no spot, so spots appear, grow and fade as the months go by. Temperature is a filled spot when warmer than normal and a ring when colder. Select Change zone or press Escape to pick another zone.",
     "orchestraTitle": "The orchestra",
-    "orchestraText": "Each dataset has its own instrument:",
+    "orchestraText": "In the Orchestra style, each dataset has its own instrument (other styles use their own instruments):",
     "instruments": {
       "temperature": "Temperature anomaly: piano chords",
       "co2": "CO₂: double bass",
@@ -446,7 +446,9 @@
     "teamTitle": "Team",
     "teamText": "Built at HEIG-VD (Yverdon-les-Bains, Switzerland) for the NASA Space Apps Challenge 2026.",
     "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther and Léo Zmoos.",
-    "back": "Back to the globe"
+    "back": "Back to the globe",
+    "howStyle": "Music style lets you choose how the data is played: orchestra, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, or recorded sounds of rain, fire and thunder. The temperature sets the tempo, so the number of months in each 30-second stretch changes with the style and the data.",
+    "howVinyl": "Vinyl mode plays the data as a record: the needle can travel through space (one date, the needle crosses places), through time (one place, the months go by) or both (the needle crosses places and the date moves on each groove)."
   },
   "globeData": {
     "legendTitle": "Datasets",
@@ -508,8 +510,9 @@
     },
     "apply": "Apply",
     "pickHint": "Or click the globe to place the centre of the record.",
-    "restartHint": "Changing the month or the centre starts the record again from the edge.",
+    "restartHint": "Changing the month, the centre, the way the needle travels or the music style starts the record again from the edge.",
     "recordLabel": "The globe as a vinyl record, centred on {{centre}}, playing {{month}}. The needle spirals from the edge to the centre.",
+    "recordLabelTime": "The globe as a vinyl record, centred on {{centre}}, starting in {{month}}. The needle stays on the centre while the months go by; a spot at the centre shows the data.",
     "grooveOf": "Groove {{k}} of {{n}}",
     "caption": {
       "centre": "Centre {{centre}}",
@@ -547,6 +550,28 @@
       "pacific": "Pacific Ocean",
       "atlantic": "Atlantic Ocean",
       "indian-ocean": "Indian Ocean"
-    }
+    },
+    "dateFrom": "Starting month",
+    "travel": "The needle travels through",
+    "travelSpace": "Space",
+    "travelSpaceHint": "One date: the needle crosses places.",
+    "travelTime": "Time",
+    "travelTimeHint": "One place: the months go by.",
+    "travelBoth": "Both",
+    "travelBothHint": "The needle crosses places and the date moves on each groove.",
+    "step": "The date moves on by",
+    "stepMonth": "One month per groove",
+    "stepYear": "One year per groove",
+    "nowPlayingDate": "Groove {{k}} of {{n}}, {{date}}, near {{place}}: {{reading}}",
+    "nowPlayingDateNoValue": "Groove {{k}} of {{n}}, {{date}}, near {{place}}",
+    "tableDate": "Date",
+    "tableDateRange": "{{from}} to {{to}}",
+    "tableCaptionTravel": "Grooves of the record centred on {{centre}}, from {{month}}"
+  },
+  "style": {
+    "label": "Music style",
+    "hint": "How the data is played: {{description}}",
+    "changed": "Music style: {{name}}",
+    "loading": "Loading styles…"
   }
 }

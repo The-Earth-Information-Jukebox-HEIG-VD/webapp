@@ -108,6 +108,7 @@
     "sliderValue": "Rille {{k}} von {{n}}, {{elapsed}} von {{total}}",
     "loadingGroove": "Rille {{k}} wird geladen…",
     "ended": "Ende der Platte. Abspielen startet wieder am Rand.",
-    "shortcuts": "Im Schallplattenmodus wechseln die Pfeiltasten zur vorherigen oder nächsten Rille, Pos1 und Ende zur ersten oder letzten."
+    "shortcuts": "Im Schallplattenmodus wechseln die Pfeiltasten zur vorherigen oder nächsten Rille, Pos1 und Ende zur ersten oder letzten.",
+    "currentDate": "Datum: {{date}}"
   }
 }

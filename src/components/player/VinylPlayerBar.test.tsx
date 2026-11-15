@@ -83,4 +83,29 @@ describe('VinylPlayerBar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Pause the record' }));
     expect(props.onPause).toHaveBeenCalled();
   });
+
+  it('shows the real date in time travel, not in space travel', () => {
+    const meta = {
+      chunkIndex: 0,
+      nextChunkIndex: 1,
+      center: { lat: 0, lng: 0 },
+      timePeriod: '2020-03',
+      travel: 'time' as const,
+      periods: ['2020-03', '2020-04', '2020-05'],
+      barStarts: [0, 10, 20],
+      stops: [],
+      stopSeconds: 30,
+      radiusDeg: 2,
+      values: {},
+    };
+    // 12 s into groove 0: 2000 + 4 synthetic months
+    const store = createPositionStore(2000 + 4 / 12);
+    setup({ chunkIndex: 0, current: meta, positionStore: store });
+    expect(screen.getByTestId('vinyl-date')).toHaveTextContent('Date: April 2020');
+  });
+
+  it('has no date in space travel', () => {
+    setup({ current: { chunkIndex: 2, nextChunkIndex: 3, center: { lat: 0, lng: 0 }, timePeriod: '2020-03', travel: 'space', periods: ['2020-03'], barStarts: null, stops: [], stopSeconds: 3, radiusDeg: 2, values: {} } });
+    expect(screen.queryByTestId('vinyl-date')).not.toBeInTheDocument();
+  });
 });

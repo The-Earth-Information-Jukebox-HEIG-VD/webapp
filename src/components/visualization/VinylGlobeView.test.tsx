@@ -130,6 +130,9 @@ describe('VinylGlobeView', () => {
       nextChunkIndex: 1,
       center: base.center,
       timePeriod: '2020-03',
+      travel: 'space',
+      periods: ['2020-03'],
+      barStarts: null,
       stops: [
         { lat: 1, lng: 1, values: { temperature: 1.5 } },
         { lat: 2, lng: 2, values: { temperature: null } },
@@ -175,6 +178,9 @@ describe('VinylGlobeView', () => {
       nextChunkIndex: 1,
       center: base.center,
       timePeriod: '2020-03',
+      travel: 'space',
+      periods: ['2020-03'],
+      barStarts: null,
       stops: [0, 1, 2].map((i) => ({ lat: i, lng: i, values: { precipitation: 0.4 } })),
       stopSeconds: 10,
       radiusDeg: 2,
@@ -185,6 +191,48 @@ describe('VinylGlobeView', () => {
       <VinylGlobeView {...base} started chunkIndex={0} getLiveProgress={() => 0.05} history={{ 0: meta }} tracks={[rain]} />
     );
     expect(drawnDiscs()).toEqual([2]);
+  });
+});
+
+describe('VinylGlobeView in time travel', () => {
+  const temperature = { id: 'temperature', color: '#e67e22', nameKey: 'x', label: 'T', units: 'degC anomaly' } as Track;
+  const meta: VinylChunkMeta = {
+    chunkIndex: 0,
+    nextChunkIndex: 1,
+    center: base.center,
+    timePeriod: '2020-03',
+    travel: 'time',
+    periods: ['2020-03', '2020-04', '2020-05'],
+    barStarts: [0, 10, 20],
+    stops: [{ lat: 10, lng: 20, values: { temperature: 1.5 } }],
+    stopSeconds: 30,
+    radiusDeg: 2,
+    values: { temperature: 1.5 },
+  };
+
+  it('hides the moving trail and shows one centre spot coloured by the value', () => {
+    document.documentElement.classList.add('reduced-motion');
+    render(
+      <VinylGlobeView {...base} travel="time" started chunkIndex={0} history={{ 0: meta }} tracks={[temperature]} reducedMotion />
+    );
+    // No trail spots drawn
+    expect(drawnDiscs().every((n) => n === 0)).toBe(true);
+    const markers = globeProps.pointsData as { id: string; lat: number; lng: number; color: string }[];
+    expect(markers.map((m) => m.id)).toEqual(['center', 'time-spot']);
+    expect(markers[1]).toMatchObject({ lat: 10, lng: 20 });
+    expect(markers[1].color).toMatch(/^rgba\(\d+, \d+, \d+, 0\.\d+\)$/);
+    // The needle does not move over the ground: no reduced-motion needle marker
+    expect(markers.map((m) => m.id)).not.toContain('needle');
+  });
+
+  it('shows the real month in the caption and a date column in the table', () => {
+    render(
+      <VinylGlobeView {...base} travel="time" started chunkIndex={0} getLiveProgress={() => 0.05} history={{ 0: meta }} tracks={[temperature]} />
+    );
+    // 15 s into the groove: the second month
+    expect(document.querySelector('.vinyl-caption-month')).toHaveTextContent('April 2020');
+    expect(screen.getByRole('columnheader', { name: 'Date' })).toBeInTheDocument();
+    expect(screen.getByText('March 2020 to May 2020')).toBeInTheDocument();
   });
 });
 

@@ -7,12 +7,13 @@ Full technical documentation: <https://the-earth-information-jukebox-heig-vd.git
 ## Features
 
 - 3D globe ([react-globe.gl](https://github.com/vasturiano/react-globe.gl) / three.js) and an accessible list view to select a continent, country, ocean or sea
-- Sounds panel ("What do you want to hear?"): one dataset per instrument; the music arrives from the backend in chunks played back to back (Web Audio API)
+- Sounds panel ("What do you want to hear?"): one dataset per instrument; the music arrives from the backend in chunks played back to back (Web Audio API). Each 30 s chunk holds 8-13 months (the temperature sets the tempo): the player schedules chunks by the response's `duration_s` and tracks the date through `bar_starts_s`
+- Music style selector ("Music style", shared by both modes, remembered in localStorage): `GET /api/genres` (orchestra, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, realistic); the id is sent as `genre` with every chunk and groove, and the instrument names follow it (`GET /api/instruments?genre=`)
 - Zone series chart: the Graph toggle shows the zone's values over time, full width, with a data table for screen readers
 - Date picker ("Go to a date") to jump to any month of the timeline
 - Big zones are sent to the backend as a compact `mask` (a few kB instead of megabytes of points, `src/utils/zoneMask.ts`)
 - iOS silent-switch handling: playback stays audible when the ringer switch is on silent (`src/audio/iosAudioUnlock.ts`)
-- Vinyl experience mode: a switch between "Time travel" (the zone mode above) and "Vinyl", where one month of data plays as a record whose 10 grooves (30 s each) spiral across the globe from the rim to a chosen centre (click, preset or latitude/longitude), under a fixed tonearm. Each groove is sent to `POST /api/zones/groove` (backend API v2.6) and the values read along the way stay on the globe as flowing spots
+- Vinyl experience mode: a switch between "Time travel" (the zone mode above) and "Vinyl", where one month of data plays as a record whose 10 grooves (30 s each) spiral across the globe from the rim to a chosen centre (click, preset or latitude/longitude), under a fixed tonearm. Each groove is sent to `POST /api/zones/groove` (backend API v2.10) and the values read along the way stay on the globe as flowing spots. "The needle travels through" sets what moves: space (one date, the needle crosses places), time (one place, the months go by: `POST /api/zones/zone-data` on a small disc around the centre, one centre spot on the globe instead of the trail) or both (the date moves on by a month or a year on each groove)
 - During playback, the zone's values from the datasets volume are drawn on the globe, in step with the music
 - English, French and German (i18next)
 - Built for WCAG 2.1 AA: keyboard shortcuts (Space, ←/→, Home/End, M, Escape), screen reader announcements, data tables for the globe
@@ -87,7 +88,7 @@ src/
 ├── components/         UI: about, controls, layout, moments, player, visualization (globe, list)
 │                       (the root files AudioPlayer, DataSelector, DataVisualizer, InfoPanel, KeyboardShortcuts and AudioTranscript are legacy and unused)
 ├── hooks/              useSonification, usePlaybackPosition (position store outside React state), useInstruments, useZoneDataFrames, useHashRoute, useVinylSonification, …
-├── services/           sonificationApi.ts (backend client), volumeData.ts (datasets reader), vinylApi.ts (vinyl mode: groove paths, /api/zones/groove)
+├── services/           sonificationApi.ts (backend client), volumeData.ts (datasets reader), vinylApi.ts (vinyl mode: groove paths, /api/zones/groove, time travel through /api/zones/zone-data)
 ├── audio/              ChunkPlayer.ts (plays the backend's audio chunks), iosAudioUnlock.ts (iOS silent switch)
 ├── data/               dataset registry (colours, units), key moments, zone outlines (Natural Earth)
 ├── utils/              .npy parser, geometry, zone grid cells, zone mask, formatting

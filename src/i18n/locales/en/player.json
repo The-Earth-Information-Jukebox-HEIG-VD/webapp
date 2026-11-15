@@ -108,6 +108,7 @@
     "sliderValue": "Groove {{k}} of {{n}}, {{elapsed}} of {{total}}",
     "loadingGroove": "Loading groove {{k}}…",
     "ended": "End of the record. Play to start again from the edge.",
-    "shortcuts": "In vinyl mode, arrows go to the previous or next groove, Home and End to the first or last."
+    "shortcuts": "In vinyl mode, arrows go to the previous or next groove, Home and End to the first or last.",
+    "currentDate": "Date: {{date}}"
   }
 }

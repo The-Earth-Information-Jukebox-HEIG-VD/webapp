@@ -5,6 +5,9 @@ import { usePlayerShortcuts } from '../../hooks/usePlayerShortcuts';
 import { usePlaybackPosition, type PositionStore } from '../../hooks/usePlaybackPosition';
 import { elapsedOf } from '../../hooks/useVinylSonification';
 import type { SonificationError, SonificationStatus } from '../../hooks/useSonification';
+import { periodAt, type VinylChunkMeta } from '../../services/vinylApi';
+import { periodToYear } from '../../services/sonificationApi';
+import { formatMonthYear } from '../../utils/formatDate';
 import type { TrackState } from '../../types/tracks';
 import { VINYL_CHUNKS } from '../../utils/vinylGeometry';
 import './AudioPlayerEnhanced.css';
@@ -23,6 +26,8 @@ interface VinylPlayerBarProps {
   /** Length of the side in seconds */
   totalSeconds: number;
   trackStates: TrackState[];
+  /** Meta of the audible groove: in time and both travel the bar shows its real date */
+  current?: VinylChunkMeta | null;
   onPlay: () => void;
   onPause: () => void;
   onRetry: () => void;
@@ -57,6 +62,7 @@ export function VinylPlayerBar({
   positionStore,
   totalSeconds,
   trackStates,
+  current = null,
   onPlay,
   onPause,
   onRetry,
@@ -68,9 +74,16 @@ export function VinylPlayerBar({
   tracksStatus = 'ready',
   tracksErrorKind = null,
 }: VinylPlayerBarProps) {
-  const { t } = useTranslation('player');
+  const { t, i18n } = useTranslation('player');
   // Whole seconds only: the bar re-renders once a second, not on every player tick
   const elapsedSeconds = usePlaybackPosition(positionStore, (p) => Math.floor(elapsedOf(p)));
+  // Real date under the needle when the date moves (time and both travel): changes about every 3 s
+  const dateKey = usePlaybackPosition(positionStore, (p) =>
+    current && current.travel !== 'space' && p !== null
+      ? periodAt(current, Math.max(0, elapsedOf(p) - current.chunkIndex * (totalSeconds / VINYL_CHUNKS)))
+      : null
+  );
+  const dateLabel = dateKey ? formatMonthYear(periodToYear(dateKey), i18n.language) : null;
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -226,17 +239,25 @@ export function VinylPlayerBar({
             max={VINYL_CHUNKS}
             step={1}
             value={shownIndex + 1}
-            aria-valuetext={t('vinyl.sliderValue', {
-              k: shownIndex + 1,
-              n: VINYL_CHUNKS,
-              elapsed: clock(elapsedSeconds),
-              total: clock(totalSeconds),
-            })}
+            aria-valuetext={
+              t('vinyl.sliderValue', {
+                k: shownIndex + 1,
+                n: VINYL_CHUNKS,
+                elapsed: clock(elapsedSeconds),
+                total: clock(totalSeconds),
+              }) + (dateLabel ? `, ${dateLabel}` : '')
+            }
             onChange={(e) => changeGroove(Number(e.target.value) - 1)}
           />
           <span className="vinyl-clock" aria-hidden="true">
             {clock(elapsedSeconds)} / {clock(totalSeconds)}
           </span>
+          {dateLabel && (
+            // Not live: the date is announced once per groove (App), not every few seconds
+            <span className="vinyl-date" data-testid="vinyl-date">
+              {t('vinyl.currentDate', { date: dateLabel })}
+            </span>
+          )}
         </div>
 
         <div className="player-right">
