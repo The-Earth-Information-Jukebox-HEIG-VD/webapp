@@ -411,7 +411,7 @@
     "howPitch": "Higher values play higher notes, measured against your zone's own range, so a value always gives the same note.",
     "howLoudness": "Rain, snow, lightning, fires and night lights only play when there is enough of them. The more there is, the louder their instrument plays: heavy rain makes the violins repeat their notes faster, more lightning means more timpani strokes per beat, and the trombones swell with the fires. Night lights change once a year: the synth pad starts clearly each January, then fades slowly over the year.",
     "howGaps": "When a dataset has no data for a date (for example CO₂ before September 2002), its instrument stays silent.",
-    "howGlobe": "While the music plays, the globe shows the data of your zone: one colour per dataset, and the stronger the value, the more solid the dot. Select Change zone or press Escape to pick another zone.",
+    "howGlobe": "While the music plays, the globe shows the data of your zone as spots: one colour per dataset, and the stronger the value, the bigger the spot. Where there is nothing, there is no spot, so spots appear, grow and fade as the months go by. Temperature is a filled spot when warmer than normal and a ring when colder. Select Change zone or press Escape to pick another zone.",
     "orchestraTitle": "The orchestra",
     "orchestraText": "Each dataset has its own instrument:",
     "instruments": {
@@ -470,7 +470,8 @@
       "lightning": "Lightning",
       "rain": "Rain",
       "snow": "Snow",
-      "nightlights": "Night lights"
+      "nightlights": "Night lights",
+      "fires": "Fires"
     },
     "noSelectedDataset": "None of the selected tracks has data to show on the globe.",
     "playedBy": "played by {{instrument}}",
