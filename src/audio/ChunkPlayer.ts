@@ -20,11 +20,12 @@ import { requestPlaybackSession, SilentKeepAlive } from './iosAudioUnlock';
  * timing); React subscribes through the `on*` callbacks.
  *
  * - Chunks are decoded from the embedded base64 `audio_data`.
- * - Chunk N+1 is scheduled at `chunkStart + months * 3 s` (not at the end of the
+ * - Chunk N+1 is scheduled at `chunkStart + duration_s` (not at the end of the
  *   buffer): the MP3 carries a ~1.7 s reverb tail beyond the music, which is
- *   left to overlap the start of the next chunk. The response has no duration:
- *   one bar = one month = 3 s (FRONTEND_API.md), so the length comes from
- *   `time_period` -> `next_time_period`.
+ *   left to overlap the start of the next chunk. Since API v2.9 the temperature
+ *   sets the tempo, so a 30 s chunk holds 8-13 months (more in fast styles):
+ *   the length is the response's `duration_s` and month i starts at
+ *   `bar_starts_s[i]`. Old backends send neither: 3 s per month then.
  * - The next chunk is prefetched once the current one is 20% played, using the
  *   backend's `next_time_period` (null = end of the data).
  * - Seeking or changing zone/tracks aborts in-flight requests and starts over.
@@ -45,6 +46,8 @@ export interface PlayerParams {
   datasetIds: string[];
   /** Latest last_time_period ("YYYY-MM") of the enabled tracks: where the final chunk ends */
   endPeriod: string | null;
+  /** Music style id (GET /api/genres); undefined = the backend's default */
+  genre?: string;
 }
 
 export interface ProgressInfo {
@@ -67,6 +70,8 @@ interface ScheduledChunk {
   duration: number;
   startPos: number;
   endPos: number;
+  /** Start second of each month in the chunk (null: even months over the duration) */
+  barStarts: number[] | null;
 }
 
 const FIRST_CHUNK_DELAY_S = 0.05;
@@ -76,7 +81,7 @@ const PREFETCH_MAX_RETRIES = 3;
 const PREFETCH_RETRY_BASE_MS = 1000;
 const REQUEST_TIMEOUT_MS = 30000;
 const VOLUME_SMOOTHING_S = 0.015;
-/** One bar of music is one month of data and lasts 3 s (30 s = 10 months), see FRONTEND_API.md */
+/** Fallback for backends without `duration_s`: one bar = one month = 3 s */
 export const SECONDS_PER_MONTH = 3;
 /** Reverb tail the MP3 carries beyond its musical length */
 const REVERB_TAIL_S = 1.7;
@@ -244,8 +249,9 @@ export class ChunkPlayer {
       this.onChunk?.(current.response);
     }
 
-    const elapsed = clamp((now - current.startTime) / current.duration, 0, 1);
-    const position = current.startPos + elapsed * (current.endPos - current.startPos);
+    const seconds = clamp(now - current.startTime, 0, current.duration);
+    const elapsed = seconds / current.duration;
+    const position = positionInChunk(current, seconds);
     if (position !== this.position) {
       this.position = position;
       this.onProgress?.({ position });
@@ -423,6 +429,7 @@ export class ChunkPlayer {
       duration,
       startPos,
       endPos: timing.endMonths === null ? startPos : startPos + timing.endMonths / 12,
+      barStarts: timing.barStarts,
     };
 
     source.onended = () => this.handleEnded(chunk);
@@ -508,32 +515,64 @@ function buildRequest(params: PlayerParams, period: string): ZoneDataRequest {
     points: params.points,
     time_period: period,
     aggregation: 'mean',
+    ...(params.genre ? { genre: params.genre } : {}),
   };
 }
 
 /**
- * Length and extent of a chunk. The response carries no duration, so it is
- * derived from the months it covers (3 s each):
- * - with `next_time_period`: months from `time_period` to it;
- * - last chunk (next is null): months from `time_period` to the month after the
- *   enabled tracks' last data.
- * Never longer than the decoded audio: if the computed length does not fit,
- * fall back to the buffer minus its reverb tail.
+ * Length and extent of a chunk:
+ * - `duration_s` when the backend sends it, else months * 3 s, where the months
+ *   run from `time_period` to `next_time_period` (last chunk: to the month after
+ *   the enabled tracks' last data);
+ * - the months covered are `bar_starts_s.length` when sent, else that same count.
+ * Never longer than the decoded audio: if the length does not fit, fall back to
+ * the buffer minus its reverb tail.
  *
- * @returns `duration` in seconds and `endMonths`, the months covered (null if unknown)
+ * @returns `duration` in seconds, `endMonths` the months covered (null if unknown)
+ *   and `barStarts` the start second of each month (null: evenly spread)
  */
 export function computeChunkTiming(
   response: ZoneDataResponse,
   bufferDuration: number,
   endPeriod: string | null
-): { duration: number; endMonths: number | null } {
+): { duration: number; endMonths: number | null; barStarts: number[] | null } {
   const target = response.next_time_period ?? (endPeriod ? addMonths(endPeriod, 1) : null);
   const months = target ? monthsBetween(response.time_period, target) : NaN;
   const valid = Number.isFinite(months) && months > 0;
-  const computed = valid ? months * SECONDS_PER_MONTH : NaN;
+  const barStarts =
+    Array.isArray(response.bar_starts_s) && response.bar_starts_s.length > 0 ? response.bar_starts_s : null;
+  const declared = response.duration_s;
+  const computed =
+    typeof declared === 'number' && Number.isFinite(declared) && declared > 0
+      ? declared
+      : valid
+        ? months * SECONDS_PER_MONTH
+        : NaN;
   const fallback = Math.max(1, bufferDuration - REVERB_TAIL_S);
   const duration = Number.isFinite(computed) && computed < bufferDuration ? computed : fallback;
-  return { duration, endMonths: valid ? months : null };
+  const endMonths = barStarts ? barStarts.length : valid ? months : null;
+  return { duration, endMonths, barStarts };
+}
+
+/**
+ * Months elapsed in a chunk after `seconds`: piecewise linear over the bars
+ * (month i spans barStarts[i] to barStarts[i+1], the last one to `duration`).
+ */
+export function monthsElapsed(barStarts: number[], duration: number, seconds: number): number {
+  const t = clamp(seconds, 0, duration);
+  let i = 0;
+  while (i + 1 < barStarts.length && barStarts[i + 1] <= t) i++;
+  const from = barStarts[i];
+  const to = i + 1 < barStarts.length ? barStarts[i + 1] : duration;
+  const frac = to > from ? clamp((t - from) / (to - from), 0, 1) : 1;
+  return i + frac;
+}
+
+function positionInChunk(chunk: ScheduledChunk, seconds: number): number {
+  if (chunk.barStarts && chunk.barStarts.length > 0) {
+    return chunk.startPos + monthsElapsed(chunk.barStarts, chunk.duration, seconds) / 12;
+  }
+  return chunk.startPos + (seconds / chunk.duration) * (chunk.endPos - chunk.startPos);
 }
 
 interface TimedRequest {
@@ -579,6 +618,7 @@ function paramsChanged(a: PlayerParams, b: PlayerParams): boolean {
   return (
     a.zoneId !== b.zoneId ||
     a.points !== b.points ||
+    a.genre !== b.genre ||
     a.datasetIds.length !== b.datasetIds.length ||
     a.datasetIds.some((id, i) => id !== b.datasetIds[i])
   );

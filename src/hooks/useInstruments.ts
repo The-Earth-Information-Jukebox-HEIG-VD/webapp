@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchHealth,
   fetchInstruments,
@@ -49,22 +49,25 @@ export interface UseInstrumentsResult {
 
 /**
  * Loads the track list from GET /api/instruments (and /api/health for the
- * "server is preparing data" flag) once, and again on reload().
+ * "server is preparing data" flag) once, and again on reload() or when the music
+ * style changes (the instrument names depend on it; the list stays visible meanwhile).
  */
-export function useInstruments(): UseInstrumentsResult {
+export function useInstruments(genre?: string): UseInstrumentsResult {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [status, setStatus] = useState<InstrumentsStatus>('loading');
   const [preparing, setPreparing] = useState(false);
   const [errorKind, setErrorKind] = useState<ApiErrorKind | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
     const controller = new AbortController();
-    setStatus('loading');
+    // A style change keeps the list on screen while the new names load
+    if (!loadedRef.current) setStatus('loading');
     setErrorKind(null);
 
     Promise.all([
-      fetchInstruments(controller.signal),
+      fetchInstruments(genre, controller.signal),
       // Health is informative only; never fail the list because of it
       fetchHealth(controller.signal).catch((err) => {
         if (isAbortError(err)) throw err;
@@ -74,16 +77,18 @@ export function useInstruments(): UseInstrumentsResult {
       .then(([instruments, health]) => {
         setTracks(instruments.instruments.map(instrumentToTrack));
         setPreparing(health?.preparing_data ?? false);
+        loadedRef.current = true;
         setStatus('ready');
       })
       .catch((err) => {
         if (isAbortError(err)) return;
         setErrorKind(err instanceof ApiError ? err.kind : 'unknown');
+        loadedRef.current = false;
         setStatus('error');
       });
 
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, genre]);
 
   const reload = useCallback(() => setAttempt((n) => n + 1), []);
 

@@ -24,6 +24,8 @@ export interface UseSonificationOptions {
   points: GridPoint[];
   zoneId: string | null;
   zoneName: string | null;
+  /** Music style id (useMusicStyle); a change restarts the audio from the current position */
+  genre?: string;
 }
 
 function pickRange(list: Track[]) {
@@ -85,7 +87,7 @@ const SEEK_DEBOUNCE_MS = 250;
  * The player owns playback; this hook mirrors its state for React and maps the
  * year-based timeline (seek/seekToYear/progress) onto backend periods.
  */
-export function useSonification({ tracks, points, zoneId, zoneName }: UseSonificationOptions) {
+export function useSonification({ tracks, points, zoneId, zoneName, genre }: UseSonificationOptions) {
   const playerRef = useRef<ChunkPlayer | null>(null);
   const [playerState, setPlayerState] = useState<PlayerState>('idle');
   // Fine position lives outside React state (updates ~10x/s): see usePlaybackPosition
@@ -172,10 +174,10 @@ export function useSonification({ tracks, points, zoneId, zoneName }: UseSonific
 
   // Zone / tracks -> player (restarts from the current position when playing)
   useEffect(() => {
-    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds, endPeriod });
+    playerRef.current?.setParams({ zoneId, zoneName, points, datasetIds, endPeriod, genre });
     // datasetKey stands for datasetIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoneId, zoneName, points, datasetKey, endPeriod]);
+  }, [zoneId, zoneName, points, datasetKey, endPeriod, genre]);
 
   const canPlay = datasetIds.length > 0 && points.length > 0;
 

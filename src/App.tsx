@@ -22,6 +22,7 @@ import {
   ViewModeToggle,
   ZoneViewSelector,
   TrackPanel,
+  StyleSelector,
   ExperienceModeSwitch,
   VinylControls,
 } from './components/controls';
@@ -41,6 +42,7 @@ import { KeyMomentsSection } from './components/moments';
 // Hooks
 import { useSonification } from './hooks/useSonification';
 import { useInstruments } from './hooks/useInstruments';
+import { useMusicStyle } from './hooks/useMusicStyle';
 import { useZoneDataFrames } from './hooks/useZoneDataFrames';
 import { useZoneSeries } from './hooks/useZoneSeries';
 import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean';
@@ -98,7 +100,9 @@ function AppContent() {
   );
 
   // Tracks come from the backend's /api/instruments
-  const instruments = useInstruments();
+  // Music style: shared by zone and vinyl mode (the instrument names depend on it)
+  const musicStyle = useMusicStyle();
+  const instruments = useInstruments(musicStyle.genre);
   const tracks = instruments.tracks;
 
   // Sonification hook
@@ -133,6 +137,7 @@ function AppContent() {
     points: selectedPoints,
     zoneId: selectedZone,
     zoneName: selectedZone ? getZoneDisplayName(selectedZone, t) : null,
+    genre: musicStyle.genre,
   });
 
   // Handlers
@@ -205,6 +210,10 @@ function AppContent() {
     datasetIds: enabledIdList,
     center: vinylSettings.center,
     timePeriod: vinylSettings.timePeriod,
+    travel: vinylSettings.travel,
+    step: vinylSettings.step,
+    genre: musicStyle.genre,
+    rangeEnd: vinylSettings.range.end,
   });
   const vinylStarted = vinyl.current !== null || vinyl.isPlaying;
   const vinylMonthLabel = formatMonthYear(periodToYear(vinylSettings.timePeriod), i18n.language);
@@ -348,6 +357,10 @@ function AppContent() {
                 onTimePeriodChange={vinylSettings.setTimePeriod}
                 range={vinylSettings.range}
                 clamped={vinylSettings.clamped}
+                travel={vinylSettings.travel}
+                onTravelChange={vinylSettings.setTravel}
+                step={vinylSettings.step}
+                onStepChange={vinylSettings.setStep}
               />
             )}
           </section>
@@ -355,6 +368,7 @@ function AppContent() {
           <div className={tracksOpen ? 'workspace' : 'workspace tracks-collapsed'}>
           {/* Track panel: always visible, beside (or above) the globe */}
           <aside id="tracks-section" className="tracks-section" aria-labelledby="track-panel-heading">
+            <StyleSelector genres={musicStyle.genres} value={musicStyle.genre} onChange={musicStyle.setGenre} />
             <TrackPanel
               tracks={tracks}
               trackStates={trackStates}
@@ -384,6 +398,7 @@ function AppContent() {
                   history={vinyl.history}
                   tracks={tracks.filter((tr) => enabledTrackIds.has(tr.id))}
                   reducedMotion={preferences.reducedMotion}
+                  travel={vinylSettings.travel}
                 />
               ) : (
                 <VinylRecordView
@@ -393,6 +408,7 @@ function AppContent() {
                   started={vinylStarted}
                   history={vinyl.history}
                   tracks={tracks.filter((tr) => enabledTrackIds.has(tr.id))}
+                  travel={vinylSettings.travel}
                 />
               )
             ) : viewMode === 'globe' ? (
@@ -447,6 +463,7 @@ function AppContent() {
                 positionStore={vinyl.positionStore}
                 totalSeconds={VINYL_SIDE_SECONDS}
                 trackStates={trackStates}
+                current={vinyl.current}
                 onPlay={vinyl.play}
                 onPause={vinyl.pause}
                 onRetry={vinyl.retry}
@@ -524,12 +541,24 @@ function AppContent() {
           t('player:announcements.nowPlaying', { reading, year: chunkYear })
         )}
         {mode === 'vinyl' && vinyl.isPlaying && vinyl.current && (
-          t(vinylReading ? 'vinyl.nowPlaying' : 'vinyl.nowPlayingNoValue', {
-            k: vinyl.current.chunkIndex + 1,
-            n: VINYL_CHUNKS,
-            place: vinylPlace(vinyl.current.chunkIndex),
-            reading: vinylReading,
-          })
+          t(
+            vinyl.current.travel === 'space'
+              ? vinylReading
+                ? 'vinyl.nowPlaying'
+                : 'vinyl.nowPlayingNoValue'
+              : vinylReading
+                ? 'vinyl.nowPlayingDate'
+                : 'vinyl.nowPlayingDateNoValue',
+            {
+              k: vinyl.current.chunkIndex + 1,
+              n: VINYL_CHUNKS,
+              // time and both: the real date of the groove
+              date: formatMonthYear(periodToYear(vinyl.current.periods[0] ?? vinyl.current.timePeriod), i18n.language),
+              place:
+                vinyl.current.travel === 'time' ? vinylCentreName : vinylPlace(vinyl.current.chunkIndex),
+              reading: vinylReading,
+            }
+          )
         )}
       </div>
 

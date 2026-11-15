@@ -5,3 +5,4 @@ export { ZoneViewSelector } from './ZoneViewSelector';
 export { TrackPanel } from './TrackPanel';
 export { ExperienceModeSwitch } from './ExperienceModeSwitch';
 export { VinylControls } from './VinylControls';
+export { StyleSelector } from './StyleSelector';

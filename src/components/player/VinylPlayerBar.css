@@ -32,3 +32,11 @@
   color: var(--color-text-secondary);
   font-feature-settings: 'tnum';
 }
+
+.vinyl-date {
+  flex: none;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}

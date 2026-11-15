@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   VINYL_BASE_PERIOD,
   VINYL_END_PERIOD,
+  bothDate,
+  periodAt,
+  dateSpan,
   buildGrooveRequest,
   chunkIndexOf,
   fetchVinylChunk,
@@ -14,7 +17,13 @@ import {
   type VinylRequest,
   type VinylResponse,
 } from './vinylApi';
-import { ApiError, type GrooveRequest, type GrooveResponse, type ZoneDataResponse } from './sonificationApi';
+import {
+  ApiError,
+  type GrooveRequest,
+  type GrooveResponse,
+  type ZoneDataRequest,
+  type ZoneDataResponse,
+} from './sonificationApi';
 import { ChunkPlayer, computeChunkTiming } from '../audio/ChunkPlayer';
 import { MockAudioContext } from '../test/setup';
 import { GROOVE_RADIUS_DEG, groovePath } from '../utils/vinylGeometry';
@@ -210,5 +219,113 @@ describe('vinyl fetcher on the real ChunkPlayer', () => {
     await flush();
     expect(fetchVinyl.mock.calls.at(-1)![0].chunk_index).toBe(4);
     player.dispose();
+  });
+});
+
+describe('travel through space and time', () => {
+  const run = (cfg: Parameters<typeof makeVinylChunkFetcher>[0], fetchVinyl: Parameters<typeof makeVinylChunkFetcher>[1], fetchZone?: Parameters<typeof makeVinylChunkFetcher>[2]) =>
+    makeVinylChunkFetcher(cfg, fetchVinyl, fetchZone);
+  const player = (k: number) => ({ time_period: syntheticPeriod(k), dataset_ids: ['temperature'] }) as ZoneDataRequest;
+  const fakeGroove = async (r: VinylRequest): Promise<VinylResponse> => ({
+    dataset_ids: r.dataset_ids,
+    time_period: r.time_period,
+    center: r.center,
+    chunk_index: r.chunk_index,
+    next_chunk_index: r.chunk_index < 9 ? r.chunk_index + 1 : null,
+    chunk_count: 10,
+    stops: [],
+    stop_seconds: 3,
+    radius_deg: 2,
+    audio_data: 'AAAA',
+    values: {},
+  });
+
+  it('space: sends the genre and keeps one date', async () => {
+    const fetchVinyl = vi.fn(fakeGroove);
+    const f = run(() => ({ timePeriod: '2020-03', center, genre: 'funk' }), fetchVinyl);
+    const chunk = await f(player(2), new AbortController().signal);
+    expect(fetchVinyl.mock.calls[0][0]).toMatchObject({ chunk_index: 2, time_period: '2020-03', genre: 'funk' });
+    expect(isVinylChunk(chunk) && chunk.vinyl.periods).toEqual(['2020-03']);
+    // Every groove claims 30 s of ten 3 s bars
+    expect(chunk.duration_s).toBe(30);
+    expect(chunk.bar_starts_s).toHaveLength(10);
+  });
+
+  it('buildGrooveRequest carries the genre', () => {
+    expect(buildGrooveRequest(center, 0, '2020-03', ['temperature'], 'trap').genre).toBe('trap');
+    expect('genre' in buildGrooveRequest(center, 0, '2020-03', ['temperature'])).toBe(false);
+  });
+
+  it('both: the date moves on by a month or a year per groove, kept inside the data', async () => {
+    expect(bothDate('2020-03', 3, 'year')).toBe('2023-03');
+    expect(bothDate('2020-03', 3, 'month')).toBe('2020-06');
+    expect(bothDate('2020-03', 9, 'year', '2025-12')).toBe('2025-12');
+    const fetchGroove = vi.fn(async (r: GrooveRequest) => grooveResponse(r));
+    const res = await fetchVinylChunk({ ...req(3), travel: 'both', step: 'year', range_end: '2025-12' }, undefined, { fetchGroove });
+    // the record starts in 2018-07
+    expect(fetchGroove.mock.calls[0][0].time_period).toBe('2021-07');
+    expect(res.periods).toEqual(['2021-07']);
+    expect(res.next_chunk_index).toBe(4);
+  });
+
+  it('both: ends when the next date passes the end of the data, or after groove 10', async () => {
+    const fetchGroove = vi.fn(async (r: GrooveRequest) => grooveResponse(r));
+    const last = await fetchVinylChunk({ ...req(5), travel: 'both', step: 'year', range_end: '2023-12' }, undefined, { fetchGroove });
+    // 2018-07 + 5 y = 2023-07; the next one (2024-07) is past 2023-12
+    expect(last.next_chunk_index).toBeNull();
+    const k9 = await fetchVinylChunk({ ...req(9), travel: 'both', step: 'month', range_end: '2030-01' }, undefined, { fetchGroove });
+    expect(k9.next_chunk_index).toBeNull();
+  });
+
+  describe('time', () => {
+    const zone = (tp: string, next: string | null, months: number): ZoneDataResponse => ({
+      zone_id: null,
+      dataset_ids: ['temperature'],
+      time_period: tp,
+      next_time_period: next,
+      audio_data: 'AAAA',
+      values: { temperature: 1.1 },
+      point_count: 19,
+      duration_s: 30,
+      bar_starts_s: Array.from({ length: months }, (_, i) => (i * 30) / months),
+    });
+
+    it('chains zone-data chunks with next_time_period on a disc around the centre', async () => {
+      const fetchZone = vi.fn(async (r: ZoneDataRequest) =>
+        r.time_period === '2020-03' ? zone('2020-03', '2020-11', 8) : zone('2020-11', '2021-12', 13)
+      );
+      const fetchVinyl = vi.fn();
+      const f = run(() => ({ timePeriod: '2020-03', center, travel: 'time', genre: 'house' }), fetchVinyl, fetchZone);
+      const a = await f(player(0), new AbortController().signal);
+      const b = await f(player(1), new AbortController().signal);
+      expect(fetchVinyl).not.toHaveBeenCalled();
+      expect(fetchZone.mock.calls[0][0]).toMatchObject({ time_period: '2020-03', genre: 'house', aggregation: 'mean' });
+      expect(fetchZone.mock.calls[0][0].points.length).toBeGreaterThan(1);
+      // groove 1 starts where groove 0 ended, not 10 months later
+      expect(fetchZone.mock.calls[1][0].time_period).toBe('2020-11');
+      expect(isVinylChunk(a) && a.vinyl.periods).toHaveLength(8);
+      expect(isVinylChunk(b) && b.vinyl.periods).toHaveLength(13);
+      expect(isVinylChunk(b) && b.vinyl.barStarts).toHaveLength(13);
+      expect(a.time_period).toBe(syntheticPeriod(0));
+      expect(a.next_time_period).toBe(syntheticPeriod(1));
+      expect(a.duration_s).toBe(30);
+    });
+
+    it('estimates an unheard groove as the start plus 10 months per groove; null ends the side', async () => {
+      const fetchZone = vi.fn(async (r: ZoneDataRequest) => zone(r.time_period, null, 5));
+      const f = run(() => ({ timePeriod: '2020-03', center, travel: 'time' }), vi.fn(), fetchZone);
+      const c = await f(player(4), new AbortController().signal);
+      expect(fetchZone.mock.calls[0][0].time_period).toBe('2023-07');
+      expect(c.next_time_period).toBeNull();
+    });
+  });
+
+  it('periodAt finds the real month from the seconds in the groove', () => {
+    const meta = { periods: ['2020-03', '2020-04', '2020-05'], barStarts: [0, 10, 20], timePeriod: '2020-03', travel: 'time' } as never;
+    expect(periodAt(meta, 0)).toBe('2020-03');
+    expect(periodAt(meta, 12)).toBe('2020-04');
+    expect(periodAt(meta, 29.9)).toBe('2020-05');
+    expect(dateSpan({})).toBeNull();
+    expect(dateSpan({ 0: meta, 1: { ...(meta as object), chunkIndex: 1, periods: ['2020-06'] } as never })).toEqual({ first: '2020-03', last: '2020-06' });
   });
 });

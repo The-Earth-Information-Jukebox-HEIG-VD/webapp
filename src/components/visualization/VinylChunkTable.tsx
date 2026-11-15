@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import type { Track } from '../../types/tracks';
-import type { VinylChunkMeta } from '../../services/vinylApi';
+import type { VinylChunkMeta, VinylTravel } from '../../services/vinylApi';
+import { periodToYear } from '../../services/sonificationApi';
+import { formatMonthYear } from '../../utils/formatDate';
 import { VINYL_CHUNKS, formatLatLng, needlePoint, type LatLng } from '../../utils/vinylGeometry';
 import { regionNameAt } from '../../utils/regionName';
 import { formatReading, isAnomalyUnits } from '../../utils/reading';
@@ -16,6 +18,8 @@ interface VinylChunkTableProps {
   tracks: Track[];
   /** Groove under the needle, or null when nothing plays */
   currentIndex: number | null;
+  /** Time and both travel add a Date column (default 'space') */
+  travel?: VinylTravel;
   className?: string;
 }
 
@@ -29,16 +33,27 @@ export function VinylChunkTable({
   history,
   tracks,
   currentIndex,
+  travel = 'space',
   className = 'sr-only',
 }: VinylChunkTableProps) {
   const { t, i18n } = useTranslation();
   const hemis = useHemisphereLabels();
   const fmt = (p: LatLng) => formatLatLng(p, i18n.language, hemis);
+  const showDate = travel !== 'space';
+  const month = (period: string) => formatMonthYear(periodToYear(period), i18n.language);
+  const dateOf = (meta: VinylChunkMeta) =>
+    meta.periods.length > 1
+      ? t('vinyl.tableDateRange', { from: month(meta.periods[0]), to: month(meta.periods[meta.periods.length - 1]) })
+      : month(meta.periods[0] ?? meta.timePeriod);
 
   return (
     <table className={className}>
       <caption>
-        {t('vinyl.table.caption', { centre: fmt(center), month: monthLabel })}. {t('vinyl.table.meanNote')}
+        {t(travel === 'space' ? 'vinyl.table.caption' : 'vinyl.tableCaptionTravel', {
+          centre: fmt(center),
+          month: monthLabel,
+        })}
+        . {t('vinyl.table.meanNote')}
       </caption>
       <thead>
         <tr>
@@ -46,6 +61,7 @@ export function VinylChunkTable({
           <th scope="col">{t('vinyl.table.start')}</th>
           <th scope="col">{t('vinyl.table.end')}</th>
           <th scope="col">{t('vinyl.table.region')}</th>
+          {showDate && <th scope="col">{t('vinyl.tableDate')}</th>}
           {tracks.map((tr) => (
             <th scope="col" key={tr.id}>
               {t(tr.nameKey, { defaultValue: tr.label })}
@@ -68,6 +84,7 @@ export function VinylChunkTable({
               <td>{fmt(start)}</td>
               <td>{fmt(end)}</td>
               <td>{regionNameAt(mid, t) ?? '—'}</td>
+              {showDate && <td>{heard ? dateOf(heard) : t('vinyl.table.notPlayed')}</td>}
               {tracks.map((tr) => {
                 const v = heard?.values[tr.id];
                 return (

@@ -93,3 +93,38 @@ export function trailSpots(
     };
   });
 }
+
+export interface TimeSpot {
+  /** CSS colour: the dataset's colour, stronger for a bigger value */
+  color: string;
+  /** Radius for the globe's point layer, in degrees */
+  radius: number;
+  trackId: string;
+}
+
+/**
+ * Time travel: the needle stays on one place, so the trail gives way to a
+ * single spot at the centre, coloured by the first selected dataset that has a
+ * value (the more of it, the stronger the colour and the bigger the spot).
+ */
+export function timeSpot(values: Record<string, number | null> | undefined, layers: TrailLayerInfo[]): TimeSpot | null {
+  if (!values) return null;
+  for (const layer of layers) {
+    const size = trailSize(values[layer.trackId], layer.info);
+    if (size === 0) continue;
+    const strength = Math.abs(size);
+    return {
+      color: withAlpha(layer.info.color, 0.45 + 0.55 * strength),
+      radius: 0.8 + 1.6 * strength,
+      trackId: layer.trackId,
+    };
+  }
+  return null;
+}
+
+function withAlpha(color: string, alpha: number): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(color);
+  if (!m) return color;
+  const n = parseInt(m[1], 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha.toFixed(2)})`;
+}

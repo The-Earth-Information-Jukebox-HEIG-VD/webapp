@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { trailLayers, trailSize, trailSpots } from './vinylTrail';
+import { timeSpot, trailLayers, trailSize, trailSpots } from './vinylTrail';
 import { KNOWN_DATASETS } from '../../data/datasetRegistry';
 import type { Track } from '../../types/tracks';
 import type { VinylChunkMeta } from '../../services/vinylApi';
@@ -14,6 +14,9 @@ function groove(k: number, values: Record<string, number | null>[]): VinylChunkM
     nextChunkIndex: k + 1,
     center: { lat: 0, lng: 0 },
     timePeriod: '2018-07',
+      travel: 'space',
+      periods: ['2020-03'],
+      barStarts: null,
     stops: values.map((v, i) => ({ lat: k, lng: i * 5, values: v })),
     stopSeconds: 0.75,
     radiusDeg: 2,
@@ -58,5 +61,18 @@ describe('vinylTrail', () => {
     expect(a.lat.length).toBe(1);
     expect(b.lat.length).toBe(1);
     expect(Math.hypot(a.lat[0] - b.lat[0], a.lng[0] - b.lng[0])).toBeGreaterThan(0.5);
+  });
+
+  it('timeSpot: one centre spot from the first dataset with a value, stronger for more', () => {
+    const layers = trailLayers([track('temperature'), track('precipitation')]);
+    expect(timeSpot({ temperature: null, precipitation: 0 }, layers)).toBeNull();
+    const weak = timeSpot({ temperature: 0.3 }, layers)!;
+    const strong = timeSpot({ temperature: 3 }, layers)!;
+    expect(weak.trackId).toBe('temperature');
+    expect(strong.radius).toBeGreaterThan(weak.radius);
+    expect(strong.color).toMatch(/^rgba\(/);
+    // Falls through to the next dataset when the first has no value
+    expect(timeSpot({ temperature: null, precipitation: 0.4 }, layers)!.trackId).toBe('precipitation');
+    expect(timeSpot(undefined, layers)).toBeNull();
   });
 });

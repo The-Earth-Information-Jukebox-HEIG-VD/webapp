@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ChunkPlayer, computeChunkTiming, type PlayerParams } from './ChunkPlayer';
+import { ChunkPlayer, computeChunkTiming, monthsElapsed, type PlayerParams } from './ChunkPlayer';
 import { MockAudioContext } from '../test/setup';
 import type { ZoneDataRequest, ZoneDataResponse } from '../services/sonificationApi';
 
@@ -195,6 +195,85 @@ describe('computeChunkTiming', () => {
     const t = computeChunkTiming(chunk('2015-01', '2016-01'), 31.7, null); // 12 months = 36 s
     expect(t.duration).toBeCloseTo(30, 5);
     expect(computeChunkTiming(chunk('2025-06', null), 20, null).duration).toBeCloseTo(18.3, 5);
+  });
+});
+
+/** A 30 s chunk of `months` months (v2.9+: the temperature sets the tempo). */
+function timedChunk(period: string, next: string | null, months: number): ZoneDataResponse {
+  const bar = 30 / months;
+  return {
+    ...chunk(period, next),
+    duration_s: 30,
+    bar_starts_s: Array.from({ length: months }, (_, i) => i * bar),
+  };
+}
+
+describe('chunk timing from duration_s and bar_starts_s', () => {
+  it('uses duration_s, not months x 3 s', () => {
+    expect(computeChunkTiming(timedChunk('2015-01', '2015-09', 8), 31.7, null)).toMatchObject({
+      duration: 30,
+      endMonths: 8,
+    });
+    expect(computeChunkTiming(timedChunk('2015-01', '2016-02', 13), 31.7, null)).toMatchObject({
+      duration: 30,
+      endMonths: 13,
+    });
+  });
+
+  it('caps duration_s by the decoded audio', () => {
+    const r = { ...timedChunk('2015-01', '2015-09', 8), duration_s: 40 };
+    expect(computeChunkTiming(r, 31.7, null).duration).toBeCloseTo(30, 5);
+  });
+
+  it('maps seconds to months piecewise over bar_starts_s', () => {
+    const starts = [0, 2, 6, 10]; // uneven bars, 12 s chunk
+    expect(monthsElapsed(starts, 12, 0)).toBe(0);
+    expect(monthsElapsed(starts, 12, 1)).toBeCloseTo(0.5, 5);
+    expect(monthsElapsed(starts, 12, 4)).toBeCloseTo(1.5, 5);
+    expect(monthsElapsed(starts, 12, 11)).toBeCloseTo(3.5, 5);
+    expect(monthsElapsed(starts, 12, 12)).toBeCloseTo(4, 5);
+    expect(monthsElapsed(starts, 12, 99)).toBeCloseTo(4, 5);
+  });
+
+  it('schedules 8-month and 13-month chunks back to back at 30 s and tracks the position', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => {
+      if (req.time_period === '1950-01') return timedChunk('1950-01', '1950-09', 8);
+      if (req.time_period === '1950-09') return timedChunk('1950-09', '1951-10', 13);
+      return timedChunk('1951-10', null, 10);
+    });
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams(params);
+    await player.play('1950-01');
+    await flush();
+    const ctx = (player as unknown as { ctx: { currentTime: number } }).ctx;
+
+    ctx.currentTime = 0.05 + 7.5; // 2 of 8 bars (3.75 s each)
+    player.tick();
+    await flush();
+    expect(player.getPosition()).toBeCloseTo(1950 + 2 / 12, 5);
+    expect(MockAudioContext.sources).toHaveLength(2);
+    expect(MockAudioContext.sources[1].startedAt).toBeCloseTo(0.05 + 30, 5);
+
+    ctx.currentTime = 0.05 + 30 + (3 * 30) / 13; // three bars (past 20%) into the 13-month chunk
+    player.tick();
+    await flush();
+    expect(MockAudioContext.sources[2].startedAt).toBeCloseTo(0.05 + 60, 5);
+    expect(player.getPosition()).toBeCloseTo(1950 + 8 / 12 + 3 / 12, 5);
+    player.dispose();
+  });
+
+  it('restarts from the current position when the style changes, and sends the genre', async () => {
+    const fetchChunk = vi.fn(async (req: ZoneDataRequest) => chunk(req.time_period ?? '', '1950-11'));
+    const player = new ChunkPlayer({ fetchChunk });
+    player.setParams({ ...params, genre: 'orchestra' });
+    await player.play('1950-01');
+    await flush();
+    expect(fetchChunk.mock.calls[0][0].genre).toBe('orchestra');
+    player.setParams({ ...params, genre: 'funk' });
+    await flush();
+    expect(fetchChunk).toHaveBeenCalledTimes(2);
+    expect(fetchChunk.mock.calls[1][0]).toMatchObject({ genre: 'funk', time_period: '1950-01' });
+    player.dispose();
   });
 });
 

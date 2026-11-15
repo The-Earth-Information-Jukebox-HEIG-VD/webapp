@@ -413,7 +413,7 @@
     "howGaps": "Lorsqu'un jeu de données n'a pas de données pour une date (par exemple le CO₂ avant septembre 2002), son instrument se tait.",
     "howGlobe": "Pendant la musique, le globe affiche les données de votre zone sous forme de taches : une couleur par jeu de données, et plus la valeur est forte, plus la tache est grande. Là où il n'y a rien, il n'y a pas de tache : les taches apparaissent, grandissent et s'effacent au fil des mois. La température est une tache pleine quand il fait plus chaud que la normale et un anneau quand il fait plus froid. Choisissez Changer de zone ou appuyez sur Échap pour choisir une autre zone.",
     "orchestraTitle": "L'orchestre",
-    "orchestraText": "Chaque jeu de données a son instrument :",
+    "orchestraText": "Dans le style Orchestre, chaque jeu de données a son propre instrument (les autres styles ont les leurs) :",
     "instruments": {
       "temperature": "Anomalie de température : accords de piano",
       "co2": "CO₂ : contrebasse",
@@ -446,7 +446,9 @@
     "teamTitle": "Équipe",
     "teamText": "Réalisé à la HEIG-VD (Yverdon-les-Bains, Suisse) pour le NASA Space Apps Challenge 2026.",
     "teamMembers": "Magali Egger, Téo Ferrari, Clarisse Estelle Fleurimont, Yasaman Izadmehr, Simon Walther et Léo Zmoos.",
-    "back": "Retour au globe"
+    "back": "Retour au globe",
+    "howStyle": "Le style musical permet de choisir comment les données sont jouées : orchestre, ragtime, swing, rock'n'roll, funk, synth-pop, house, trap, ou sons enregistrés de pluie, de feu et de tonnerre. La température fixe le tempo : le nombre de mois dans chaque tranche de 30 secondes varie donc avec le style et les données.",
+    "howVinyl": "Le mode vinyle joue les données comme un disque : l'aiguille peut voyager dans l'espace (une date, l'aiguille traverse des lieux), dans le temps (un lieu, les mois défilent) ou les deux (l'aiguille traverse des lieux et la date avance à chaque sillon)."
   },
   "globeData": {
     "legendTitle": "Jeux de données",
@@ -508,7 +510,7 @@
     },
     "apply": "Appliquer",
     "pickHint": "Ou cliquez sur le globe pour placer le centre du disque.",
-    "restartHint": "Changer le mois ou le centre relance le disque depuis le bord.",
+    "restartHint": "Changer le mois, le centre, le mode de voyage de l'aiguille ou le style musical relance le disque depuis le bord.",
     "recordLabel": "Le globe en disque vinyle, centré sur {{centre}}, jouant {{month}}. Le saphir trace une spirale du bord vers le centre.",
     "grooveOf": "Sillon {{k}} sur {{n}}",
     "caption": {
@@ -547,6 +549,28 @@
       "pacific": "Océan Pacifique",
       "atlantic": "Océan Atlantique",
       "indian-ocean": "Océan Indien"
-    }
+    },
+    "dateFrom": "Mois de départ",
+    "travel": "L'aiguille voyage dans",
+    "travelSpace": "L'espace",
+    "travelSpaceHint": "Une seule date : l'aiguille traverse des lieux.",
+    "travelTime": "Le temps",
+    "travelTimeHint": "Un seul lieu : les mois défilent.",
+    "travelBoth": "Les deux",
+    "travelBothHint": "L'aiguille traverse des lieux et la date avance à chaque sillon.",
+    "step": "La date avance de",
+    "stepMonth": "Un mois par sillon",
+    "stepYear": "Un an par sillon",
+    "nowPlayingDate": "Sillon {{k}} sur {{n}}, {{date}}, près de {{place}} : {{reading}}",
+    "nowPlayingDateNoValue": "Sillon {{k}} sur {{n}}, {{date}}, près de {{place}}",
+    "tableDate": "Date",
+    "tableDateRange": "de {{from}} à {{to}}",
+    "tableCaptionTravel": "Sillons du disque centré sur {{centre}}, à partir de {{month}}"
+  },
+  "style": {
+    "label": "Style musical",
+    "hint": "Comment les données sont jouées : {{description}}",
+    "changed": "Style musical : {{name}}",
+    "loading": "Chargement des styles…"
   }
 }

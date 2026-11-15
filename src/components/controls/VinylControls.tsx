@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { VINYL_PRESETS, presetForCenter } from '../../data/vinylPresets';
 import { monthName } from '../../utils/formatDate';
 import type { LatLng } from '../../utils/vinylGeometry';
-import type { VinylPeriodRange } from '../../hooks/useVinylSettings';
+import type { VinylPeriodRange, VinylStep, VinylTravel } from '../../hooks/useVinylSettings';
 import './VinylControls.css';
 
 interface VinylControlsProps {
@@ -15,7 +15,16 @@ interface VinylControlsProps {
   range: VinylPeriodRange;
   /** The chosen month was moved to fit the selected sounds */
   clamped: boolean;
+  /** What the needle travels through */
+  travel: VinylTravel;
+  onTravelChange: (travel: VinylTravel) => void;
+  /** Travel 'both': how far the date moves per groove */
+  step: VinylStep;
+  onStepChange: (step: VinylStep) => void;
 }
+
+const TRAVELS: VinylTravel[] = ['space', 'time', 'both'];
+const STEPS: VinylStep[] = ['month', 'year'];
 
 type Field = 'lat' | 'lng';
 
@@ -25,6 +34,10 @@ function parsePeriod(p: string) {
 
 function toPeriod(year: number, month: number) {
   return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+function cap(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function fmt(n: number) {
@@ -42,6 +55,10 @@ export function VinylControls({
   onTimePeriodChange,
   range,
   clamped,
+  travel,
+  onTravelChange,
+  step,
+  onStepChange,
 }: VinylControlsProps) {
   const { t, i18n } = useTranslation();
   const id = useId();
@@ -135,7 +152,7 @@ export function VinylControls({
   return (
     <form className="vinyl-controls" onSubmit={commit} noValidate>
       <fieldset className="vinyl-group">
-        <legend>{t('vinyl.date')}</legend>
+        <legend>{t(travel === 'space' ? 'vinyl.date' : 'vinyl.dateFrom')}</legend>
         <div className="vinyl-row">
           <div className="vinyl-field">
             <label htmlFor={`${id}-month`}>{t('vinyl.month')}</label>
@@ -175,6 +192,41 @@ export function VinylControls({
           })}
           {clamped && ` ${t('vinyl.dateClamped')}`}
         </p>
+      </fieldset>
+
+      <fieldset className="vinyl-group vinyl-travel">
+        <legend>{t('vinyl.travel')}</legend>
+        {TRAVELS.map((mode) => (
+          <div key={mode} className="vinyl-radio">
+            <input
+              type="radio"
+              id={`${id}-travel-${mode}`}
+              name={`${id}-travel`}
+              value={mode}
+              checked={travel === mode}
+              aria-describedby={`${id}-travel-${mode}-hint`}
+              onChange={() => onTravelChange(mode)}
+            />
+            <label htmlFor={`${id}-travel-${mode}`}>
+              <span className="vinyl-radio-name">{t(`vinyl.travel${cap(mode)}`)}</span>
+              <span id={`${id}-travel-${mode}-hint`} className="vinyl-hint">
+                {t(`vinyl.travel${cap(mode)}Hint`)}
+              </span>
+            </label>
+          </div>
+        ))}
+        {travel === 'both' && (
+          <div className="vinyl-field">
+            <label htmlFor={`${id}-step`}>{t('vinyl.step')}</label>
+            <select id={`${id}-step`} value={step} onChange={(e) => onStepChange(e.target.value as VinylStep)}>
+              {STEPS.map((x) => (
+                <option key={x} value={x}>
+                  {t(`vinyl.step${cap(x)}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </fieldset>
 
       <fieldset className="vinyl-group">

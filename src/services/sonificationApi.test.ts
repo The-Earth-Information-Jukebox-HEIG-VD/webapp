@@ -5,6 +5,7 @@ import {
   monthsBetween,
   addMonths,
   fetchInstruments,
+  fetchGenres,
   ApiError,
   parseErrorDetail,
   periodToYear,
@@ -126,6 +127,23 @@ describe('fetchInstruments', () => {
     vi.stubGlobal('fetch', fetchMock);
     await fetchInstruments();
     expect(fetchMock.mock.calls[0][0]).toBe('/api/instruments');
+  });
+
+  it('asks for the instruments of a style', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ palette: 'funk', instruments: [], by_dataset: {} }));
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchInstruments('funk');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/instruments?genre=funk');
+  });
+});
+
+describe('fetchGenres', () => {
+  it('GETs /api/genres', async () => {
+    const body = { default: 'orchestra', genres: [{ id: 'orchestra', name: 'Orchestra', bpm: 90, description: 'd' }] };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await fetchGenres()).toEqual(body);
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/genres');
   });
 });
 

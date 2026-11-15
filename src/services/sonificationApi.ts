@@ -1,8 +1,9 @@
 /**
  * Sonification API client.
  *
- * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.6):
- *   GET  /api/instruments       which instrument plays which dataset
+ * Talks to the deployed backend (contract: sonification/backend/FRONTEND_API.md, v2.10):
+ *   GET  /api/genres            the music styles (orchestra, ragtime, funk...)
+ *   GET  /api/instruments       which instrument plays which dataset (?genre= for a style)
  *   GET  /api/health            server status
  *   POST /api/zones/zone-data   selected points + one period in, 30 s of audio out
  *   POST /api/zones/series      full monthly series of the selected area, for the data graph
@@ -32,6 +33,8 @@ export interface ZoneDataRequest {
   time_period: string;
   /** Only "mean" exists; anything else is a 422 */
   aggregation: 'mean';
+  /** Music style id (GET /api/genres); omitted = the backend's default */
+  genre?: string;
 }
 
 export interface ZoneDataResponse {
@@ -47,6 +50,12 @@ export interface ZoneDataResponse {
   /** Mean over the points at time_period, per dataset_id, in the units of /api/instruments */
   values: Record<string, number>;
   point_count: number;
+  /** The style that was played (echoed when sent) */
+  genre?: string;
+  /** Length of the music in seconds (about 30); absent on older backends */
+  duration_s?: number;
+  /** Start second of each month (bar) of the chunk, from 0; its length is the number of months */
+  bar_starts_s?: number[];
 }
 
 /** A point of a vinyl groove (longitudes past 180 are wrapped by the backend). */
@@ -66,6 +75,8 @@ export interface GrooveRequest {
   radius_deg: number;
   /** Whole bars: a multiple of points_per_bar, at most 20 bars and 80 points */
   path: GroovePoint[];
+  /** Music style id; omitted = the backend's default */
+  genre?: string;
 }
 
 export interface GrooveStop {
@@ -90,6 +101,7 @@ export interface GrooveResponse {
   stop_seconds: number;
   radius_deg: number;
   stops: GrooveStop[];
+  genre?: string;
 }
 
 export interface ZoneSeriesRequest {
@@ -142,6 +154,19 @@ export interface InstrumentsResponse {
   palette: string;
   by_dataset: Record<string, string>;
   instruments: InstrumentInfo[];
+}
+
+/** A music style of GET /api/genres. */
+export interface Genre {
+  id: string;
+  name: string;
+  bpm: number;
+  description: string;
+}
+
+export interface GenresResponse {
+  default: string;
+  genres: Genre[];
 }
 
 export interface HealthResponse {
@@ -289,8 +314,14 @@ export async function fetchZoneSeries(req: ZoneSeriesRequest, signal?: AbortSign
   );
 }
 
-export function fetchInstruments(signal?: AbortSignal): Promise<InstrumentsResponse> {
-  return request<InstrumentsResponse>('/instruments', { method: 'GET' }, signal);
+/** The instruments per dataset; with `genre`, the ones that style plays. */
+export function fetchInstruments(genre?: string, signal?: AbortSignal): Promise<InstrumentsResponse> {
+  const query = genre ? `?genre=${encodeURIComponent(genre)}` : '';
+  return request<InstrumentsResponse>(`/instruments${query}`, { method: 'GET' }, signal);
+}
+
+export function fetchGenres(signal?: AbortSignal): Promise<GenresResponse> {
+  return request<GenresResponse>('/genres', { method: 'GET' }, signal);
 }
 
 export function fetchHealth(signal?: AbortSignal): Promise<HealthResponse> {

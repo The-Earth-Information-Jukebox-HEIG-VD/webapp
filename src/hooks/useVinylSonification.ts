@@ -10,6 +10,8 @@ import {
   syntheticPeriod,
   type VinylChunkMeta,
   type VinylConfig,
+  type VinylStep,
+  type VinylTravel,
 } from '../services/vinylApi';
 import { VINYL_CHUNKS, type LatLng } from '../utils/vinylGeometry';
 import type { GridPoint } from '../types/zones';
@@ -34,6 +36,14 @@ export interface UseVinylSonificationOptions {
   center: LatLng;
   /** Month the record plays, "YYYY-MM" */
   timePeriod: string;
+  /** What the needle travels through (default 'space') */
+  travel?: VinylTravel;
+  /** Travel 'both': how far the date moves per groove (default 'year') */
+  step?: VinylStep;
+  /** Music style id */
+  genre?: string;
+  /** Last month the enabled tracks have: where travel 'both' stops */
+  rangeEnd?: string;
   /** Test seam: builds the ChunkFetcher (default: the vinyl API adapter) */
   makeFetcher?: (getConfig: () => VinylConfig) => ChunkFetcher;
 }
@@ -43,16 +53,21 @@ export interface UseVinylSonificationOptions {
  *
  * Grooves are mapped onto synthetic periods (see services/vinylApi.ts) so the
  * player's 30 s chaining, prefetch and abort logic is reused as is.
- * Changing the centre or the month lifts the needle back to the rim.
+ * Changing the centre, the month, the travel mode, the step or the style lifts
+ * the needle back to the rim.
  */
 export function useVinylSonification({
   datasetIds,
   center,
   timePeriod,
+  travel = 'space',
+  step = 'year',
+  genre,
+  rangeEnd,
   makeFetcher = makeVinylChunkFetcher,
 }: UseVinylSonificationOptions) {
   const playerRef = useRef<ChunkPlayer | null>(null);
-  const configRef = useRef<VinylConfig>({ center, timePeriod });
+  const configRef = useRef<VinylConfig>({ center, timePeriod, travel, step, genre, rangeEnd });
   const [playerState, setPlayerState] = useState<PlayerState>('idle');
   // Position (synthetic fractional year) in an external store: ~10 updates/s
   // must not re-render App. Only the groove number is React state.
@@ -127,10 +142,15 @@ export function useVinylSonification({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [points, datasetKey]);
 
-  // New centre or month: back to the rim (aborts any request for the old record)
+  // The latest settings for requests made from now on (the end of the data can
+  // change with the tracks without restarting the record)
+  configRef.current = { center, timePeriod, travel, step, genre, rangeEnd };
+
+  // New centre, month, travel mode, step or style: back to the rim (aborts any
+  // request for the old record). The step only matters when the date moves.
   const firstConfig = useRef(true);
+  const stepKey = travel === 'both' ? step : '';
   useEffect(() => {
-    configRef.current = { center, timePeriod };
     if (firstConfig.current) {
       firstConfig.current = false;
       return;
@@ -140,7 +160,7 @@ export function useVinylSonification({
     setHasEnded(false);
     const player = playerRef.current;
     if (player && player.getPosition() !== null) player.seek(VINYL_BASE_PERIOD);
-  }, [center.lat, center.lng, timePeriod]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [center.lat, center.lng, timePeriod, travel, stepKey, genre]);
 
   const canPlay = datasetIds.length > 0;
 

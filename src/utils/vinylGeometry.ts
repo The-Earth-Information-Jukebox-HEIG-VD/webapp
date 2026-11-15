@@ -221,3 +221,16 @@ export function formatLatLng(p: LatLng, locale = 'en', hemis: HemisphereLabels =
     lng >= 0 ? hemis.e : hemis.w
   }`;
 }
+
+/**
+ * A few points spread over the disc of `radiusDeg` around `center`: the centre,
+ * 6 points at half the radius and 12 on the rim. Time travel sends them as the
+ * "zone" the needle reads while the months go by (the backend averages them).
+ */
+export function discPoints(center: LatLng, radiusDeg = GROOVE_RADIUS_DEG): LatLng[] {
+  const c = clampCenter(center);
+  const out: LatLng[] = [c];
+  for (let i = 0; i < 6; i++) out.push(destination(c, radiusDeg / 2, (360 * i) / 6));
+  for (let i = 0; i < 12; i++) out.push(destination(c, radiusDeg, (360 * i) / 12));
+  return out;
+}

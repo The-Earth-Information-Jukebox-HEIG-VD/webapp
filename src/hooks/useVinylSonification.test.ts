@@ -8,7 +8,14 @@ const flush = async () => {
   for (let i = 0; i < 10; i++) await Promise.resolve();
 };
 
-function setup(initial: { datasetIds: string[]; center: { lat: number; lng: number }; timePeriod: string }) {
+function setup(initial: {
+  datasetIds: string[];
+  center: { lat: number; lng: number };
+  timePeriod: string;
+  travel?: 'space' | 'time' | 'both';
+  step?: 'month' | 'year';
+  genre?: string;
+}) {
   const requests: { req: VinylRequest; signal?: AbortSignal }[] = [];
   const fetchVinyl = vi.fn(
     (req: VinylRequest, signal?: AbortSignal) =>
@@ -79,6 +86,28 @@ describe('useVinylSonification', () => {
     });
     expect(before.aborted).toBe(true);
     expect(requests.at(-1)!.req).toMatchObject({ chunk_index: 0, center: { lat: -20, lng: 80 } });
+  });
+
+  it.each([
+    ['travel mode', { travel: 'both' as const }],
+    ['style', { genre: 'funk' }],
+  ])('lifts the needle back to the rim and aborts the old request when the %s changes', async (_name, change) => {
+    const { hook, requests } = setup(base);
+    await act(async () => {
+      await hook.result.current.play();
+      await flush();
+    });
+    await act(async () => {
+      hook.result.current.seekToChunk(3);
+      await flush();
+    });
+    const before = requests.at(-1)!.signal!;
+    await act(async () => {
+      hook.rerender({ ...base, ...change });
+      await flush();
+    });
+    expect(before.aborted).toBe(true);
+    expect(requests.at(-1)!.req).toMatchObject({ chunk_index: 0, ...change });
   });
 
   it('moves between grooves', async () => {
