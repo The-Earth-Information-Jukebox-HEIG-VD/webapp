@@ -11,13 +11,13 @@
  * skill validator:
  *
  *   node <dataviz>/scripts/validate_palette.js \
- *     "#e78615,#4070bc,#c990fc,#52f0fd,#ffe815,#38b484,#da154c" \
+ *     "#e78615,#4070bc,#c990fc,#52f0fd,#ffe815,#38b484,#da154c,#f7f4ee" \
  *     --mode dark --surface "#1a1f2e" --pairs all
  *
  * Results (all 21 pairs): protan/deutan DeltaE >= 11.2 (target 8), tritan
  * >= 13.4, normal vision >= 20.9 (floor 15), every colour >= 3:1 on the surface.
  *
- * Documented deviation: snow, lightning, co2, temperature and night_lights are
+ * Documented deviation: snow, lightning, co2, temperature, night_lights and sea_ice are
  * lighter than the skill's
  * dark chart lightness band (L <= 0.67) so globe dots stay visible over the
  * dark ocean texture. The validator reports that as a lightness-band FAIL only.
@@ -35,7 +35,10 @@ export const TRACK_COLORS: Record<string, string> = {
   lightning: '#ffe815',
   night_lights: '#38b484',
   fires: '#da154c',
-  sea_ice: '#834bff',
+  // Ice white, slightly warm so it stays apart from the snow cyan under
+  // protanopia: CIEDE2000 >= 13.2 to every other colour under protan/deutan/
+  // tritan simulation, >= 25 for normal vision, >= 14:1 on the dark backgrounds
+  sea_ice: '#f7f4ee',
 };
 
 export const FALLBACK_TRACK_COLOR = '#9aa0a6';

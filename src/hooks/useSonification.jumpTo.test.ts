@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSonification } from './useSonification';
+import { ChunkPlayer } from '../audio/ChunkPlayer';
 import type { Track } from '../types/tracks';
 
 function track(id: string, start: string, end: string, defaultEnabled: boolean): Track {
@@ -51,5 +52,31 @@ describe('useSonification jumpTo', () => {
       'night_lights',
     ]);
     expect(result.current.positionStore.get()).toBeCloseTo(2010);
+  });
+
+  it('switches month travel back to every month, then seeks to the event month', () => {
+    vi.useFakeTimers();
+    const seek = vi.spyOn(ChunkPlayer.prototype, 'seek');
+    const { result } = setup();
+    act(() => result.current.setMonthFilter(7));
+    expect(result.current.monthFilter).toBe(7);
+    // Same track as selected: only the month changes
+    act(() => result.current.jumpTo(['night_lights'], 2005 + 2 / 12));
+    expect(result.current.monthFilter).toBeNull();
+    act(() => vi.advanceTimersByTime(300)); // seek debounce
+    // March 2005, not snapped to July by the old month filter
+    expect(seek).toHaveBeenLastCalledWith('2005-03');
+    expect(result.current.positionStore.get()).toBeCloseTo(2005 + 2 / 12);
+    seek.mockRestore();
+  });
+
+  it('switches month travel back to every month when the tracks change too', () => {
+    vi.useFakeTimers();
+    const { result } = setup();
+    act(() => result.current.setMonthFilter(1));
+    act(() => result.current.jumpTo(['precipitation'], 2022.5));
+    expect(result.current.monthFilter).toBeNull();
+    expect(result.current.trackStates.filter((t) => t.enabled).map((t) => t.id)).toEqual(['precipitation']);
+    expect(result.current.positionStore.get()).toBeCloseTo(2022.5);
   });
 });

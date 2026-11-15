@@ -297,32 +297,38 @@ export function useSonification({ tracks, points, zoneId, zoneName, genre }: Use
     [tracks]
   );
 
-  // Seek waiting for a track change: the timeline range (and so the clamp in
-  // seekToYear) depends on the enabled tracks, so it must run after they apply
+  // Seek waiting for a track or month travel change: the timeline range (and so
+  // the clamp in seekToYear) depends on the enabled tracks, and the player snaps
+  // to the travel month, so it must run after they apply (this effect comes after
+  // the setParams one above)
   const pendingSeek = useRef<number | null>(null);
   useEffect(() => {
     if (pendingSeek.current === null) return;
     const year = pendingSeek.current;
     pendingSeek.current = null;
     seekToYear(year);
-  }, [datasetKey, seekToYear]);
+  }, [datasetKey, monthFilter, seekToYear]);
 
   /**
-   * Enable exactly `trackIds` (the unavailable ones are skipped; if none is
-   * available the selection is kept), then move the timeline to `year`.
+   * Key event: enable exactly `trackIds` (the unavailable ones are skipped; if
+   * none is available the selection is kept), switch month travel back to every
+   * month (an event spans consecutive months), then move the timeline to `year`.
    */
   const jumpTo = useCallback(
     (trackIds: string[], year: number) => {
       const wanted = trackIds.filter((id) => tracks.some((t) => t.id === id && t.available));
       const nextKey = tracks.filter((t) => wanted.includes(t.id)).map((t) => t.id).join(',');
-      if (wanted.length === 0 || nextKey === datasetKey) {
+      const tracksChange = wanted.length > 0 && nextKey !== datasetKey;
+      const monthChange = monthFilterRef.current !== null;
+      if (!tracksChange && !monthChange) {
         seekToYear(year);
         return;
       }
       pendingSeek.current = year;
-      setUserEnabled(new Set(wanted));
+      if (tracksChange) setUserEnabled(new Set(wanted));
+      if (monthChange) setMonthFilter(null);
     },
-    [tracks, datasetKey, seekToYear]
+    [tracks, datasetKey, seekToYear, setMonthFilter]
   );
 
   const mainTrackId = datasetIds.find((id) => chunk.values[id] !== undefined) ?? null;
